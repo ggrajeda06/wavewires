@@ -15,7 +15,6 @@
   <!-- Importación del Sidebar -->
   <jsp:include page="sidebar.jsp"/>
 
-  <!-- Contenido Principal -->
   <main class="col p-4">
 
     <!-- Encabezado con Notificaciones -->
