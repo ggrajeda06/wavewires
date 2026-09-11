@@ -12,10 +12,12 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="card-title mb-0">Capacidad de la red</h5>
 
-            <a class="btn btn-outline-secondary btn-sm"
-               href="${pageContext.request.contextPath}/reportes_supervisor.jsp">
+            <button type="button"
+                    class="btn btn-outline-secondary btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalCapacidad">
                 Más detalles
-            </a>
+            </button>
         </div>
 
         <div class="row g-3 mb-4">

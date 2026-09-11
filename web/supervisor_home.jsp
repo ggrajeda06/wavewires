@@ -25,6 +25,7 @@
 
         <!-- Ocupa todo el ancho -->
         <jsp:include page="/Components_supervisor/capacidad_red.jsp"/>
+        <jsp:include page="/Components_supervisor/modal_capacidad.jsp"/>
 
         <!-- Los otros dos aparecen en la misma fila -->
         <div class="row g-4">
