@@ -14,7 +14,7 @@
   <body>
 
     <h1> Futuro Login </h1>
-
+    <a href="Supervisor/supervisor_home.jsp">Vistar supervisor</a>
 
 
 

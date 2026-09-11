@@ -17,25 +17,25 @@
 
 <div class="row g-0 min-vh-100">
 
-    <jsp:include page="/Components_supervisor/sidebar.jsp"/>
+    <jsp:include page="/Supervisor/Components_supervisor/sidebar.jsp"/>
 
     <main class="col p-4">
 
         <h2 class="mb-4">Estado general de la red</h2>
 
         <!-- Ocupa todo el ancho -->
-        <jsp:include page="/Components_supervisor/capacidad_red.jsp"/>
-        <jsp:include page="/Components_supervisor/modal_capacidad.jsp"/>
+        <jsp:include page="/Supervisor/Components_supervisor/capacidad_red.jsp"/>
+        <jsp:include page="/Supervisor/Components_supervisor/modal_capacidad.jsp"/>
 
         <!-- Los otros dos aparecen en la misma fila -->
         <div class="row g-4">
 
             <div class="col-12 col-lg-6">
-                <jsp:include page="/Components_supervisor/incidencias.jsp"/>
+                <jsp:include page="/Supervisor/Components_supervisor/incidencias.jsp"/>
             </div>
 
             <div class="col-12 col-lg-6">
-                <jsp:include page="/Components_supervisor/mantenimientos.jsp"/>
+                <jsp:include page="/Supervisor/Components_supervisor/mantenimientos.jsp"/>
             </div>
 
         </div>
