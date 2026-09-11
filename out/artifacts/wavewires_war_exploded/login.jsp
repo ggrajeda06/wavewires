@@ -14,8 +14,10 @@
   <body>
 
     <h1> Futuro Login </h1>
-    <a href="Supervisor/supervisor_home.jsp">Vistar supervisor</a>
-    <a href="Administrador/admin_segmentos.jsp">Vistar supervisor</a>
+    <a href="Supervisor/supervisor_home.jsp">Vistas supervisor</a>
+    <a href="Administrador/admin_segmentos.jsp">Vistas supervisor</a>
+    <a href="NetworkOperator/index.jsp">Vistas NetworkOperator</a>
+    <a href="Maintence/MC_template.jsp">Vistas Maintence</a>
 
 
 
