@@ -32,6 +32,7 @@
       </select>
 
       <a href="admin_usuarios.jsp" class="btn btn-danger" onclick="return confirm('¿Seguro que quieres eliminar este usuario?')">Eliminar</a>
+      <a href="admin_usuarios.jsp" class="btn btn-secondary">Cancelar</a>
       <a href="admin_usuarios.jsp" class="btn btn-primary">Guardar</a>
     </div>
   </main>
