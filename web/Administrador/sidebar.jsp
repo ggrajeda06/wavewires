@@ -1,14 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%-- Para agregar una vista: copia una línea <a> y cambia el href y el texto --%>
 <nav class="nav flex-column col-2 bg-dark vh-100 sticky-top">
   <h5 class="text-white p-3">WaveWires</h5>
 
-  <a class="nav-link text-white" href="resumen.jsp">Resumen</a>
-  <a class="nav-link text-white" href="usuarios.jsp">Usuarios</a>
+  <a class="nav-link text-white" href="admin_resumen.jsp">Resumen</a>
+  <a class="nav-link text-white" href="admin_usuarios.jsp">Usuarios</a>
 
   <details name="menu">
     <summary class="text-white px-3 py-2">Infraestructura</summary>
-    <a class="nav-link text-white ps-5" href="landing-stations.jsp">Landing Stations</a>
-    <a class="nav-link text-white ps-5" href="segmentos.jsp">Segmentos</a>
+    <a class="nav-link text-white ps-5" href="admin_landings.jsp">Landing Stations</a>
+    <a class="nav-link text-white ps-5" href="admin_segmentos.jsp">Segmentos</a>
   </details>
 
   <a class="nav-link text-white" href="capacidad.jsp">Capacidad</a>
@@ -27,6 +28,7 @@
   <a class="nav-link text-white" href="login.jsp">Cerrar sesión</a>
 </nav>
 
+<%-- Deja abierto el desplegable de la página actual. Si lo borras, todo sigue funcionando. --%>
 <script>
   document.querySelectorAll('details a').forEach(a => {
     if (a.pathname === location.pathname) a.parentElement.open = true;
