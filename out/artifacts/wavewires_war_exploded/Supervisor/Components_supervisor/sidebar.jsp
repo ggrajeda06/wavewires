@@ -9,7 +9,7 @@
 
 
   <a class="nav-link text-white mt-auto mb-3"
-     href="${pageContext.request.contextPath}/login.jsp">
+     href="${pageContext.request.contextPath}/login.jsp?logout=1">
      Cerrar sesión
   </a>
 </nav>
