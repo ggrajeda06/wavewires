@@ -25,7 +25,7 @@
   </details>
 
   <a class="nav-link text-white" href="mantenimiento.jsp">Mantenimiento</a>
-  <a class="nav-link text-white" href="${pageContext.request.contextPath}/login.jsp">Cerrar sesión</a>
+  <a class="nav-link text-white" href="${pageContext.request.contextPath}/login.jsp?logout=1">Cerrar sesión</a>
 </nav>
 
 <%-- Deja abierto el desplegable de la página actual. Si lo borras, todo sigue funcionando. --%>

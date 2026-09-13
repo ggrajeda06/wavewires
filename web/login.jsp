@@ -21,6 +21,7 @@
     <button class="scene-button" id="skip-intro" type="button" hidden>Omitir intro <span aria-hidden="true">↗</span></button>
     <button class="scene-button" id="toggle-motion" type="button" aria-pressed="false" hidden>Pausar ambiente <span aria-hidden="true">Ⅱ</span></button>
   </div>
+  <p id="intro-hint" class="intro-hint" hidden>Clic o Enter para omitir</p>
   <div class="login-shell">
     <header class="site-header">
       <a class="brand" href="${pageContext.request.contextPath}/login.jsp" aria-label="WaveWires, inicio">

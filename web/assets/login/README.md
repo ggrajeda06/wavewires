@@ -1,10 +1,14 @@
 # Recursos del login WaveWires
 
 - `underwater.png`: fotografía submarina generada, 1672 × 941.
-- `surface.png`: fotografía de superficie generada, 1672 × 941.
+- `surface.png`: fotografía de superficie generada, 1672 × 941; conservada como referencia de la primera versión. La nueva superficie se dibuja en 3D.
 - `mark.svg`: símbolo vectorial original construido en código; el nombre WaveWires se compone con texto HTML.
 
-Las dos imágenes se produjeron con la herramienta integrada de generación de imágenes, sin CLI ni clave API, y se copiaron al proyecto conservando los originales. No contienen textos ni controles. WebGL añade el cruce de superficie, la refracción, los rayos móviles y las burbujas; CSS aporta el sombreado para la legibilidad del formulario.
+Las dos imágenes se produjeron con la herramienta integrada de generación de imágenes, sin CLI ni clave API, y se copiaron al proyecto conservando los originales. No contienen textos ni controles.
+
+La intro actual usa Three.js 0.186.0, servido localmente con licencia MIT, para la cámara con perspectiva, la superficie de agua y las burbujas a distintas profundidades. La textura de normales del agua se calcula en memoria a partir de ruido periódico; no necesita otra imagen ni una descarga. Tras 5,5 segundos, la cámara se estabiliza y el shader ambiental mantiene `underwater.png` con refracción y rayos móviles. La misma imagen se usa como fondo estático si no hay WebGL 2 o se prefiere movimiento reducido. CSS aporta el sombreado para la legibilidad del formulario.
+
+La intro se puede omitir con Enter, clic, toque o el botón visible. El ambiente final dispone de pausa. Los prompts originales se conservan a continuación para reproducir las imágenes.
 
 ## Prompt final: underwater.png
 
