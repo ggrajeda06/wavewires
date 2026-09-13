@@ -5,4 +5,5 @@
 
   <a class="nav-link text-white" href="resumen.jsp">Resumen</a>
   <a class="nav-link text-white" href="MC_template.jsp">Mantenimiento</a>
+  <a class="nav-link text-white mt-auto mb-3" href="${pageContext.request.contextPath}/login.jsp">Cerrar sesión</a>
 </nav>

@@ -7,6 +7,6 @@
   <a class="nav-link text-white-50" href="historial.jsp">Historial de incidencias</a>
 
   <div class="mt-auto">
-    <a class="nav-link text-danger" href="login.jsp">Cerrar sesión</a>
+    <a class="nav-link text-danger" href="${pageContext.request.contextPath}/login.jsp">Cerrar sesión</a>
   </div>
 </nav>
