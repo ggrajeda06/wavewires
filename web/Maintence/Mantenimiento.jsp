@@ -73,8 +73,24 @@
                 <td>Landing Station A</td>
                 <td>Lima, PE</td>
                 <td class="text-end pe-4">
-                  <button class="btn btn-link text-dark text-decoration-none fw-bold">•••</button>
-                </td>
+                                  <div class="dropdown">
+                                    <button class="btn btn-link text-dark text-decoration-none fw-bold p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                      •••
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                      <li>
+                                        <a class="dropdown-item d-flex align-items-center gap-2" href="editarMantenimiento.jsp">
+                                          <i class="bi bi-pencil"></i> Editar
+                                        </a>
+                                      </li>
+                                      <li>
+                                        <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="#">
+                                          <i class="bi bi-trash"></i> Eliminar
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </td>
               </tr>
               <tr>
                 <td class="ps-4">
@@ -82,13 +98,29 @@
                     ID2 - Landing-B
                   </a>
                 </td>
-                <td><span class="badge bg-warning text-dark">pendiente</span></td>
+                <td><span class="badge bg-danger ">pendiente</span></td>
                 <td>10/10/2000</td>
                 <td>Landing Station B</td>
                 <td>Lima, PE</td>
                 <td class="text-end pe-4">
-                  <button class="btn btn-link text-dark text-decoration-none fw-bold">•••</button>
-                </td>
+                                  <div class="dropdown">
+                                    <button class="btn btn-link text-dark text-decoration-none fw-bold p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                      •••
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                      <li>
+                                        <a class="dropdown-item d-flex align-items-center gap-2" href="editarMantenimiento.jsp">
+                                          <i class="bi bi-pencil"></i> Editar
+                                        </a>
+                                      </li>
+                                      <li>
+                                        <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="#" onclick="confirmarEliminar('ID1 - Landing-A')">
+                                          <i class="bi bi-trash"></i> Eliminar
+                                        </a>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </td>
               </tr>
               <tr>
                 <td class="ps-4">
@@ -101,7 +133,23 @@
                 <td>Landing Station C</td>
                 <td>Lima, PE</td>
                 <td class="text-end pe-4">
-                  <button class="btn btn-link text-dark text-decoration-none fw-bold">•••</button>
+                   <div class="dropdown">
+                       <button class="btn btn-link text-dark text-decoration-none fw-bold p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          •••
+                       </button>
+                       <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                          <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2" href="editarMantenimiento.jsp">
+                               <i class="bi bi-pencil"></i> Editar
+                            </a>
+                          </li>
+                          <li>
+                            <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="#">
+                               <i class="bi bi-trash"></i> Eliminar
+                            </a>
+                          </li>
+                        </ul>
+                  </div>
                 </td>
               </tr>
             </tbody>
