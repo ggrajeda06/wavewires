@@ -1,19 +1,13 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: John
-  Date: 11/09/2026
-  Time: 07:00
-  To change this template use File | Settings | File Templates.
---%>
+
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html lang="es">
 <head>
-  <title>WaveWires - Registrar Mantenimiento</title>
+  <title>OceanLink - Registrar Mantenimiento</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 </head>
 <body>
 <div class="row g-0">
-  <jsp:include page="MC_sidebar.jsp"/>
+  <jsp:include page="sidebarMantenimiento.jsp"/>
 
   <main class="col p-4 bg-light">
     <!-- Botón Volver / Encabezado -->
