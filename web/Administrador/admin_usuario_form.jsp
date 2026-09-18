@@ -44,7 +44,7 @@
 
       <label class="form-label">Confirmar contraseña</label>
       <input type="password" class="form-control mb-2" placeholder="Repetir contraseña">
-      <small class="text-muted d-block mb-4">Dejar en blanco si se edita y no se quiere cambiar</small>
+      <small class="text-muted d-block mb-4">ESTO LO CAMBIAMOS CUANDO HAYA PERMISOS PROFE VICTOR para q no slga la vaina de eliminar is es registro </small>
 
       <a href="admin_usuarios.jsp" class="btn btn-danger" onclick="return confirm('¿Seguro que quieres eliminar este usuario?')">Eliminar</a>
       <a href="admin_usuarios.jsp" class="btn btn-secondary">Cancelar</a>

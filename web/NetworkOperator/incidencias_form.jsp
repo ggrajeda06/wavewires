@@ -7,9 +7,9 @@
 </head>
 <body>
 <div class="row g-0">
-  <jsp:include page="/Operador/sidebar.jsp"/>
+  <jsp:include page="/NetworkOperator/sidebar.jsp"/>
   <main class="col p-4">
-    <h4>Registrar incidencia</h4>
+    <h4>Registrar / Editar incidencia</h4>
 
     <div class="card p-4 w-50">
       <h6 class="mb-3">Datos</h6>
@@ -25,13 +25,28 @@
       </select>
 
       <label class="form-label">Segmentos afectados</label>
-      <select class="form-select mb-3" multiple size="4">
-        <option>SEG-001</option>
-        <option>SEG-002</option>
-        <option>SEG-003</option>
-        <option>SEG-004</option>
-        <option>SEG-005</option>
-      </select>
+      <div class="border rounded p-2 mb-3">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="seg1" checked>
+          <label class="form-check-label" for="seg1">SEG-001</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="seg2" checked>
+          <label class="form-check-label" for="seg2">SEG-002</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="seg3">
+          <label class="form-check-label" for="seg3">SEG-003</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="seg4">
+          <label class="form-check-label" for="seg4">SEG-004</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="seg5">
+          <label class="form-check-label" for="seg5">SEG-005</label>
+        </div>
+      </div>
 
       <label class="form-label">Severidad</label>
       <select class="form-select mb-3">
@@ -52,8 +67,9 @@
       <label class="form-label">Observaciones</label>
       <textarea class="form-control mb-4" rows="3" placeholder="Opcional"></textarea>
 
-      <a href="operador_incidencias.jsp" class="btn btn-secondary">Cancelar</a>
-      <a href="operador_incidencias.jsp" class="btn btn-primary">Guardar</a>
+      <a href="incidencias.jsp" class="btn btn-danger" onclick="return confirm('¿Seguro que quieres eliminar esta incidencia?')">Eliminar</a>
+      <a href="incidencias.jsp" class="btn btn-secondary">Cancelar</a>
+      <a href="incidencias.jsp" class="btn btn-primary">Guardar</a>
     </div>
   </main>
 </div>

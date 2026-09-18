@@ -7,13 +7,13 @@
 </head>
 <body>
 <div class="row g-0">
-  <jsp:include page="/Operador/sidebar.jsp"/>
+  <jsp:include page="/NetworkOperator/sidebar.jsp"/>
   <main class="col p-4">
     <h4>Restauración</h4>
 
     <div class="d-flex gap-2 mb-3">
       <input class="form-control" placeholder="Buscar">
-      <a href="operador_restauracion_form.jsp" class="btn btn-primary">+ Registrar restauración</a>
+      <a href="restauracion_form.jsp" class="btn btn-primary">+ Registrar restauración</a>
     </div>
 
     <table class="table">
@@ -27,28 +27,28 @@
       </thead>
       <tbody>
         <tr>
-          <td>RES-001</td>
-          <td>INC-001</td>
+          <td>Restauración 1</td>
+          <td>Incidencia 1</td>
           <td>01/11/2020</td>
-          <td><a href="#" class="btn btn-sm btn-outline-secondary">Eliminar</a></td>
+          <td><a href="restauracion_form.jsp?id=1" class="btn btn-sm btn-outline-secondary">Editar</a></td>
         </tr>
         <tr>
-          <td>RES-002</td>
-          <td>INC-002</td>
+          <td>Restauración 2</td>
+          <td>Incidencia 2</td>
           <td>01/11/2020</td>
-          <td><a href="#" class="btn btn-sm btn-outline-secondary">Eliminar</a></td>
+          <td><a href="restauracion_form.jsp?id=2" class="btn btn-sm btn-outline-secondary">Editar</a></td>
         </tr>
         <tr>
-          <td>RES-003</td>
-          <td>INC-003</td>
+          <td>Restauración 3</td>
+          <td>Incidencia 3</td>
           <td>01/11/2020</td>
-          <td><a href="#" class="btn btn-sm btn-outline-secondary">Eliminar</a></td>
+          <td><a href="restauracion_form.jsp?id=3" class="btn btn-sm btn-outline-secondary">Editar</a></td>
         </tr>
         <tr>
-          <td>RES-004</td>
-          <td>INC-004</td>
+          <td>Restauración 4</td>
+          <td>Incidencia 4</td>
           <td>01/11/2020</td>
-          <td><a href="#" class="btn btn-sm btn-outline-secondary">Eliminar</a></td>
+          <td><a href="restauracion_form.jsp?id=4" class="btn btn-sm btn-outline-secondary">Editar</a></td>
         </tr>
       </tbody>
     </table>
