@@ -12,7 +12,7 @@
   <main class="col p-4 bg-light">
     <!-- Botón Volver / Encabezado -->
     <div class="d-flex align-items-center mb-4">
-      <a href="MC_template.jsp" class="btn btn-outline-secondary me-3 btn-sm">
+      <a href="Mantenimiento.jsp" class="btn btn-outline-secondary me-3 btn-sm">
         Volver
       </a>
       <h3 class="fw-bold m-0">Registrar mantenimiento</h3>
@@ -20,7 +20,7 @@
 
     <!-- Contenedor del Formulario -->
     <div class="card shadow-sm p-4">
-      <form action="GuardarMantenimientoServlet" method="POST">
+      <form action="Mantenimiento.jsp" method="POST">
         <div class="row g-4">
 
           <!-- Columna Izquierda -->
