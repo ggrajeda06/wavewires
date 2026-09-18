@@ -64,7 +64,7 @@
               <tr>
                 <!-- Nombre convertido en enlace interactivo para abrir el modal -->
                 <td class="ps-4">
-                  <a href="#" class="text-decoration-none fw-bold" onclick="mostrarDetalle('ID1 - Landing-A', 'activo', 'Mantenimiento preventivo de fibra ópticaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'Preventivo', '10/10/2000', 'Landing Station A', 'Revisión técnica completa de conectores.')">
+                  <a href="#" class="text-decoration-none fw-bold" onclick="mostrarDetalle('ID1 - Landing-A', 'activo', 'Mantenimiento preventivo de fibra óptica', 'Preventivo', '10/10/2000', 'Landing Station A', 'Revisión técnica completa de conectores.')">
                     ID1 - Landing-A
                   </a>
                 </td>

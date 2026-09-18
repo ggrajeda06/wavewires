@@ -11,46 +11,39 @@
   <main class="col p-4">
     <h4>Registrar / Editar segmento</h4>
 
-    <div class="w-50">
-      <label class="form-label">Tramo</label>
-      <input class="form-control mb-3" placeholder="Ej: Lurín - Arica">
+    <div class="card p-4 w-50">
+      <h6 class="mb-3">Datos</h6>
 
       <label class="form-label">Origen</label>
       <select class="form-select mb-3">
         <option>Seleccionar</option>
-        <option>Lurín</option>
-        <option>Chimbote</option>
-        <option>Arica</option>
-        <option>Valparaíso</option>
-        <option>Las Toninas</option>
+        <option>Lurín CLS</option>
+        <option>Chimbote CLS</option>
+        <option>Arica CLS</option>
+        <option>Valparaíso CLS</option>
+        <option>Las Toninas CLS</option>
       </select>
 
       <label class="form-label">Destino</label>
       <select class="form-select mb-3">
         <option>Seleccionar</option>
-        <option>Lurín</option>
-        <option>Chimbote</option>
-        <option>Arica</option>
-        <option>Valparaíso</option>
-        <option>Las Toninas</option>
+        <option>Lurín CLS</option>
+        <option>Chimbote CLS</option>
+        <option>Arica CLS</option>
+        <option>Valparaíso CLS</option>
+        <option>Las Toninas CLS</option>
       </select>
 
-      <label class="form-label">Capacidad total (Gbps)</label>
-      <input class="form-control mb-3" placeholder="Ingresar capacidad">
-
-      <label class="form-label">Capacidad disponible</label>
-      <input class="form-control mb-3" placeholder="Se calcula sola" disabled>
+      <label class="form-label">Capacidad total (Tbps)</label>
+      <input class="form-control mb-3" type="number" placeholder="Ingresar capacidad">
 
       <label class="form-label">Estado</label>
-      <select class="form-select mb-3">
+      <select class="form-select mb-4">
         <option>Operativo</option>
         <option>Degradado</option>
         <option>Mantenimiento</option>
         <option>Fuera de servicio</option>
       </select>
-
-      <label class="form-label">Descripción</label>
-      <textarea class="form-control mb-4" rows="3" placeholder="Opcional"></textarea>
 
       <a href="admin_segmentos.jsp" class="btn btn-secondary">Cancelar</a>
       <a href="admin_segmentos.jsp" class="btn btn-primary">Guardar</a>

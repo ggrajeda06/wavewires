@@ -19,7 +19,7 @@
         <option>Rol</option>
         <option>Estado</option>
       </select>
-      <a href="admin_usuario_form.jsp" class="btn btn-primary">Registrar</a>
+      <a href="admin_usuario_form.jsp" class="btn btn-primary">+ Nuevo</a>
     </div>
 
     <table class="table">
@@ -39,40 +39,40 @@
           <td>Ana Torres</td>
           <td>atorres@wavewires.pe</td>
           <td>Administrador</td>
-          <td>Activo</td>
-          <td><a href="admin_usuario_form.jsp" class="btn btn-sm btn-outline-secondary">Editar</a></td>
+          <td><span class="badge bg-success">Activo</span></td>
+          <td><a href="admin_usuario_form.jsp?id=U-001" class="btn btn-sm btn-outline-secondary">Editar</a></td>
         </tr>
         <tr>
           <td>U-002</td>
           <td>Luis Ramos</td>
           <td>lramos@wavewires.pe</td>
           <td>Capacity Planner</td>
-          <td>Activo</td>
-          <td><a href="admin_usuario_form.jsp" class="btn btn-sm btn-outline-secondary">Editar</a></td>
+          <td><span class="badge bg-success">Activo</span></td>
+          <td><a href="admin_usuario_form.jsp?id=U-002" class="btn btn-sm btn-outline-secondary">Editar</a></td>
         </tr>
         <tr>
           <td>U-003</td>
           <td>María Quispe</td>
           <td>mquispe@wavewires.pe</td>
           <td>Supervisor</td>
-          <td>Activo</td>
-          <td><a href="admin_usuario_form.jsp" class="btn btn-sm btn-outline-secondary">Editar</a></td>
+          <td><span class="badge bg-success">Activo</span></td>
+          <td><a href="admin_usuario_form.jsp?id=U-003" class="btn btn-sm btn-outline-secondary">Editar</a></td>
         </tr>
         <tr>
           <td>U-004</td>
           <td>Carlos Díaz</td>
           <td>cdiaz@wavewires.pe</td>
           <td>Network Operator</td>
-          <td>Activo</td>
-          <td><a href="admin_usuario_form.jsp" class="btn btn-sm btn-outline-secondary">Editar</a></td>
+          <td><span class="badge bg-success">Activo</span></td>
+          <td><a href="admin_usuario_form.jsp?id=U-004" class="btn btn-sm btn-outline-secondary">Editar</a></td>
         </tr>
         <tr>
           <td>U-005</td>
           <td>Rosa Huamán</td>
           <td>rhuaman@wavewires.pe</td>
           <td>Maintenance Coordinator</td>
-          <td>Inactivo</td>
-          <td><a href="admin_usuario_form.jsp" class="btn btn-sm btn-outline-secondary">Editar</a></td>
+          <td><span class="badge bg-secondary">Inactivo</span></td>
+          <td><a href="admin_usuario_form.jsp?id=U-005" class="btn btn-sm btn-outline-secondary">Editar</a></td>
         </tr>
       </tbody>
     </table>
