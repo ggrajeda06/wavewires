@@ -43,7 +43,7 @@
       </div>
     </div>
 
-    <div class="card p-3">
+    <div class="card p-3 mb-3">
       <h6>Acciones rápidas</h6>
       <a href="admin_usuario_form.jsp" class="btn btn-primary d-block mb-2">Nuevo usuario</a>
       <div class="row g-2">
@@ -54,6 +54,74 @@
           <a href="admin_segmento_form.jsp" class="btn btn-outline-primary w-100">Nuevo segmento</a>
         </div>
       </div>
+    </div>
+
+    <div class="card p-3 mb-3">
+      <h6>Mantenimientos pendientes</h6>
+      <table class="table table-sm mb-0">
+        <thead>
+          <tr>
+            <th>Mantenimiento</th>
+            <th>Landing / Segmento</th>
+            <th>Fecha programada</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Mantenimiento 1</td>
+            <td>Lurín CLS</td>
+            <td>20/09/2026</td>
+            <td>Programado</td>
+          </tr>
+          <tr>
+            <td>Mantenimiento 2</td>
+            <td>SEG-003</td>
+            <td>22/09/2026</td>
+            <td>Programado</td>
+          </tr>
+          <tr>
+            <td>Mantenimiento 3</td>
+            <td>Arica CLS</td>
+            <td>25/09/2026</td>
+            <td>Pendiente confirmación</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card p-3">
+      <h6>Incidencias</h6>
+      <table class="table table-sm mb-0">
+        <thead>
+          <tr>
+            <th>Incidencia</th>
+            <th>Landing afectada</th>
+            <th>Estado</th>
+            <th>Severidad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Incidencia 1</td>
+            <td>Lurín CLS</td>
+            <td>En reparación</td>
+            <td>Alta</td>
+          </tr>
+          <tr>
+            <td>Incidencia 2</td>
+            <td>Arica CLS</td>
+            <td>En reparación</td>
+            <td>Alta</td>
+          </tr>
+          <tr>
+            <td>Incidencia 4</td>
+            <td>Las Toninas CLS</td>
+            <td>Detectada</td>
+            <td>Baja</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </main>
 </div>
