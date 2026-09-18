@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>WaveWires - Reportes</title>
+    <title>OceanLink - Reportes</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <style>
         .supervisor-layout {
@@ -70,7 +70,7 @@
 <body class="bg-light">
 <div class="supervisor-layout">
     <nav class="supervisor-sidebar d-flex flex-column bg-dark p-3" aria-label="Navegación del supervisor">
-        <div class="h5 text-white px-3 py-2 mb-3">WaveWires</div>
+        <div class="h5 text-white px-3 py-2 mb-3">OceanLink</div>
         <div class="nav flex-column gap-2 mb-4">
             <a class="nav-link text-white" href="${pageContext.request.contextPath}/Supervisor/supervisor_home.jsp">
                 Estado general de la red
