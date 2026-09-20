@@ -18,7 +18,7 @@
       <h6 class="mb-3">Datos</h6>
 
       <label class="form-label">ID</label>
-      <input class="form-control mb-3" placeholder="Autocompletado" disabled>
+      <input class="form-control mb-3" placeholder="Autocompletado / como posible identificador interno" disabled>
 
       <label class="form-label">Nombre</label>
       <input class="form-control mb-3" placeholder="Ingresar nombre">
