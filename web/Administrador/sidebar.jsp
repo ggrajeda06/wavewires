@@ -19,19 +19,19 @@
 
   <div class="text-uppercase small text-muted mt-2 mb-1">Comercial &amp; Capacidad</div>
   <nav class="nav flex-column mb-3">
-    <a class="nav-link text-light" href="admin_clientes.jsp">Clientes</a>
-    <a class="nav-link text-light" href="admin_solicitudes.jsp">Solicitudes de Tráfico</a>
-    <a class="nav-link text-light" href="admin_capacidad.jsp">Monitoreo de Capacidad</a>
+    <a class="nav-link text-light" href="/CapacityPlanner/clientes.jsp">Clientes</a>
+    <a class="nav-link text-light" href="/CapacityPlanner/solicitudes.jsp">Solicitudes de Tráfico</a>
+    <a class="nav-link text-light" href="/CapacityPlanner/index.jsp">Monitoreo de Capacidad</a>
   </nav>
 
   <div class="text-uppercase small text-muted mt-2 mb-1">Operaciones &amp; NOC</div>
   <nav class="nav flex-column mb-3">
-    <a class="nav-link text-light" href="admin_incidencias.jsp">Incidencias</a>
-    <a class="nav-link text-light" href="admin_mantenimiento.jsp">Mantenimiento</a>
+    <a class="nav-link text-light" href="/NetworkOperator/incidencias.jsp">Incidencias</a>
+    <a class="nav-link text-light" href="/Maintence/Mantenimiento.jsp">Mantenimiento</a>
   </nav>
 
   <div class="text-uppercase small text-muted mt-2 mb-1">Cuenta</div>
   <nav class="nav flex-column">
-    <a class="nav-link text-light" href="logout.jsp">Cerrar sesión</a>
+    <a class="nav-link text-light" href="${pageContext.request.contextPath}/login.jsp?logout=1">Cerrar sesión</a>
   </nav>
 </div>
