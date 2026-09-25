@@ -23,7 +23,7 @@
       <h2 class="h3 fw-bold text-dark m-0">Capacidad de la red</h2>
     </div>
 
-    <!-- 4 Tarjetas de Métricas (Todas en texto negro) -->
+    <!-- 4 Tarjetas de Métricas -->
     <div class="row row-cols-1 row-cols-md-4 g-3 mb-4">
       <div class="col">
         <div class="card h-100 text-center shadow-sm border-0 bg-white p-2">
@@ -91,7 +91,7 @@
             <td>400 Gbps</td>
             <td>
               <span class="badge bg-success-subtle text-success border border-success-subtle">
-                <i class="bi bi-circle-fill me-1 small"></i> &lt; 80% (Óptimo)
+                <i class="bi bi-circle-fill me-1 small"></i> &lt; 80% (Normal)
               </span>
             </td>
           </tr>
@@ -103,7 +103,7 @@
             <td>100 Gbps</td>
             <td>
               <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
-                <i class="bi bi-circle-fill me-1 small"></i> 80% - 95% (Alerta)
+                <i class="bi bi-circle-fill me-1 small"></i> 80% - 95% (Alto uso)
               </span>
             </td>
           </tr>
@@ -115,7 +115,7 @@
             <td>35 Gbps</td>
             <td>
               <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
-                <i class="bi bi-circle-fill me-1 small"></i> &gt; 95% (Crítico)
+                <i class="bi bi-circle-fill me-1 small"></i> &gt; 95% (Uso crítico)
               </span>
             </td>
           </tr>
