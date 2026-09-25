@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OceanLink - Reportes</title>
+    <title>OceanLink - Historial de reportes</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <style>
         .supervisor-layout {
@@ -40,9 +40,13 @@
             min-width: 0;
         }
 
-        .report-description {
-            min-height: 180px;
-            resize: vertical;
+        .reports-table {
+            min-width: 600px;
+        }
+
+        .reports-table th,
+        .reports-table td {
+            padding: 1rem 1.5rem;
         }
 
         @media (max-width: 767.98px) {
@@ -66,11 +70,11 @@
             <a class="nav-link text-white" href="${pageContext.request.contextPath}/Supervisor/supervisor_home.jsp">
                 Estado general de la red
             </a>
-            <a class="nav-link text-white active" aria-current="page"
+            <a class="nav-link text-white"
                href="${pageContext.request.contextPath}/Supervisor/reportes_supervisor.jsp">
                 Reportes
             </a>
-            <a class="nav-link text-white" href="${pageContext.request.contextPath}/Supervisor/historial_reportes.jsp">
+            <a class="nav-link text-white active" aria-current="page" href="${pageContext.request.contextPath}/Supervisor/historial_reportes.jsp">
                 Historial de reportes
             </a>
         </div>
@@ -82,35 +86,47 @@
     <main class="supervisor-main p-3 p-lg-4">
         <a class="btn btn-outline-secondary btn-sm mb-3"
            href="${pageContext.request.contextPath}/Supervisor/supervisor_home.jsp">&larr; Volver al inicio</a>
-        <h1 class="h3 fw-bold mb-4">Reportes</h1>
+        <h1 class="h3 fw-bold mb-4">Historial de reportes</h1>
 
-        <section class="card shadow-sm" aria-labelledby="tituloCrearReporte">
+        <section class="card shadow-sm mb-4" aria-labelledby="tituloHistorial">
             <div class="card-body p-3 p-lg-4">
-                <h2 class="h5 mb-3" id="tituloCrearReporte">Crear reporte</h2>
-                <p class="small text-secondary mb-4" id="notaFormulario">
-                    El envío de reportes todavía no está disponible; los datos ingresados no se guardan.
-                </p>
-                <!-- Maqueta sin envío: los campos no pertenecen a un formulario con acción. -->
-                <div role="group" aria-labelledby="tituloCrearReporte" aria-describedby="notaFormulario">
-                    <div class="row g-3 align-items-end mb-3">
-                        <div class="col-12 col-md-5">
-                            <label class="form-label" for="destinatario">Para</label>
-                            <input type="text" class="form-control" id="destinatario" placeholder="Nombre del destinatario">
-                        </div>
-                        <div class="col-12 col-md-5">
-                            <label class="form-label" for="asunto">Asunto</label>
-                            <input type="text" class="form-control" id="asunto" placeholder="Asunto del reporte">
-                        </div>
-                        <div class="col-12 col-md-2 d-grid">
-                            <button type="button" class="btn btn-outline-secondary" disabled aria-describedby="notaFormulario">Enviar</button>
-                        </div>
-                    </div>
-                    <label class="form-label" for="descripcion">Descripción</label>
-                    <textarea class="form-control report-description" id="descripcion" rows="6"
-                              placeholder="Escribe el detalle del reporte"></textarea>
-                </div>
+                <h2 class="h5 mb-0" id="tituloHistorial">Historial de reportes</h2>
+            </div>
+            <div class="table-responsive" tabindex="0" role="region" aria-label="Historial de reportes">
+                <table class="table table-hover align-middle mb-0 reports-table">
+                    <caption class="visually-hidden">Reportes con su rol, encargado y fecha del reporte.</caption>
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">Reporte</th>
+                        <th scope="col">Rol</th>
+                        <th scope="col">Encargado</th>
+                        <th scope="col">Fecha del reporte</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <th scope="row" class="fw-medium">Reporte - 001</th>
+                        <td>Administrador</td>
+                        <td>Ana Pérez</td>
+                        <td><time datetime="2026-09-11">11/09/2026</time></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="fw-medium">Reporte - 002</th>
+                        <td>Operador de red</td>
+                        <td>Luis García</td>
+                        <td><time datetime="2026-09-12">12/09/2026</time></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="fw-medium">Reporte - 003</th>
+                        <td>Técnico de mantenimiento</td>
+                        <td>María Torres</td>
+                        <td><time datetime="2026-09-13">13/09/2026</time></td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
+
     </main>
 </div>
 </body>

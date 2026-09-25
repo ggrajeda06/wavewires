@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>WaveWires - Estado general de la red</title>
+    <title>OceanLink - Estado general de la red</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <style>
         .supervisor-sidebar { width: 240px; flex-shrink: 0; height: 100vh; position: sticky; top: 0; }
@@ -23,10 +23,13 @@
 <body class="bg-light">
 <div class="d-flex flex-column flex-md-row min-vh-100">
     <nav class="supervisor-sidebar d-flex flex-column bg-dark p-3" aria-label="Navegación del supervisor">
-        <div class="h5 text-white px-3 py-2 mb-3">WaveWires</div>
+        <div class="h5 text-white px-3 py-2 mb-3">OceanLink</div>
         <div class="nav flex-column gap-2 mb-4">
             <a class="nav-link text-white active fw-semibold" aria-current="page" href="${pageContext.request.contextPath}/Supervisor/supervisor_home.jsp">Estado general de la red</a>
             <a class="nav-link text-white" href="${pageContext.request.contextPath}/Supervisor/reportes_supervisor.jsp">Reportes</a>
+            <a class="nav-link text-white" href="${pageContext.request.contextPath}/Supervisor/historial_reportes.jsp">
+                Historial de reportes
+            </a>
         </div>
         <a class="nav-link text-white mt-auto" href="${pageContext.request.contextPath}/login.jsp?logout=1">Cerrar sesión</a>
     </nav>
@@ -171,15 +174,75 @@
             <div class="modal-header"><h2 class="modal-title fs-5" id="modalMantenimientosTitulo">Historial de mantenimiento</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
             <div class="modal-body"><p class="small text-secondary" id="buscarMantenimientoNota">La búsqueda y los filtros aún no se aplican.</p><div class="row g-3 mb-4"><div class="col-12 col-lg"><label class="form-label small" for="buscarMantenimiento">Buscar</label><input class="form-control" type="search" id="buscarMantenimiento" placeholder="Buscar por ID o infraestructura" aria-describedby="buscarMantenimientoNota"></div><div class="col-12 col-sm-6 col-lg-3"><label class="form-label small" for="estadoMantenimiento">Estado</label><select class="form-select" id="estadoMantenimiento"><option>Todos los estados</option><option>Pendiente</option><option>Activo</option><option>Finalizado</option></select></div><div class="col-12 col-sm-6 col-lg-3"><label class="form-label small" for="tipoMantenimiento">Tipo</label><select class="form-select" id="tipoMantenimiento"><option>Todos los tipos</option><option>Preventivo</option><option>Correctivo</option></select></div></div><div class="table-responsive" tabindex="0" role="region" aria-label="Listado de mantenimientos">
 <table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th scope="col">ID de mantenimiento</th><th scope="col">Infraestructura</th><th scope="col">Servicios afectados</th><th scope="col">Tipo</th><th scope="col">Estado</th><th scope="col">Fecha</th><th scope="col">Ubicación</th><th scope="col">Información</th></tr></thead><tbody>
-<tr><th scope="row" class="fw-normal">MANT-001</th><td>Landing Station A</td><td><ul class="mb-0 ps-3"><li>Internet empresarial</li><li>Transporte de datos</li></ul></td><td>Correctivo</td><td><span class="badge text-bg-secondary">Pendiente</span></td><td>10/10/2026</td><td>Lima, PE</td><td><details><summary class="text-decoration-underline">Ver detalle</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><dl class="mb-0"><dt>ID</dt><dd>MANT-001</dd><dt>Descripción</dt><dd>Revisión de conectores y recuperación del enlace.</dd><dt>Duración estimada</dt><dd>3 horas</dd><dt>Actividades realizadas</dt><dd class="mb-0">Sin actividades realizadas; mantenimiento pendiente.</dd></dl></div></details></td></tr>
-<tr><th scope="row" class="fw-normal">MANT-002</th><td>Landing Station B</td><td><ul class="mb-0 ps-3"><li>Enlace internacional</li></ul></td><td>Preventivo</td><td><span class="badge text-bg-secondary">Pendiente</span></td><td>15/10/2026</td><td>Lima, PE</td><td><details><summary class="text-decoration-underline">Ver detalle</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><dl class="mb-0"><dt>ID</dt><dd>MANT-002</dd><dt>Descripción</dt><dd>Inspección y limpieza de equipos de transmisión.</dd><dt>Duración estimada</dt><dd>2 horas</dd><dt>Actividades realizadas</dt><dd class="mb-0">Sin actividades realizadas; mantenimiento pendiente.</dd></dl></div></details></td></tr>
-<tr><th scope="row" class="fw-normal">MANT-003</th><td>Landing Station C</td><td><ul class="mb-0 ps-3"><li>Transporte de datos</li></ul></td><td>Correctivo</td><td><span class="badge text-bg-primary">Activo</span></td><td>17/09/2026</td><td>Lima, PE</td><td><details><summary class="text-decoration-underline">Ver detalle</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><dl class="mb-0"><dt>ID</dt><dd>MANT-003</dd><dt>Descripción</dt><dd>Sustitución de un módulo de transmisión.</dd><dt>Duración estimada</dt><dd>4 horas</dd><dt>Actividades realizadas</dt><dd class="mb-0">Diagnóstico completado. Sustitución del módulo en curso.</dd></dl></div></details></td></tr>
-<tr><th scope="row" class="fw-normal">MANT-004</th><td>Landing Station A</td><td><ul class="mb-0 ps-3"><li>Internet empresarial</li></ul></td><td>Preventivo</td><td><span class="badge text-bg-success">Finalizado</span></td><td>11/09/2026</td><td>Lima, PE</td><td><details><summary class="text-decoration-underline">Ver detalle</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><dl class="mb-0"><dt>ID</dt><dd>MANT-004</dd><dt>Descripción</dt><dd>Verificación periódica del sistema de respaldo.</dd><dt>Duración estimada</dt><dd>2 horas</dd><dt>Actividades realizadas</dt><dd class="mb-0">Inspección y pruebas de respaldo completadas.</dd></dl></div></details></td></tr>
+<tr><th scope="row" class="fw-normal">MANT-001</th><td>Landing Station A</td><td><ul class="mb-0 ps-3"><li>Internet empresarial</li><li>Transporte de datos</li></ul></td><td>Correctivo</td><td><span class="badge text-bg-secondary">Pendiente</span></td><td>10/10/2026</td><td>Lima, PE</td><td><button type="button" class="btn btn-link btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#modalDetalleMANT001" aria-label="Ver detalle de MANT-001">Ver detalle</button></td></tr>
+<tr><th scope="row" class="fw-normal">MANT-002</th><td>Landing Station B</td><td><ul class="mb-0 ps-3"><li>Enlace internacional</li></ul></td><td>Preventivo</td><td><span class="badge text-bg-secondary">Pendiente</span></td><td>15/10/2026</td><td>Lima, PE</td><td><button type="button" class="btn btn-link btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#modalDetalleMANT002" aria-label="Ver detalle de MANT-002">Ver detalle</button></td></tr>
+<tr><th scope="row" class="fw-normal">MANT-003</th><td>Landing Station C</td><td><ul class="mb-0 ps-3"><li>Transporte de datos</li></ul></td><td>Correctivo</td><td><span class="badge text-bg-primary">Activo</span></td><td>17/09/2026</td><td>Lima, PE</td><td><button type="button" class="btn btn-link btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#modalDetalleMANT003" aria-label="Ver detalle de MANT-003">Ver detalle</button></td></tr>
+<tr><th scope="row" class="fw-normal">MANT-004</th><td>Landing Station A</td><td><ul class="mb-0 ps-3"><li>Internet empresarial</li></ul></td><td>Preventivo</td><td><span class="badge text-bg-success">Finalizado</span></td><td>11/09/2026</td><td>Lima, PE</td><td><button type="button" class="btn btn-link btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#modalDetalleMANT004" aria-label="Ver detalle de MANT-004">Ver detalle</button></td></tr>
 </tbody></table></div><div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3"><span class="small text-secondary">Página 1 de 1</span><div class="d-flex gap-2" aria-label="Paginación"><button type="button" class="btn btn-outline-secondary btn-sm" disabled>Anterior</button><button type="button" class="btn btn-outline-secondary btn-sm" disabled>Siguiente</button></div></div></div>
             <div class="modal-footer"><a class="btn btn-outline-dark" href="${pageContext.request.contextPath}/Supervisor/reportes_supervisor.jsp">Reportar</a></div>
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalDetalleMANT001" tabindex="-1" aria-labelledby="modalDetalleMANT001Titulo" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="modalDetalleMANT001Titulo">Detalle de mantenimiento MANT-001</h2>
+                <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#modalMantenimientos" aria-label="Cerrar detalle y volver al listado"></button>
+            </div>
+            <div class="modal-body"><dl class="mb-0"><dt>ID</dt><dd>MANT-001</dd><dt>Descripción</dt><dd>Revisión de conectores y recuperación del enlace.</dd><dt>Duración estimada</dt><dd>3 horas</dd><dt>Actividades realizadas</dt><dd class="mb-0">Sin actividades realizadas; mantenimiento pendiente.</dd></dl></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalMantenimientos">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetalleMANT002" tabindex="-1" aria-labelledby="modalDetalleMANT002Titulo" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="modalDetalleMANT002Titulo">Detalle de mantenimiento MANT-002</h2>
+                <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#modalMantenimientos" aria-label="Cerrar detalle y volver al listado"></button>
+            </div>
+            <div class="modal-body"><dl class="mb-0"><dt>ID</dt><dd>MANT-002</dd><dt>Descripción</dt><dd>Inspección y limpieza de equipos de transmisión.</dd><dt>Duración estimada</dt><dd>2 horas</dd><dt>Actividades realizadas</dt><dd class="mb-0">Sin actividades realizadas; mantenimiento pendiente.</dd></dl></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalMantenimientos">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetalleMANT003" tabindex="-1" aria-labelledby="modalDetalleMANT003Titulo" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="modalDetalleMANT003Titulo">Detalle de mantenimiento MANT-003</h2>
+                <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#modalMantenimientos" aria-label="Cerrar detalle y volver al listado"></button>
+            </div>
+            <div class="modal-body"><dl class="mb-0"><dt>ID</dt><dd>MANT-003</dd><dt>Descripción</dt><dd>Sustitución de un módulo de transmisión.</dd><dt>Duración estimada</dt><dd>4 horas</dd><dt>Actividades realizadas</dt><dd class="mb-0">Diagnóstico completado. Sustitución del módulo en curso.</dd></dl></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalMantenimientos">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDetalleMANT004" tabindex="-1" aria-labelledby="modalDetalleMANT004Titulo" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="modalDetalleMANT004Titulo">Detalle de mantenimiento MANT-004</h2>
+                <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#modalMantenimientos" aria-label="Cerrar detalle y volver al listado"></button>
+            </div>
+            <div class="modal-body"><dl class="mb-0"><dt>ID</dt><dd>MANT-004</dd><dt>Descripción</dt><dd>Verificación periódica del sistema de respaldo.</dd><dt>Duración estimada</dt><dd>2 horas</dd><dt>Actividades realizadas</dt><dd class="mb-0">Inspección y pruebas de respaldo completadas.</dd></dl></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalMantenimientos">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

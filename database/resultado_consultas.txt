@@ -1,0 +1,70 @@
+total_segmentos	total_gbps	en_uso_gbps	reservada_gbps	disponible_gbps	utilizacion_pct	incidencias_activas	mantenimientos_pendientes
+5	1900.000	1105.000	80.000	715.000	58.16	3	2
+id_usuario	username	nombre	correo	rol	estado
+1	admin	Ana Pérez	ana@example.com	Administrador	Activo
+2	planner	Carlos Ruiz	carlos@example.com	Capacity Planner	Activo
+3	operador	Luis García	luis@example.com	Network Operator	Activo
+4	mantenimiento	María Torres	maria@example.com	Maintenance Coordinator	Activo
+5	supervisor	Diego López	diego@example.com	Supervisor	Activo
+codigo	nombre	pais	ciudad	estado	segmentos
+LS-001	Lurín CLS	Perú	Lima	Operativa	3
+LS-002	Chimbote CLS	Perú	Áncash	Operativa	1
+LS-003	Arica CLS	Chile	Arica	Degradada	1
+LS-004	Valparaíso CLS	Chile	Valparaíso	Operativa	1
+LS-005	Las Toninas CLS	Argentina	Buenos Aires	Mantenimiento	1
+LS-006	Miami CLS	Estados Unidos	Miami	Operativa	1
+LS-007	Bilbao CLS	España	Bilbao	Operativa	1
+LS-008	Chikura CLS	Japón	Chikura	Operativa	1
+id_segmento	codigo	nombre	ruta	origen	destino	estado	capacidad_total_gbps	capacidad_usada_gbps	capacidad_reservada_gbps	capacidad_disponible_gbps	utilizacion_pct
+1	SEG-001	Segmento 1	Perú - Estados Unidos	Lurín CLS	Miami CLS	Operativo	500.000	100.000	20.000	380.000	20.00
+2	SEG-002	Segmento 2	Perú - España	Lurín CLS	Bilbao CLS	Operativo	500.000	400.000	30.000	70.000	80.00
+3	SEG-003	Segmento 3	Perú - Japón	Lurín CLS	Chikura CLS	Operativo	500.000	465.000	20.000	15.000	93.00
+id_segmento	codigo	nombre	ruta	origen	destino	estado	capacidad_total_gbps	capacidad_usada_gbps	capacidad_reservada_gbps	capacidad_disponible_gbps	utilizacion_pct	capacidad_total_tbps	nivel_utilizacion
+3	SEG-003	Segmento 3	Perú - Japón	Lurín CLS	Chikura CLS	Operativo	500.000	465.000	20.000	15.000	93.00	0.500	Crítico
+2	SEG-002	Segmento 2	Perú - España	Lurín CLS	Bilbao CLS	Operativo	500.000	400.000	30.000	70.000	80.00	0.500	Alto
+4	SEG-004	Segmento 4	Perú - Chile	Chimbote CLS	Arica CLS	Degradado	200.000	80.000	10.000	110.000	40.00	0.200	Bajo
+5	SEG-005	Segmento 5	Chile - Argentina	Valparaíso CLS	Las Toninas CLS	Mantenimiento	200.000	60.000	0.000	140.000	30.00	0.200	Bajo
+1	SEG-001	Segmento 1	Perú - Estados Unidos	Lurín CLS	Miami CLS	Operativo	500.000	100.000	20.000	380.000	20.00	0.500	Bajo
+codigo	razon_social	fecha_registro	estado	segmentos_contratados
+CLI-001	OAC S.A.C.	2026-08-14	Activo	SEG-001, SEG-004, SEG-005
+CLI-002	HYDRA S.A.C.	2022-10-13	Activo	SEG-002, SEG-003
+CLI-003	SIES S.A.C.	2024-06-01	Inactivo	Sin servicios activos
+codigo	razon_social	estado	segmento	ruta	capacidad_gbps	capacidad_disponible_gbps	evaluacion
+SOL-001	OAC S.A.C.	Activa	SEG-001	Perú - Estados Unidos	100.000	380.000	Ya provisionada
+SOL-002	HYDRA S.A.C.	Activa	SEG-002	Perú - España	400.000	70.000	Ya provisionada
+SOL-003	HYDRA S.A.C.	Activa	SEG-003	Perú - Japón	465.000	15.000	Ya provisionada
+SOL-004	OAC S.A.C.	Activa	SEG-004	Perú - Chile	80.000	110.000	Ya provisionada
+SOL-005	OAC S.A.C.	Activa	SEG-005	Chile - Argentina	60.000	140.000	Ya provisionada
+SOL-006	SIES S.A.C.	Provisionada	SEG-001	Perú - Estados Unidos	70.000	380.000	Ya provisionada
+SOL-007	SIES S.A.C.	Provisionada	SEG-002	Perú - España	60.000	70.000	Ya provisionada
+SOL-008	OAC S.A.C.	Registrada	SEG-001	Perú - Estados Unidos	30.000	380.000	Hay capacidad
+SOL-009	HYDRA S.A.C.	Pendiente por capacidad	SEG-002	Perú - España	100.000	70.000	Capacidad insuficiente
+SOL-010	OAC S.A.C.	En evaluación	SEG-004	Perú - Chile	20.000	110.000	Revisar estado del segmento
+SOL-011	OAC S.A.C.	Rechazada	SEG-005	Chile - Argentina	500.000	140.000	Rechazada
+codigo	nombre	servicios_caducados
+SEG-001	Segmento 1	1
+SEG-002	Segmento 2	1
+SEG-003	Segmento 3	0
+SEG-004	Segmento 4	0
+SEG-005	Segmento 5	0
+id_servicio	servicio	id_cliente	razon_social	id_segmento	segmento	capacidad_gbps	estado	fecha_inicio	fecha_fin
+6	SRV-006	3	SIES S.A.C.	1	SEG-001	70.000	Caducado	2026-06-02 09:00:00	2026-08-01 18:00:00
+7	SRV-007	3	SIES S.A.C.	2	SEG-002	60.000	Caducado	2026-06-02 10:00:00	2026-08-01 18:00:00
+codigo	landing	estado	severidad	observaciones	fecha_deteccion	segmentos_afectados	clientes_afectados
+INC-003	Las Toninas CLS	Detectada	Media	Conectores pendientes de revisión.	2026-09-17 11:00:00	SEG-005	OAC S.A.C.
+INC-001	Lurín CLS	En análisis	Crítica	Pérdida intermitente de conectividad.	2026-09-17 08:00:00	SEG-001, SEG-003	HYDRA S.A.C., OAC S.A.C.
+INC-002	Arica CLS	En reparación	Alta	Degradación de señal en Arica.	2026-09-16 10:00:00	SEG-004	OAC S.A.C.
+codigo	landing	observaciones	fecha_deteccion	fecha_cierre
+INC-004	Lurín CLS	Interrupción resuelta tras revisión.	2026-09-10 08:00:00	2026-09-11 12:00:00
+codigo	incidencia	fecha_programada	fecha_real	estado	operador
+RES-001	INC-002	2026-09-19 12:00:00	NULL	Programada	Luis García
+RES-002	INC-004	2026-09-11 12:00:00	2026-09-11 12:00:00	Completada	Luis García
+codigo	nombre	descripcion	infraestructura	ubicacion	tipo	estado	fecha_programada	duracion_estimada_min	actividades_realizadas	coordinador	servicios_afectados
+MANT-004	Inspección de Lurín	Inspección preventiva completada.	Lurín CLS	Lima, Perú	Preventivo	Finalizado	2026-09-05 09:00:00	60	Limpieza y verificación de conectores.	María Torres	SRV-001
+MANT-003	Cambio de módulo	Sustitución programada del módulo.	Las Toninas CLS	Buenos Aires, Argentina	Correctivo	Activo	2026-09-18 08:00:00	240	Diagnóstico inicial realizado.	María Torres	SRV-005
+MANT-001	Revisión de conectores	Inspección de conectores del landing.	Lurín CLS	Lima, Perú	Preventivo	Pendiente	2026-10-10 09:00:00	120	NULL	María Torres	SRV-001, SRV-002, SRV-003
+MANT-002	Reparación en Arica	Revisión de la señal degradada.	Arica CLS	Arica, Chile	Correctivo	Pendiente	2026-10-15 08:00:00	180	NULL	María Torres	SRV-004
+codigo	rol	encargado	destinatario	fecha_reporte	asunto	descripcion
+REP-003	Maintenance Coordinator	María Torres	Diego López	2026-09-18 13:00:00	Plan de mantenimiento	Dos intervenciones pendientes y una intervención activa.
+REP-002	Network Operator	Luis García	Diego López	2026-09-18 12:00:00	Seguimiento de incidencias	Se reportan tres incidencias abiertas para seguimiento.
+REP-001	Administrador	Ana Pérez	Diego López	2026-09-11 15:00:00	Inventario de infraestructura	Se revisaron los cinco segmentos registrados.
