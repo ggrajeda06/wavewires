@@ -39,92 +39,75 @@
         </div>
       </div>
 
-      <!-- Tabla distribuida al 100% -->
+      <!-- Tabla de Clientes -->
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-3">
           <thead class="table-light">
           <tr>
             <th style="width: 14%;">Identificador</th>
-            <th style="width: 22%;">Razón Social</th>
-            <th style="width: 20%;">Segmentos contratados</th>
-            <th style="width: 18%;">Fecha de registro</th>
+            <th style="width: 20%;">Razón Social</th>
+            <th style="width: 22%;">Servicios Contratados</th>
+            <th style="width: 20%;">Fecha de cliente registrado</th>
             <th style="width: 12%;">Estado</th>
-            <th style="width: 14%;" class="text-center">Acción</th>
+            <th style="width: 12%;" class="text-center">Acción</th>
           </tr>
           </thead>
           <tbody>
-          <!-- Fila 1 -->
+          <!-- Fila 1: OAC S.A.C. -->
           <tr>
             <td class="fw-medium">Cliente 1</td>
             <td>OAC S.A.C.</td>
             <td>
-              <div class="dropdown">
-                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                  Detalles
-                </button>
-                <ul class="dropdown-menu shadow-sm">
-                  <li class="dropdown-item-text small">Segmento 1 - <strong>200 Gbps</strong></li>
-                  <li class="dropdown-item-text small">Segmento 2 - <strong>50 Gbps</strong></li>
-                  <li class="dropdown-item-text small">Segmento 3 - <strong>20 Gbps</strong></li>
-                </ul>
-              </div>
+              <button class="btn btn-sm btn-outline-secondary px-3" data-bs-toggle="modal" data-bs-target="#modalServiciosCliente1">
+                Detalles
+              </button>
             </td>
             <td class="text-secondary">14 / 11 / 2026</td>
             <td>
               <span class="badge bg-success-subtle text-success border border-success-subtle">Activo</span>
             </td>
             <td class="text-center">
-              <button class="btn btn-outline-danger btn-sm px-3">
+              <button class="btn btn-outline-danger btn-sm px-3" onclick="return confirm('¿Está seguro de eliminar este cliente?')">
                 <i class="bi bi-trash"></i> Eliminar
               </button>
             </td>
           </tr>
 
-          <!-- Fila 2 -->
+          <!-- Fila 2: HYDRA S.A.C. -->
           <tr>
             <td class="fw-medium">Cliente 2</td>
             <td>HYDRA S.A.C.</td>
             <td>
-              <div class="dropdown">
-                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                  Detalles
-                </button>
-                <ul class="dropdown-menu shadow-sm">
-                  <li class="dropdown-item-text small">Segmento 2 - <strong>80 Gbps</strong></li>
-                </ul>
-              </div>
+              <button class="btn btn-sm btn-outline-secondary px-3" data-bs-toggle="modal" data-bs-target="#modalServiciosCliente2">
+                Detalles
+              </button>
             </td>
             <td class="text-secondary">13 / 10 / 2022</td>
             <td>
               <span class="badge bg-success-subtle text-success border border-success-subtle">Activo</span>
             </td>
             <td class="text-center">
-              <button class="btn btn-outline-danger btn-sm px-3">
+              <button class="btn btn-outline-danger btn-sm px-3" onclick="return confirm('¿Está seguro de eliminar este cliente?')">
                 <i class="bi bi-trash"></i> Eliminar
               </button>
             </td>
           </tr>
 
-          <!-- Fila 3 -->
+          <!-- Fila 3: SIES S.A.C. -->
           <tr>
             <td class="fw-medium">Cliente 3</td>
             <td>SIES S.A.C.</td>
             <td>
-              <div class="dropdown">
-                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                  Detalles
-                </button>
-                <ul class="dropdown-menu shadow-sm">
-                  <li class="dropdown-item-text small text-muted">Sin servicios activos</li>
-                </ul>
-              </div>
+              <button class="btn btn-sm btn-outline-secondary px-3" data-bs-toggle="modal" data-bs-target="#modalServiciosCliente3">
+                Detalles
+              </button>
             </td>
             <td class="text-secondary">01 / 06 / 2024</td>
             <td>
-              <span class="badge bg-secondary-subtle text-secondary border">Inactivo</span>
+              <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Inactivo</span>
             </td>
             <td class="text-center">
-              <button class="btn btn-outline-danger btn-sm px-3">
+              <button class="btn btn-outline-danger btn-sm px-3" onclick="return confirm('¿Está seguro de eliminar este cliente?')">
                 <i class="bi bi-trash"></i> Eliminar
               </button>
             </td>
@@ -143,7 +126,117 @@
   </main>
 </div>
 
-<!-- Modal: Registrar Cliente -->
+<!-- ======================================================= -->
+<!-- MODAL: DETALLES DE SERVICIOS - CLIENTE 1 (OAC S.A.C.)   -->
+<!-- ======================================================= -->
+<div class="modal fade" id="modalServiciosCliente1" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow">
+
+      <div class="modal-header border-0 pb-0">
+        <h6 class="modal-title fw-bold text-dark">Servicios contratados</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body px-3 pt-3 pb-3">
+        <table class="table table-bordered text-center align-middle mb-0">
+          <thead>
+            <tr class="fw-bold">
+              <th style="width: 50%;">Servicio</th>
+              <th style="width: 50%;">Capacidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Servicio 1</td>
+              <td class="fw-semibold text-secondary">30 Gbps</td>
+            </tr>
+            <tr>
+              <td>Servicio 4</td>
+              <td class="fw-semibold text-secondary">50 Gbps</td>
+            </tr>
+            <tr>
+              <td>Servicio 5</td>
+              <td class="fw-semibold text-secondary">20 Gbps</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
+        <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- MODAL: DETALLES DE SERVICIOS - CLIENTE 2 (HYDRA S.A.C.) -->
+<!-- ======================================================= -->
+<div class="modal fade" id="modalServiciosCliente2" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow">
+
+      <div class="modal-header border-0 pb-0">
+        <h6 class="modal-title fw-bold text-dark">Servicios contratados</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body px-3 pt-3 pb-3">
+        <table class="table table-bordered text-center align-middle mb-0">
+          <thead>
+            <tr class="fw-bold">
+              <th style="width: 50%;">Servicio</th>
+              <th style="width: 50%;">Capacidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Servicio 2</td>
+              <td class="fw-semibold text-secondary">100 Gbps</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
+        <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- MODAL: DETALLES DE SERVICIOS - CLIENTE 3 (SIES S.A.C.)  -->
+<!-- ======================================================= -->
+<div class="modal fade" id="modalServiciosCliente3" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow">
+
+      <div class="modal-header border-0 pb-0">
+        <h6 class="modal-title fw-bold text-dark">Servicios contratados</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body px-3 pt-3 pb-3">
+        <div class="p-3 bg-light text-center rounded border text-muted small">
+          Sin servicios contratados actualmente.
+        </div>
+      </div>
+
+      <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
+        <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- MODAL: REGISTRAR CLIENTE (Solo Razón Social)            -->
+<!-- ======================================================= -->
 <div class="modal fade" id="modalRegistrarCliente" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow">
@@ -153,26 +246,21 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
-      <div class="modal-body p-4">
-        <form>
+      <form action="#" method="POST">
+        <div class="modal-body p-4">
+          <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">Datos</h6>
+
           <div class="mb-3">
             <label class="form-label small fw-semibold">Razón social</label>
-            <input type="text" class="form-control" placeholder="Escribe el nombre de la empresa">
+            <input type="text" class="form-control" name="razonSocial" placeholder="Escribe el nombre de la empresa" required>
           </div>
-          <div class="mb-3">
-            <label class="form-label small fw-semibold">Estado inicial</label>
-            <select class="form-select">
-              <option selected>Activo</option>
-              <option>Inactivo</option>
-            </select>
-          </div>
-        </form>
-      </div>
+        </div>
 
-      <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
-        <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary px-3">Guardar cliente</button>
-      </div>
+        <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
+          <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-dark px-3">Guardar cliente</button>
+        </div>
+      </form>
 
     </div>
   </div>

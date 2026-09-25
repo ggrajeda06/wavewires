@@ -14,7 +14,6 @@
       <a href="admin_segmento_form.jsp" class="btn btn-primary">+ Nuevo</a>
     </div>
 
-    <!-- Barra de búsqueda y filtros -->
     <div class="d-flex gap-2 mb-3">
       <input class="form-control" placeholder="Buscar por estación o código...">
       <select class="form-select w-auto">
@@ -26,7 +25,6 @@
       </select>
     </div>
 
-    <!-- Tabla con Origen y Destino desglosados -->
     <div class="card shadow-sm border-0">
       <table class="table table-hover align-middle mb-0">
         <thead class="table-light">
@@ -35,6 +33,7 @@
             <th>Origen</th>
             <th>Destino</th>
             <th>Cap. usada</th>
+            <th>Cap. reservada</th>
             <th>Cap. total</th>
             <th>Estado</th>
             <th class="text-center">Acción</th>
@@ -46,8 +45,9 @@
             <td>Lurín CLS</td>
             <td>Chimbote CLS</td>
             <td>150 Tbps</td>
+            <td>50 Tbps</td>
             <td>400 Tbps</td>
-            <td><span class="badge bg-success">Operativo</span></td>
+            <td>Operativo</td>
             <td class="text-center">
               <a href="admin_segmento_form.jsp?id=SEG-001" class="btn btn-sm btn-outline-secondary">Editar</a>
             </td>
@@ -57,8 +57,9 @@
             <td>Lurín CLS</td>
             <td>Arica CLS</td>
             <td>50 Tbps</td>
+            <td>20 Tbps</td>
             <td>100 Tbps</td>
-            <td><span class="badge bg-warning text-dark">Degradado</span></td>
+            <td>Degradado</td>
             <td class="text-center">
               <a href="admin_segmento_form.jsp?id=SEG-002" class="btn btn-sm btn-outline-secondary">Editar</a>
             </td>
@@ -68,8 +69,9 @@
             <td>Lurín CLS</td>
             <td>Valparaíso CLS</td>
             <td>0 Tbps</td>
+            <td>0 Tbps</td>
             <td>500 Tbps</td>
-            <td><span class="badge bg-info text-dark">Mantenimiento</span></td>
+            <td>Mantenimiento</td>
             <td class="text-center">
               <a href="admin_segmento_form.jsp?id=SEG-003" class="btn btn-sm btn-outline-secondary">Editar</a>
             </td>
@@ -79,8 +81,9 @@
             <td>Arica CLS</td>
             <td>Valparaíso CLS</td>
             <td>120 Tbps</td>
+            <td>30 Tbps</td>
             <td>300 Tbps</td>
-            <td><span class="badge bg-success">Operativo</span></td>
+            <td>Operativo</td>
             <td class="text-center">
               <a href="admin_segmento_form.jsp?id=SEG-004" class="btn btn-sm btn-outline-secondary">Editar</a>
             </td>
@@ -88,25 +91,17 @@
           <tr>
             <td class="fw-bold">SEG-005</td>
             <td>Valparaíso CLS</td>
-            <td>Manta CLS</td>
+            <td>Las Toninas CLS</td>
+            <td>0 Tbps</td>
             <td>0 Tbps</td>
             <td>200 Tbps</td>
-            <td><span class="badge bg-danger">Fuera de servicio</span></td>
+            <td>Fuera de servicio</td>
             <td class="text-center">
               <a href="admin_segmento_form.jsp?id=SEG-005" class="btn btn-sm btn-outline-secondary">Editar</a>
             </td>
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <!-- Paginación -->
-    <div class="d-flex justify-content-between align-items-center mt-3">
-      <small class="text-muted">Mostrando 5 de 105 segmentos</small>
-      <div class="btn-group">
-        <a href="#" class="btn btn-sm btn-outline-secondary">Anterior</a>
-        <a href="#" class="btn btn-sm btn-outline-secondary">Siguiente</a>
-      </div>
     </div>
   </main>
 </div>
