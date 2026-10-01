@@ -14,7 +14,7 @@ public abstract class DaoBase {
         }
 
         String user = "root";
-        String pass = "root";
+        String pass = "root1234";
         String url = "jdbc:mysql://localhost:3306/db_ocealink?serverTimezone=America/Lima";
 
         return DriverManager.getConnection(url, user, pass);

@@ -1,17 +1,56 @@
 package org.example;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import com.oceanlink.beans.LandingStation;
+import com.oceanlink.beans.SolicitudCapacidad;
+import com.oceanlink.beans.Usuario;
+import com.oceanlink.daos.LandingStationDao;
+import com.oceanlink.daos.SolicitudCapacidadDao;
+import com.oceanlink.daos.UsuarioDao;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        System.out.println("=========================================================================================");
+        System.out.println("                             OCEANLINK - REPORTE DE QUERIES                              ");
+        System.out.println("=========================================================================================\n");
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+        UsuarioDao usuarioDao = new UsuarioDao();
+        LandingStationDao landingDao = new LandingStationDao();
+        SolicitudCapacidadDao solicitudDao = new SolicitudCapacidadDao();
+
+        // Imprimir Usuarios
+        System.out.println("====================================== USUARIOS ==========================================");
+        System.out.printf("| %-7s | %-20s | %-25s | %-18s | %-8s |\n", "ID", "Nombre", "Correo", "Rol", "Estado");
+        System.out.println("-----------------------------------------------------------------------------------------");
+        for (Usuario u : usuarioDao.listarUsuarios()) {
+            String idFormato = String.format("U-%03d", u.getIdUser());
+            System.out.printf("| %-7s | %-20s | %-25s | %-18s | %-8s |\n",
+                    idFormato, u.getNombre(), u.getCorreo(), u.getRol(), u.getEstado());
         }
+        System.out.println("=========================================================================================\n");
+
+        // Imprimir Landing Stations
+        System.out.println("================================= LANDING STATIONS =======================================");
+        System.out.printf("| %-4s | %-25s | %-25s | %-15s |\n", "ID", "Nombre", "Ubicación (Ciudad, País)", "Estado");
+        System.out.println("-----------------------------------------------------------------------------------------");
+        for (LandingStation ls : landingDao.listarLandingStations()) {
+            String ubicacion = ls.getCiudad() + ", " + ls.getPais();
+            System.out.printf("| %-4d | %-25s | %-25s | %-15s |\n",
+                    ls.getIdLandingStations(), ls.getNombre(), ubicacion, ls.getEstado());
+        }
+        System.out.println("=========================================================================================\n");
+
+        // Imprimir Solicitudes de Capacidad
+        System.out.println("============================= SOLICITUDES DE CAPACIDAD ===================================");
+        System.out.printf("| %-13s | %-18s | %-12s | %-10s | %-15s |\n", "Solicitud", "Ruta", "Capacidad", "Duración", "Estado");
+        System.out.println("-----------------------------------------------------------------------------------------");
+        for (SolicitudCapacidad sc : solicitudDao.listarSolicitudes()) {
+            String idSolicitud = "Solicitud " + sc.getIdSolicitudCapacidad();
+            String ruta = sc.getOrigen() + " - " + sc.getDestino();
+            String capacidad = sc.getCapacidad() + " GBPS";
+            String duracion = sc.getDuracionMeses() + " meses";
+            System.out.printf("| %-13s | %-18s | %-12s | %-10s | %-15s |\n",
+                    idSolicitud, ruta, capacidad, duracion, sc.getEstado());
+        }
+        System.out.println("=========================================================================================");
     }
 }
