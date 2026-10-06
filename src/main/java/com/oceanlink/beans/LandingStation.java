@@ -1,18 +1,18 @@
 package com.oceanlink.beans;
 
 public class LandingStation {
-    private int idLandingStations;
+    private int idLandingStation;
     private String nombre;
     private String pais;
     private String ciudad;
     private String estado;
 
-    public int getIdLandingStations() {
-        return idLandingStations;
+    public int getIdLandingStation() {
+        return idLandingStation;
     }
 
-    public void setIdLandingStations(int idLandingStations) {
-        this.idLandingStations = idLandingStations;
+    public void setIdLandingStation(int idLandingStation) {
+        this.idLandingStation = idLandingStation;
     }
 
     public String getNombre() {

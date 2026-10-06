@@ -27,8 +27,7 @@
   <div class="text-uppercase small text-muted mt-2 mb-1">Operaciones &amp; NOC</div>
   <nav class="nav flex-column mb-3">
     <a class="nav-link text-light" href="/NetworkOperator/incidencias.jsp">Incidencias</a>
-    <a class="nav-link text-light" href="/Maintence/Mantenimiento.jsp">Mantenimiento</a>
-  </nav>
+    <a class="nav-link text-light" href="<%=request.getContextPath()%>/MantenimientoServlet">Mantenimiento</a>  </nav>
 
   <div class="text-uppercase small text-muted mt-2 mb-1">Cuenta</div>
   <nav class="nav flex-column">
