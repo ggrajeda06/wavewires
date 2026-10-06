@@ -1,4 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page import="com.oceanlink.beans.Mantenimiento" %>
+<%@ page import="com.oceanlink.beans.LandingStation" %>
+<jsp:useBean id="lista" type="java.util.ArrayList<com.oceanlink.beans.Mantenimiento>" scope="request" />
+<jsp:useBean id="listaLandings" type="java.util.ArrayList<com.oceanlink.beans.LandingStation>" scope="request" />
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -17,15 +21,14 @@
       <div class="w-25">
         <input class="form-control" list="datalistOptions" placeholder="Buscar...">
         <datalist id="datalistOptions">
-          <option value="ID1 - Landing-A ">
-          <option value="ID2 - Landing-B ">
-          <option value="ID3 - Landing-C ">
+          <% for (Mantenimiento m : lista) { %>
+          <option value="ID<%=m.getIdMantenimiento()%> - <%=m.getNombre()%>">
+          <% } %>
         </datalist>
       </div>
-      <a class="btn btn-outline-secondary" href="registrarMantenimiento.jsp">Registrar mantenimiento</a>
+      <a class="btn btn-outline-secondary" href="<%=request.getContextPath()%>/MantenimientoServlet?action=formCrear">Registrar mantenimiento</a>
     </div>
 
-    <!-- Tarjeta Contenedora Principal -->
     <div class="card shadow-sm">
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -61,111 +64,63 @@
               </tr>
             </thead>
             <tbody id="tablaCuerpo">
-              <tr>
-                <!-- Nombre convertido en enlace interactivo para abrir el modal -->
-                <td class="ps-4">
-                  <a href="#" class="text-decoration-none fw-bold" onclick="mostrarDetalle('ID1 - Landing-A', 'activo', 'Mantenimiento preventivo de fibra óptica', 'Preventivo', '10/10/2000', 'Landing Station A', 'Revisión técnica completa de conectores.')">
-                    ID1 - Landing-A
-                  </a>
-                </td>
-                <td><span class="badge bg-success">activo</span></td>
-                <td>10/10/2000</td>
-                <td>Landing Station A</td>
-                <td>Lima, PE</td>
-                <td class="text-end pe-4">
-                                  <div class="dropdown">
-                                    <button class="btn btn-link text-dark text-decoration-none fw-bold p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                      •••
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                      <li>
-                                        <a class="dropdown-item d-flex align-items-center gap-2" href="editarMantenimiento.jsp">
-                                          <i class="bi bi-pencil"></i> Editar
-                                        </a>
-                                      </li>
-                                      <li>
-                                        <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="#">
-                                          <i class="bi bi-trash"></i> Eliminar
-                                        </a>
-                                      </li>
-                                    </ul>
-                                  </div>
-                                </td>
-              </tr>
+              <% for (Mantenimiento m : lista) {
+                   String nombreLanding = "";
+                   String ubicacion = "";
+                   for (LandingStation ls : listaLandings) {
+                       if (ls.getIdLandingStation() == m.getIdLandingStation()) {
+                           nombreLanding = ls.getNombre();
+                           ubicacion = ls.getCiudad() + ", " + ls.getPais();
+                       }
+                   }
+                   String colorEstado = "bg-secondary";
+                   if (m.getEstado().equals("Activo")) {
+                       colorEstado = "bg-success";
+                   } else if (m.getEstado().equals("Pendiente")) {
+                       colorEstado = "bg-danger";
+                   }
+              %>
               <tr>
                 <td class="ps-4">
-                  <a href="#" class="text-decoration-none fw-bold" onclick="mostrarDetalle('ID2 - Landing-B', 'pendiente', 'Inspección de enlace submarino', 'Correctivo', '10/10/2000', 'Landing Station B', 'Espera de repuestos de empalme.')">
-                    ID2 - Landing-B
+                  <a href="#" class="text-decoration-none fw-bold" onclick="mostrarDetalle('ID<%=m.getIdMantenimiento()%> - <%=m.getNombre()%>', '<%=m.getEstado()%>', '<%=m.getDescripcion()%>', '<%=m.getTipo()%>', '<%=m.getFechaRegistrada()%>', '<%=nombreLanding%>', '<%=m.getActividadesRealizadas() == null ? "" : m.getActividadesRealizadas()%>')">
+                    ID<%=m.getIdMantenimiento()%> - <%=m.getNombre()%>
                   </a>
                 </td>
-                <td><span class="badge bg-danger ">pendiente</span></td>
-                <td>10/10/2000</td>
-                <td>Landing Station B</td>
-                <td>Lima, PE</td>
+                <td><span class="badge <%=colorEstado%>"><%=m.getEstado()%></span></td>
+                <td><%=m.getFechaRegistrada()%></td>
+                <td><%=nombreLanding%></td>
+                <td><%=ubicacion%></td>
                 <td class="text-end pe-4">
-                                  <div class="dropdown">
-                                    <button class="btn btn-link text-dark text-decoration-none fw-bold p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                      •••
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                      <li>
-                                        <a class="dropdown-item d-flex align-items-center gap-2" href="editarMantenimiento.jsp">
-                                          <i class="bi bi-pencil"></i> Editar
-                                        </a>
-                                      </li>
-                                      <li>
-                                        <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="#" onclick="confirmarEliminar('ID1 - Landing-A')">
-                                          <i class="bi bi-trash"></i> Eliminar
-                                        </a>
-                                      </li>
-                                    </ul>
-                                  </div>
-                                </td>
-              </tr>
-              <tr>
-                <td class="ps-4">
-                  <a href="#" class="text-decoration-none fw-bold" onclick="mostrarDetalle('ID3 - Landing-C', 'finalizado', 'Calibración de repetidores', 'Rutina', '10/10/2000', 'Landing Station C', 'Ajuste de ganancia finalizado.')">
-                    ID3 - Landing-C
-                  </a>
-                </td>
-                <td><span class="badge bg-secondary">finalizado</span></td>
-                <td>10/10/2000</td>
-                <td>Landing Station C</td>
-                <td>Lima, PE</td>
-                <td class="text-end pe-4">
-                   <div class="dropdown">
-                       <button class="btn btn-link text-dark text-decoration-none fw-bold p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          •••
-                       </button>
-                       <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                          <li>
-                            <a class="dropdown-item d-flex align-items-center gap-2" href="editarMantenimiento.jsp">
-                               <i class="bi bi-pencil"></i> Editar
-                            </a>
-                          </li>
-                          <li>
-                            <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="#">
-                               <i class="bi bi-trash"></i> Eliminar
-                            </a>
-                          </li>
-                        </ul>
+                  <div class="dropdown">
+                    <button class="btn btn-link text-dark text-decoration-none fw-bold p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      •••
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                      <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2" href="<%=request.getContextPath()%>/MantenimientoServlet?action=editar&id=<%=m.getIdMantenimiento()%>">
+                          <i class="bi bi-pencil"></i> Editar
+                        </a>
+                      </li>
+                      <li>
+                        <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="<%=request.getContextPath()%>/MantenimientoServlet?action=borrar&id=<%=m.getIdMantenimiento()%>">
+                          <i class="bi bi-trash"></i> Eliminar
+                        </a>
+                      </li>
+                    </ul>
                   </div>
                 </td>
               </tr>
+              <% } %>
             </tbody>
           </table>
         </div>
       </div>
 
-      <div class="card-footer bg-white d-flex justify-content-end gap-2 py-3 border-top-0">
-        <button class="btn btn-outline-secondary btn-sm">Anterior</button>
-        <button class="btn btn-outline-secondary btn-sm">Siguiente</button>
-      </div>
+
     </div>
   </main>
 </div>
 
-<!-- MODAL INFORMACIÓN (Basado en tu bosquejo, no modificable) -->
 <div class="modal fade" id="modalDetalle" tabindex="-1" aria-labelledby="modalDetalleLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
@@ -175,7 +130,6 @@
       </div>
       <div class="modal-body p-4">
         <div class="row g-3">
-          <!-- Columna Izquierda / Central -->
           <div class="col-md-7">
             <div class="row g-3">
               <div class="col-6">
@@ -188,7 +142,6 @@
               </div>
               <div class="col-12">
                 <label class="form-label small fw-semibold">Descripción</label>
-                <!-- Evita que el texto salga y genera scroll si pasa de 120px -->
                 <div class="form-control-plaintext border rounded px-3 py-2 bg-light text-dark text-break" id="infoDescripcion" style="max-height: 120px; overflow-y: auto;"></div>
               </div>
               <div class="col-12">
@@ -206,16 +159,12 @@
             </div>
           </div>
 
-          <!-- Columna Derecha (Actividades Realizadas) -->
           <div class="col-md-5 d-flex flex-column">
             <label class="form-label small fw-semibold text-uppercase" style="font-size: 0.75rem;">
               ACTIVIDADES REALIZADAS DURANTE EL MANTENIMIENTO:
             </label>
-            <!-- Mantiene el tamaño fijo de la tarjeta y añade barra de desplazamiento limpia si el texto es extenso -->
             <div class="form-control-plaintext border rounded px-3 py-2 bg-light text-dark text-break flex-grow-1" id="infoActividades" style="max-height: 250px; overflow-y: auto;"></div>
           </div>
-        </div>
-      </div>
         </div>
       </div>
     </div>
@@ -225,7 +174,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// Función para cargar los datos en el modal y desplegarlo
 function mostrarDetalle(nombre, estado, descripcion, tipo, fecha, infraestructura, actividades) {
   document.getElementById('infoNombre').textContent = nombre;
   document.getElementById('infoEstado').textContent = estado;
@@ -238,8 +186,6 @@ function mostrarDetalle(nombre, estado, descripcion, tipo, fecha, infraestructur
   let modal = new bootstrap.Modal(document.getElementById('modalDetalle'));
   modal.show();
 }
-
-
 </script>
 </body>
 </html>

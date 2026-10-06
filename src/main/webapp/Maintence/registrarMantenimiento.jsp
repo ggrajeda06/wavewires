@@ -1,5 +1,6 @@
-
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="com.oceanlink.beans.LandingStation" %>
+<jsp:useBean id="listaLandings" type="java.util.ArrayList<com.oceanlink.beans.LandingStation>" scope="request" />
 <html lang="es">
 <head>
   <title>OceanLink - Registrar Mantenimiento</title>
@@ -10,49 +11,40 @@
   <jsp:include page="sidebarMantenimiento.jsp"/>
 
   <main class="col p-4 bg-light">
-    <!-- Botón Volver / Encabezado -->
     <div class="d-flex align-items-center mb-4">
-      <a href="Mantenimiento.jsp" class="btn btn-outline-secondary me-3 btn-sm">
+      <a href="<%=request.getContextPath()%>/MantenimientoServlet" class="btn btn-outline-secondary me-3 btn-sm">
         Volver
       </a>
       <h3 class="fw-bold m-0">Registrar mantenimiento</h3>
     </div>
 
-    <!-- Contenedor del Formulario -->
     <div class="card shadow-sm p-4">
-      <form action="Mantenimiento.jsp" method="POST">
+      <form action="<%=request.getContextPath()%>/MantenimientoServlet?action=crear" method="POST">
         <div class="row g-4">
 
-          <!-- Columna Izquierda -->
           <div class="col-md-6">
-            <!-- Name(ID) -->
             <div class="mb-3">
               <label for="nombreId" class="form-label fw-semibold">Name(ID)</label>
               <input type="text" class="form-control" id="nombreId" name="nombreId" placeholder="Escribir nombre" required>
             </div>
 
-            <!-- Descripción -->
             <div class="mb-3">
               <label for="descripcion" class="form-label fw-semibold">Descripción</label>
               <textarea class="form-control" id="descripcion" name="descripcion" rows="4" placeholder="Describe el mantenimiento"></textarea>
             </div>
 
-            <!-- Fecha -->
             <div class="mb-3">
               <label for="fecha" class="form-label fw-semibold">Fecha</label>
               <input type="date" class="form-control" id="fecha" name="fecha" required>
             </div>
 
-            <!-- Duración estimada -->
             <div class="mb-3">
-              <label for="duracion" class="form-label fw-semibold">Duración estimada</label>
-              <input type="text" class="form-control" id="duracion" name="duracion" placeholder="Escribir duración estimada">
+              <label for="duracion" class="form-label fw-semibold">Duración estimada (horas)</label>
+              <input type="number" class="form-control" id="duracion" name="duracion" min="1" placeholder="Escribir duración en horas" required>
             </div>
           </div>
 
-          <!-- Columna Derecha -->
           <div class="col-md-6">
-            <!-- Estado -->
             <div class="mb-3">
               <label for="estado" class="form-label fw-semibold">Estado</label>
               <select class="form-select" id="estado" name="estado" required>
@@ -62,24 +54,16 @@
               </select>
             </div>
 
-            <!-- ID - Landing -->
             <div class="mb-3">
               <label for="infraestructura" class="form-label fw-semibold">ID - Landing</label>
-              <select class="form-select" id="infraestructura" name="infraestructura" required>
+              <select class="form-select" id="infraestructura" name="idLandingStation" required>
                 <option value="" selected disabled>Seleccionar Infraestructura</option>
-                <option value="Landing 1">Landing 1</option>
-                <option value="Landing 2">Landing 2</option>
-                <option value="Landing 3">Landing 3</option>
+                <% for (LandingStation ls : listaLandings) { %>
+                <option value="<%=ls.getIdLandingStation()%>"><%=ls.getIdLandingStation()%> - <%=ls.getNombre()%> (<%=ls.getCiudad()%>, <%=ls.getPais()%>)</option>
+                <% } %>
               </select>
             </div>
 
-            <!-- Ubicación -->
-            <div class="mb-3">
-              <label for="ubicacion" class="form-label fw-semibold">Ubicación</label>
-              <input type="text" class="form-control" id="ubicacion" name="ubicacion" placeholder="De la infraestructura">
-            </div>
-
-            <!-- Tipo de mantenimiento -->
             <div class="mb-3">
               <label for="tipoMantenimiento" class="form-label fw-semibold">Tipo de mantenimiento</label>
               <select class="form-select" id="tipoMantenimiento" name="tipoMantenimiento" required>
@@ -92,7 +76,6 @@
 
         </div>
 
-        <!-- Botón de Envío -->
         <div class="d-flex justify-content-end mt-4">
           <button type="submit" class="btn btn-outline-dark px-4 py-2">Guardar registro</button>
         </div>

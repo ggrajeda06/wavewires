@@ -12,7 +12,7 @@ public class LandingStationDao extends DaoBase {
     // Listar Landings
     public ArrayList<LandingStation> listarLandingStations() {
         ArrayList<LandingStation> lista = new ArrayList<>();
-        String sql = "SELECT * FROM landingstations";
+        String sql = "SELECT * FROM landingstation";
 
         try (Connection conn = this.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -20,7 +20,7 @@ public class LandingStationDao extends DaoBase {
 
             while (rs.next()) {
                 LandingStation ls = new LandingStation();
-                ls.setIdLandingStations(rs.getInt("idLandingStations"));
+                ls.setIdLandingStation(rs.getInt("idLandingStation"));
                 ls.setNombre(rs.getString("nombre"));
                 ls.setPais(rs.getString("pais"));
                 ls.setCiudad(rs.getString("ciudad"));
