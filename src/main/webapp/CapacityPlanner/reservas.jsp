@@ -1,8 +1,9 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>WaveWires - Registro de reservas</title>
   <!-- Bootstrap 5 CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
@@ -12,7 +13,7 @@
 <body class="bg-light">
 
 <div class="row g-0">
-  <!-- Menú lateral -->
+  <!-- Menú lateral reutilizable -->
   <jsp:include page="sidebar.jsp"/>
 
   <!-- Contenido principal centrado -->
@@ -24,7 +25,7 @@
         <h2 class="h3 fw-bold text-dark m-0">Registro de reservas</h2>
       </div>
 
-      <!-- Tarjeta compacta idéntica a Historial -->
+      <!-- Tarjeta principal -->
       <div class="card shadow-sm border-0 p-4 bg-white rounded-3">
 
         <!-- Buscador -->
@@ -34,7 +35,7 @@
           </div>
         </div>
 
-        <!-- Tabla simétrica -->
+        <!-- Tabla estática de reservas -->
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-4">
             <thead class="table-light">
@@ -51,7 +52,7 @@
               <td>Perú - EEUU</td>
               <td><span class="badge bg-light text-dark border">20 / 500 Gbps</span></td>
               <td class="text-end">
-                <button class="btn btn-outline-primary btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalModificarReserva">
+                <button type="button" class="btn btn-outline-primary btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalModificarReserva">
                   <i class="bi bi-pencil-square me-1"></i> Modificar
                 </button>
               </td>
@@ -61,7 +62,7 @@
               <td>Perú - España</td>
               <td><span class="badge bg-light text-dark border">30 / 500 Gbps</span></td>
               <td class="text-end">
-                <button class="btn btn-outline-primary btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalModificarReserva">
+                <button type="button" class="btn btn-outline-primary btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalModificarReserva">
                   <i class="bi bi-pencil-square me-1"></i> Modificar
                 </button>
               </td>
@@ -71,7 +72,7 @@
               <td>Perú - Japón</td>
               <td><span class="badge bg-light text-dark border">50 / 500 Gbps</span></td>
               <td class="text-end">
-                <button class="btn btn-outline-primary btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalModificarReserva">
+                <button type="button" class="btn btn-outline-primary btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalModificarReserva">
                   <i class="bi bi-pencil-square me-1"></i> Modificar
                 </button>
               </td>
@@ -82,8 +83,8 @@
 
         <!-- Paginación -->
         <div class="d-flex justify-content-end gap-2 pt-2 border-top">
-          <button class="btn btn-outline-secondary btn-sm px-3" disabled>Anterior</button>
-          <button class="btn btn-outline-secondary btn-sm px-3">Siguiente</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm px-3" disabled>Anterior</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm px-3">Siguiente</button>
         </div>
 
       </div>
@@ -91,14 +92,14 @@
   </main>
 </div>
 
-<!-- Modal compacto para modificar reserva -->
+<!-- Modal maqueta para modificar reserva (solo visual) -->
 <div class="modal fade" id="modalModificarReserva" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 380px;">
     <div class="modal-content border-0 shadow rounded-3">
 
       <div class="modal-header border-bottom py-2 px-3">
         <h6 class="modal-title fw-bold m-0">Modificar cantidad reservada</h6>
-        <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
       <div class="modal-body p-3">

@@ -1,8 +1,9 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>WaveWires - Servicios Activos</title>
   <!-- Bootstrap 5 CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
@@ -12,7 +13,7 @@
 <body class="bg-light">
 
 <div class="row g-0">
-  <!-- Menú lateral -->
+  <!-- Menú lateral reutilizable -->
   <jsp:include page="sidebar.jsp"/>
 
   <!-- Contenido principal -->
@@ -26,7 +27,7 @@
       </div>
     </div>
 
-    <!-- Tarjeta principal simétrica -->
+    <!-- Tarjeta principal -->
     <div class="card shadow-sm border-0 p-3">
 
       <!-- Buscador -->
@@ -36,7 +37,7 @@
         </div>
       </div>
 
-      <!-- Tabla de Servicios Activos -->
+      <!-- Tabla estática de Servicios Activos -->
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-3">
           <thead class="table-light">
@@ -58,8 +59,7 @@
             <td class="text-secondary fw-semibold">30 Gbps</td>
             <td class="text-secondary">10 / 11 / 2026</td>
             <td class="text-center">
-              <button class="btn btn-outline-danger btn-sm px-3"
-                      onclick="return confirm('¿Está seguro de dar de baja el Servicio 1? La capacidad liberada retornará automáticamente a capacidad disponible.')">
+              <button type="button" class="btn btn-outline-danger btn-sm px-3">
                 <i class="bi bi-trash"></i> Eliminar
               </button>
             </td>
@@ -73,8 +73,7 @@
             <td class="text-secondary fw-semibold">100 Gbps</td>
             <td class="text-secondary">10 / 11 / 2026</td>
             <td class="text-center">
-              <button class="btn btn-outline-danger btn-sm px-3"
-                      onclick="return confirm('¿Está seguro de dar de baja el Servicio 2? La capacidad liberada retornará automáticamente a capacidad disponible.')">
+              <button type="button" class="btn btn-outline-danger btn-sm px-3">
                 <i class="bi bi-trash"></i> Eliminar
               </button>
             </td>
@@ -85,8 +84,8 @@
 
       <!-- Paginación -->
       <div class="d-flex justify-content-end gap-2">
-        <button class="btn btn-outline-secondary btn-sm" disabled>Anterior</button>
-        <button class="btn btn-outline-secondary btn-sm">Siguiente</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Anterior</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm">Siguiente</button>
       </div>
 
     </div>
