@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <title>WaveWires</title>
+  <title>OceanLink</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 </head>
 <body>
@@ -53,10 +53,6 @@
       </tbody>
     </table>
 
-    <div class="text-end">
-      <a href="#" class="btn btn-sm btn-outline-secondary">Anterior</a>
-      <a href="#" class="btn btn-sm btn-outline-secondary">Siguiente</a>
-    </div>
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

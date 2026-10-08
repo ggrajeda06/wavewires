@@ -30,12 +30,12 @@ public class MantenimientoServlet extends HttpServlet {
                 ArrayList<Mantenimiento> listaMantenimientos = mantenimientoDao.listarMantenimientos();
                 request.setAttribute("lista", listaMantenimientos);
                 request.setAttribute("listaLandings", landingStationDao.listarLandingStations());
-                view = request.getRequestDispatcher("Maintence/Mantenimiento.jsp");
+                view = request.getRequestDispatcher("Maintenance/Mantenimiento.jsp");
                 view.forward(request, response);
                 break;
             case "formCrear":
                 request.setAttribute("listaLandings", landingStationDao.listarLandingStations());
-                view = request.getRequestDispatcher("Maintence/registrarMantenimiento.jsp");
+                view = request.getRequestDispatcher("Maintenance/registrarMantenimiento.jsp");
                 view.forward(request, response);
                 break;
             case "editar":
@@ -46,7 +46,7 @@ public class MantenimientoServlet extends HttpServlet {
                 } else {
                     request.setAttribute("mantenimiento", mantenimiento);
                     request.setAttribute("listaLandings", landingStationDao.listarLandingStations());
-                    view = request.getRequestDispatcher("Maintence/editarMantenimiento.jsp");
+                    view = request.getRequestDispatcher("Maintenance/editarMantenimiento.jsp");
                     view.forward(request, response);
                 }
                 break;

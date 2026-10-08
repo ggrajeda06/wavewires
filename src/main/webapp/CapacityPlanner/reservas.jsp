@@ -3,38 +3,28 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>WaveWires - Registro de reservas</title>
-  <!-- Bootstrap 5 CSS -->
+  <title>OceanLink</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body class="bg-light">
 
 <div class="row g-0">
-  <!-- Menú lateral -->
   <jsp:include page="sidebar.jsp"/>
-
-  <!-- Contenido principal centrado -->
   <main class="col p-4 p-lg-5">
     <div class="container-fluid" style="max-width: 1000px;">
 
-      <!-- Encabezado -->
       <div class="mb-4">
         <h2 class="h3 fw-bold text-dark m-0">Registro de reservas</h2>
       </div>
-
-      <!-- Tarjeta compacta idéntica a Historial -->
       <div class="card shadow-sm border-0 p-4 bg-white rounded-3">
 
-        <!-- Buscador -->
         <div class="row mb-4">
           <div class="col-md-5">
             <input type="text" class="form-control" placeholder="Buscar por segmento o ruta...">
           </div>
         </div>
 
-        <!-- Tabla simétrica -->
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-4">
             <thead class="table-light">
@@ -80,18 +70,11 @@
           </table>
         </div>
 
-        <!-- Paginación -->
-        <div class="d-flex justify-content-end gap-2 pt-2 border-top">
-          <button class="btn btn-outline-secondary btn-sm px-3" disabled>Anterior</button>
-          <button class="btn btn-outline-secondary btn-sm px-3">Siguiente</button>
-        </div>
-
       </div>
     </div>
   </main>
 </div>
 
-<!-- Modal compacto para modificar reserva -->
 <div class="modal fade" id="modalModificarReserva" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 380px;">
     <div class="modal-content border-0 shadow rounded-3">
@@ -126,7 +109,6 @@
   </div>
 </div>
 
-<!-- Bootstrap 5 Bundle JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

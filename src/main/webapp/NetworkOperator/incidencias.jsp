@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <title>WaveWires</title>
+  <title>OceanLink</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 </head>
 <body>
@@ -94,18 +94,12 @@
       </tbody>
     </table>
 
-    <div class="text-end">
-      <a href="#" class="btn btn-sm btn-outline-secondary">Anterior</a>
-      <a href="#" class="btn btn-sm btn-outline-secondary">Siguiente</a>
-    </div>
 
-    <!-- Modales: Incidencia 1 -->
     <div class="modal fade" id="obsModal1" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Observaciones — Incidencia 1</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <p>Se detectó una caída de señal en el tramo hacia Chimbote, posible corte de fibra submarina.</p>
@@ -121,7 +115,6 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Segmentos afectados — Incidencia 1</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <ul class="mb-0">
@@ -140,7 +133,6 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Clientes afectados — Incidencia 1</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <ul class="mb-0">
@@ -154,13 +146,12 @@
       </div>
     </div>
 
-    <!-- Modales: Incidencia 2 -->
+
     <div class="modal fade" id="obsModal2" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Observaciones — Incidencia 2</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <p>Pérdida parcial de capacidad en el segmento hacia Valparaíso por mantenimiento no programado.</p>
@@ -176,7 +167,6 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Segmentos afectados — Incidencia 2</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <ul class="mb-0">
@@ -194,7 +184,6 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Clientes afectados — Incidencia 2</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <ul class="mb-0">
@@ -209,13 +198,12 @@
       </div>
     </div>
 
-    <!-- Modales: Incidencia 3 -->
+
     <div class="modal fade" id="obsModal3" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Observaciones — Incidencia 3</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <p>Incidente resuelto tras reinicio del equipo en la landing de Valparaíso.</p>
@@ -231,7 +219,6 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Segmentos afectados — Incidencia 3</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <ul class="mb-0">
@@ -249,7 +236,6 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Clientes afectados — Incidencia 3</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <ul class="mb-0">
@@ -263,13 +249,12 @@
       </div>
     </div>
 
-    <!-- Modales: Incidencia 4 -->
+
     <div class="modal fade" id="obsModal4" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Observaciones — Incidencia 4</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <p>Alerta automática por variación de latencia, en evaluación.</p>
@@ -285,7 +270,6 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Segmentos afectados — Incidencia 4</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <ul class="mb-0">
@@ -303,7 +287,6 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Clientes afectados — Incidencia 4</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <ul class="mb-0">

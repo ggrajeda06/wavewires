@@ -1,5 +1,6 @@
 package com.oceanlink.daos;
 
+import com.oceanlink.beans.DaoBase;
 import com.oceanlink.beans.LandingStation;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

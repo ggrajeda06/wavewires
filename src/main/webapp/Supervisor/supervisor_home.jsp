@@ -4,35 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OceanLink - Estado general de la red</title>
+    <title>OceanLink</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <style>
-        .supervisor-sidebar { width: 240px; flex-shrink: 0; height: 100vh; position: sticky; top: 0; }
-        .supervisor-sidebar .nav-link { border-radius: .375rem; padding: .75rem 1rem; }
-        .supervisor-sidebar .nav-link:hover,
-        .supervisor-sidebar .nav-link:focus-visible,
-        .supervisor-sidebar .nav-link.active { background-color: var(--bs-secondary); }
-        .supervisor-main { min-width: 0; }
-        .modal th { white-space: nowrap; }
-        .detail-content { min-width: 180px; }
-        @media (max-width: 767.98px) {
-            .supervisor-sidebar { width: 100%; height: auto; position: static; }
-        }
-    </style>
 </head>
 <body class="bg-light">
 <div class="d-flex flex-column flex-md-row min-vh-100">
-    <nav class="supervisor-sidebar d-flex flex-column bg-dark p-3" aria-label="Navegación del supervisor">
-        <div class="h5 text-white px-3 py-2 mb-3">OceanLink</div>
-        <div class="nav flex-column gap-2 mb-4">
-            <a class="nav-link text-white active fw-semibold" aria-current="page" href="${pageContext.request.contextPath}/Supervisor/supervisor_home.jsp">Estado general de la red</a>
-            <a class="nav-link text-white" href="${pageContext.request.contextPath}/Supervisor/reportes_supervisor.jsp">Reportes</a>
-            <a class="nav-link text-white" href="${pageContext.request.contextPath}/Supervisor/historial_reportes.jsp">
-                Historial de reportes
-            </a>
-        </div>
-        <a class="nav-link text-white mt-auto" href="${pageContext.request.contextPath}/login.jsp?logout=1">Cerrar sesión</a>
-    </nav>
+    <jsp:include page="sidebarSupervisor.jsp"/>
     <main class="supervisor-main flex-grow-1 p-3 p-lg-4">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
             <h1 class="h3 fw-bold mb-0">Estado general de la red</h1>

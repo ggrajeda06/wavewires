@@ -11,16 +11,10 @@
   </div>
 
 
-  <div class="sidebar-section-label text-uppercase mb-2 px-2">Network Operator</div>
+  <div class="sidebar-section-label text-uppercase mb-2 px-2">Maintenance Coordinator</div>
   <nav class="nav flex-column mb-auto">
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="incidencias.jsp">
-      Incidencias
-    </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="restauracion.jsp">
-      Restauración
-    </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="historial.jsp">
-      Historial de incidencias
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/MantenimientoServlet">
+      Mantenimiento
     </a>
   </nav>
 

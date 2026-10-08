@@ -3,22 +3,16 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>WaveWires - Servicios Activos</title>
-  <!-- Bootstrap 5 CSS -->
+  <title>OceanLink</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body class="bg-light">
 
 <div class="row g-0">
-  <!-- Menú lateral -->
   <jsp:include page="sidebar.jsp"/>
-
-  <!-- Contenido principal -->
   <main class="col p-4">
 
-    <!-- Encabezado de la vista -->
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h2 class="h3 fw-bold text-dark m-0">Servicios Activos</h2>
@@ -26,7 +20,6 @@
       </div>
     </div>
 
-    <!-- Tarjeta principal simétrica -->
     <div class="card shadow-sm border-0 p-3">
 
       <!-- Buscador -->
@@ -36,7 +29,6 @@
         </div>
       </div>
 
-      <!-- Tabla de Servicios Activos -->
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-3">
           <thead class="table-light">
@@ -50,7 +42,6 @@
           </tr>
           </thead>
           <tbody>
-          <!-- Fila 1 -->
           <tr>
             <td class="fw-medium">Servicio 1</td>
             <td>OAC S.A.C.</td>
@@ -65,7 +56,6 @@
             </td>
           </tr>
 
-          <!-- Fila 2 -->
           <tr>
             <td class="fw-medium">Servicio 2</td>
             <td>HYDRA S.A.C.</td>
@@ -83,17 +73,9 @@
         </table>
       </div>
 
-      <!-- Paginación -->
-      <div class="d-flex justify-content-end gap-2">
-        <button class="btn btn-outline-secondary btn-sm" disabled>Anterior</button>
-        <button class="btn btn-outline-secondary btn-sm">Siguiente</button>
-      </div>
-
     </div>
   </main>
 </div>
-
-<!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
