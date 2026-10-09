@@ -1,22 +1,31 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>OceanLink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WaveWires - Capacidad de la red</title>
+
+  <!-- Bootstrap 5 CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body class="bg-light">
 
 <div class="row g-0">
+  <!-- Menú lateral reutilizable con directiva include -->
   <jsp:include page="sidebar.jsp"/>
+
+  <!-- Contenido principal -->
   <main class="col p-4">
 
+    <!-- Título de la vista -->
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2 class="h3 fw-bold text-dark m-0">Capacidad de la red</h2>
     </div>
 
+    <!-- Tarjetas de Métricas principales -->
     <div class="row row-cols-1 row-cols-md-4 g-3 mb-4">
       <div class="col">
         <div class="card h-100 text-center shadow-sm border-0 bg-white p-2">
@@ -52,14 +61,17 @@
       </div>
     </div>
 
+    <!-- Contenedor de la Tabla -->
     <div class="card shadow-sm border-0 p-3">
 
+      <!-- Barra de búsqueda visual -->
       <div class="row mb-3">
         <div class="col-md-4">
           <input type="text" class="form-control" placeholder="Buscar segmento o ruta...">
         </div>
       </div>
 
+      <!-- Tabla estática de Capacidad -->
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-3">
           <thead class="table-light">
@@ -113,11 +125,18 @@
         </table>
       </div>
 
+      <!-- Paginación -->
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Anterior</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm">Siguiente</button>
+      </div>
+
     </div>
 
   </main>
 </div>
 
+<!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
