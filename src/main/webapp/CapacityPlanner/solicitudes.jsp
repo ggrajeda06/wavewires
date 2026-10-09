@@ -177,9 +177,9 @@
   </main>
 </div>
 
-<!-- ======================================================= -->
-<!-- MODAL: REGISTRAR NUEVA SOLICITUD                       -->
-<!-- ======================================================= -->
+
+<!-- Modal: Registrar nueva solicitud -->
+<
 <div class="modal fade" id="modalRegistrarSolicitud" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow">
