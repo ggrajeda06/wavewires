@@ -56,12 +56,12 @@
           </tr>
           </thead>
           <tbody>
-          <!-- Solicitud 1: Registrado -->
+          <!-- Solicitud 1: Pendiente -->
           <tr>
             <td class="fw-medium">Solicitud 1</td>
             <td>OAC S.A.C.</td>
             <td>
-              <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Registrado</span>
+              <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Pendiente</span>
             </td>
             <td class="text-muted">No asignado</td>
             <td>30 Gbps</td>
@@ -74,12 +74,12 @@
             </td>
           </tr>
 
-          <!-- Solicitud 2: En evaluacion -->
+          <!-- Solicitud 2: En evaluación -->
           <tr>
             <td class="fw-medium">Solicitud 2</td>
             <td>HYDRA S.A.C.</td>
             <td>
-              <span class="badge bg-warning-subtle text-warning border border-warning-subtle">En evaluacion</span>
+              <span class="badge bg-warning-subtle text-warning border border-warning-subtle">En evaluación</span>
             </td>
             <td>Segmento 2</td>
             <td>100 Gbps</td>
@@ -92,12 +92,12 @@
             </td>
           </tr>
 
-          <!-- Solicitud 3: Aprobado -->
+          <!-- Solicitud 3: Aprobada -->
           <tr>
             <td class="fw-medium">Solicitud 3</td>
             <td>SIES S.A.C.</td>
             <td>
-              <span class="badge bg-info-subtle text-info border border-info-subtle">Aprobado</span>
+              <span class="badge bg-success-subtle text-success border border-success-subtle">Aprobada</span>
             </td>
             <td>Segmento 1</td>
             <td>50 Gbps</td>
@@ -110,12 +110,12 @@
             </td>
           </tr>
 
-          <!-- Solicitud 4: Pendiente por capacidad -->
+          <!-- Solicitud 4: Pendiente -->
           <tr>
             <td class="fw-medium">Solicitud 4</td>
             <td>AMÉRICA MÓVIL</td>
             <td>
-              <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Pendiente por capacidad</span>
+              <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Pendiente</span>
             </td>
             <td>Segmento 3</td>
             <td>200 Gbps</td>
@@ -128,12 +128,12 @@
             </td>
           </tr>
 
-          <!-- Solicitud 5: Provisionado -->
+          <!-- Solicitud 5: Aprobada -->
           <tr>
             <td class="fw-medium">Solicitud 5</td>
             <td>TELEFÓNICA DEL PERÚ</td>
             <td>
-              <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Provisionado</span>
+              <span class="badge bg-success-subtle text-success border border-success-subtle">Aprobada</span>
             </td>
             <td>Segmento 2</td>
             <td>80 Gbps</td>
@@ -146,12 +146,12 @@
             </td>
           </tr>
 
-          <!-- Solicitud 6: Rechazado -->
+          <!-- Solicitud 6: Rechazada -->
           <tr>
             <td class="fw-medium">Solicitud 6</td>
             <td>ENTEL S.A.</td>
             <td>
-              <span class="badge bg-dark-subtle text-dark border border-dark-subtle">Rechazado</span>
+              <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Rechazada</span>
             </td>
             <td>Segmento 1</td>
             <td>150 Gbps</td>
@@ -283,12 +283,10 @@
         <div class="mb-3">
           <label class="form-label small fw-semibold">Estado</label>
           <select class="form-select">
-            <option>Registrado</option>
+            <option>Pendiente</option>
             <option>En evaluación</option>
-            <option>Aprobado</option>
-            <option>Pendiente por Capacidad</option>
-            <option>Provisionado</option>
-            <option>Rechazado</option>
+            <option>Aprobada</option>
+            <option>Rechazada</option>
           </select>
           <small class="text-muted">Las reglas de transición se gestionarán en el Servlet.</small>
         </div>

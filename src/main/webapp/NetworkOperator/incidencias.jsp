@@ -56,7 +56,7 @@
           <td>Lurín CLS</td>
           <td><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#obsModal1">Detalle</button></td>
           <td><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#segModal1">Detalle</button></td>
-          <td>En reparación</td>
+          <td>En proceso</td>
           <td>Alta</td>
           <td><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#cliModal1">Detalle</button></td>
           <td><a href="incidencias_form.jsp?id=1" class="btn btn-sm btn-outline-secondary">Editar</a></td>
@@ -66,7 +66,7 @@
           <td>Arica CLS</td>
           <td><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#obsModal2">Detalle</button></td>
           <td><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#segModal2">Detalle</button></td>
-          <td>En reparación</td>
+          <td>En proceso</td>
           <td>Alta</td>
           <td><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#cliModal2">Detalle</button></td>
           <td><a href="incidencias_form.jsp?id=2" class="btn btn-sm btn-outline-secondary">Editar</a></td>
@@ -76,7 +76,7 @@
           <td>Valparaíso CLS</td>
           <td><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#obsModal3">Detalle</button></td>
           <td><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#segModal3">Detalle</button></td>
-          <td>Cerrada</td>
+          <td>Resuelta</td>
           <td>Media</td>
           <td><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#cliModal3">Detalle</button></td>
           <td><a href="incidencias_form.jsp?id=3" class="btn btn-sm btn-outline-secondary">Editar</a></td>
@@ -86,7 +86,7 @@
           <td>Las Toninas CLS</td>
           <td><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#obsModal4">Detalle</button></td>
           <td><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#segModal4">Detalle</button></td>
-          <td>Detectada</td>
+          <td>Abierta</td>
           <td>Baja</td>
           <td><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#cliModal4">Detalle</button></td>
           <td><a href="incidencias_form.jsp?id=4" class="btn btn-sm btn-outline-secondary">Editar</a></td>

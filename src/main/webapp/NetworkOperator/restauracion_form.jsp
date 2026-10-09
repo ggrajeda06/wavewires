@@ -17,9 +17,9 @@
       <label class="form-label">Seleccionar incidencia</label>
       <select class="form-select mb-3">
         <option>Seleccionar</option>
-        <option>Incidencia 4 — Detectada</option>
-        <option>Incidencia 8 — En análisis</option>
-        <option>Incidencia 9 — En análisis</option>
+        <option>Incidencia 4 — Abierta</option>
+        <option>Incidencia 8 — En proceso</option>
+        <option>Incidencia 9 — En proceso</option>
       </select>
 
       <label class="form-label">Fecha de restauración</label>

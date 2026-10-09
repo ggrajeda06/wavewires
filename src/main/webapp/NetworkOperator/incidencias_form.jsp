@@ -58,10 +58,9 @@
 
       <label class="form-label">Estado</label>
       <select class="form-select mb-3">
-        <option>Detectada</option>
-        <option>En análisis</option>
-        <option>En reparación</option>
-        <option>Cerrada</option>
+        <option>Abierta</option>
+        <option>En proceso</option>
+        <option>Resuelta</option>
       </select>
 
       <label class="form-label">Observaciones</label>
