@@ -125,11 +125,6 @@
         </table>
       </div>
 
-      <!-- Paginación -->
-      <div class="d-flex justify-content-end gap-2">
-        <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Anterior</button>
-        <button type="button" class="btn btn-outline-secondary btn-sm">Siguiente</button>
-      </div>
 
     </div>
 

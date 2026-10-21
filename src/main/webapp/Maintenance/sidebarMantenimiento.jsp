@@ -16,6 +16,9 @@
     <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/MantenimientoServlet">
       Mantenimiento
     </a>
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="/Maintenance/ServiciosAfectados.jsp">
+      Servicios Afectados
+    </a>
   </nav>
 
   <div class="border-top border-secondary opacity-25 my-3"></div>

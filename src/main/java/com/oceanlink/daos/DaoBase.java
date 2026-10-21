@@ -1,4 +1,4 @@
-package com.oceanlink.beans;
+package com.oceanlink.daos;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
