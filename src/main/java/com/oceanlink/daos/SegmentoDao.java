@@ -6,7 +6,7 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class SegmentoDao {
-
+    //este es metodo propio de segmento en la vist de landing ARLES NO LO QUITES PORFAVOOOOR
     public ArrayList<Segmento> listarSegmentosPorLanding(int idLandingStation) {
 
         ArrayList<Segmento> lista = new ArrayList<>();

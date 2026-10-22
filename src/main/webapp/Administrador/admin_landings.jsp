@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page import="com.oceanlink.beans.LandingStation" %>
+<jsp:useBean id="lista" type="java.util.ArrayList<com.oceanlink.beans.LandingStation>" scope="request" />
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -11,14 +13,12 @@
   <main class="col p-4">
     <h4>Landing Station</h4>
 
-    <div class="d-flex gap-2 mb-3">
-      <input class="form-control" placeholder="Buscar">
-      <select class="form-select w-auto">
-        <option>Filtrar</option>
-        <option>Estado</option>
-        <option>País</option>
-      </select>
-      <a href="admin_landing_form.jsp" class="btn btn-primary">+ Nuevo</a>
+    <% if (request.getParameter("error") != null) { %>
+    <div class="alert alert-danger">No se puede eliminar la landing station porque tiene segmentos, mantenimientos, incidencias o solicitudes asociadas.</div>
+    <% } %>
+
+    <div class="d-flex justify-content-end mb-3">
+      <a href="<%=request.getContextPath()%>/LandingStationServlet?action=formCrear" class="btn btn-primary">+ Nuevo</a>
     </div>
 
     <table class="table">
@@ -28,57 +28,29 @@
           <th>Ubicación</th>
           <th>Estado</th>
           <th>Segmentos</th>
-          <th>Incidencias activas</th>
-          <th>Mantenimientos</th>
           <th>Acción</th>
         </tr>
       </thead>
       <tbody>
+        <% for (LandingStation ls : lista) {
+             String colorEstado = "bg-secondary";
+             if ("Operativa".equals(ls.getEstado())) {
+                 colorEstado = "bg-success";
+             } else if ("Degradada".equals(ls.getEstado()) || "Mantenimiento".equals(ls.getEstado())) {
+                 colorEstado = "bg-danger";
+             }
+        %>
         <tr>
-          <td>Lurín</td>
-          <td>Lima, Perú</td>
-          <td><span class="d-inline-block rounded-circle bg-success" style="width:8px;height:8px;"></span> Operativa</td>
-          <td>3 <a href="admin_landing_segmentos.jsp?nombre=Lurín" class="btn btn-sm btn-outline-secondary ms-1">Ver</a></td>
-          <td>1 <a href="/NetworkOperator/incidencias.jsp" class="btn btn-sm btn-outline-secondary ms-1">Ver</a></td>
-          <td>0</td>
-          <td><a href="admin_landing_form.jsp?id=LS-001" class="btn btn-sm btn-outline-secondary">Editar</a></td>
+          <td><%=ls.getNombre()%></td>
+          <td><%=ls.getCiudad()%>, <%=ls.getPais()%></td>
+          <td><span class="d-inline-block rounded-circle <%=colorEstado%>" style="width:8px;height:8px;"></span> <%=ls.getEstado()%></td>
+          <td><a href="<%=request.getContextPath()%>/LandingStationServlet?action=verSegmentos&id=<%=ls.getIdLandingStation()%>" class="btn btn-sm btn-outline-secondary">Ver</a></td>
+          <td>
+            <a href="<%=request.getContextPath()%>/LandingStationServlet?action=editar&id=<%=ls.getIdLandingStation()%>" class="btn btn-sm btn-outline-secondary">Editar</a>
+            <a href="<%=request.getContextPath()%>/LandingStationServlet?action=borrar&id=<%=ls.getIdLandingStation()%>" class="btn btn-sm btn-outline-danger">Eliminar</a>
+          </td>
         </tr>
-        <tr>
-          <td>Chimbote</td>
-          <td>Áncash, Perú</td>
-          <td><span class="d-inline-block rounded-circle bg-success" style="width:8px;height:8px;"></span> Operativa</td>
-          <td>1 <a href="admin_landing_segmentos.jsp?nombre=Chimbote" class="btn btn-sm btn-outline-secondary ms-1">Ver</a></td>
-          <td>0</td>
-          <td>0</td>
-          <td><a href="admin_landing_form.jsp?id=LS-002" class="btn btn-sm btn-outline-secondary">Editar</a></td>
-        </tr>
-        <tr>
-          <td>Arica</td>
-          <td>Arica, Chile</td>
-          <td><span class="d-inline-block rounded-circle bg-danger" style="width:8px;height:8px;"></span> Degradada</td>
-          <td>2 <a href="admin_landing_segmentos.jsp?nombre=Arica" class="btn btn-sm btn-outline-secondary ms-1">Ver</a></td>
-          <td>1 <a href="/NetworkOperator/incidencias.jsp" class="btn btn-sm btn-outline-secondary ms-1">Ver</a></td>
-          <td>0</td>
-          <td><a href="admin_landing_form.jsp?id=LS-003" class="btn btn-sm btn-outline-secondary">Editar</a></td>
-        </tr>
-        <tr>
-          <td>Valparaíso</td>
-          <td>Valparaíso, Chile</td>
-          <td><span class="d-inline-block rounded-circle bg-success" style="width:8px;height:8px;"></span> Operativa</td>
-          <td>3 <a href="admin_landing_segmentos.jsp?nombre=Valparaíso" class="btn btn-sm btn-outline-secondary ms-1">Ver</a></td>
-          <td>0</td>
-          <td>1 <a href="/Maintence/Mantenimiento.jsp" class="btn btn-sm btn-outline-secondary ms-1">Ver</a></td>
-          <td><a href="admin_landing_form.jsp?id=LS-004" class="btn btn-sm btn-outline-secondary">Editar</a></td>
-        </tr>
-        <tr>
-          <td>Las Toninas</td>
-          <td>Buenos Aires, Argentina</td>
-          <td><span class="d-inline-block rounded-circle bg-danger" style="width:8px;height:8px;"></span> Mantenimiento</td>
-          <td>1 <a href="admin_landing_segmentos.jsp?nombre=Las Toninas" class="btn btn-sm btn-outline-secondary ms-1">Ver</a></td>
-          <td>1 <a href="/NetworkOperator/incidencias.jsp" class="btn btn-sm btn-outline-secondary ms-1">Ver</a></td>
-          <td>1 <a href="/Maintence/Mantenimiento.jsp" class="btn btn-sm btn-outline-secondary ms-1">Ver</a></td>
-          <td><a href="admin_landing_form.jsp?id=LS-005" class="btn btn-sm btn-outline-secondary">Editar</a></td>
-        </tr>
+        <% } %>
       </tbody>
     </table>
   </main>
