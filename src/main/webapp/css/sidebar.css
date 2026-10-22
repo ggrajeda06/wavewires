@@ -1,0 +1,40 @@
+.sidebar-custom {
+    background-color: #0f172a;
+    min-height: 100vh;
+    width: 260px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-title {
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-section-label {
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.sidebar-link {
+    color: #cbd5e1 !important;
+    border-radius: 6px;
+    padding: 0.55rem 0.85rem;
+    transition: all 0.2s ease-in-out;
+    font-size: 0.95rem;
+}
+
+.sidebar-link:hover {
+    background-color: #0d6efd;
+    color: #ffffff !important;
+    transform: translateX(3px);
+    font-weight: 500;
+}
+
+
+.sidebar-link-danger:hover {
+    background-color: rgb(236 4 28 / 0.85);
+    color: #f8d7da !important;
+}

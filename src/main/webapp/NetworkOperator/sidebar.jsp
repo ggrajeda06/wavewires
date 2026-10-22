@@ -1,16 +1,33 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
-<div class="col-auto bg-dark text-white p-3" style="min-height: 100vh; width: 260px;">
-  <h5 class="mb-4">WaveWires</h5>
 
-  <div class="text-uppercase small text-muted mt-2 mb-1">Operaciones</div>
-  <nav class="nav flex-column mb-3">
-    <a class="nav-link text-light" href="incidencias.jsp">Incidencias</a>
-    <a class="nav-link text-light" href="restauracion.jsp">Restauración</a>
-    <a class="nav-link text-light" href="historial.jsp">Historial de incidencias</a>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<div class="col-auto sidebar-custom p-3 d-flex flex-column">
+
+  <div class="d-flex align-items-center mb-4 px-2">
+    <i class="bi bi-broadcast-pin me-2 fs-4 text-primary"></i>
+    <h5 class="sidebar-title mb-0">OceanLink</h5>
+  </div>
+
+
+  <div class="sidebar-section-label text-uppercase mb-2 px-2">Network Operator</div>
+  <nav class="nav flex-column mb-auto">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="incidencias.jsp">
+      Incidencias
+    </a>
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="restauracion.jsp">
+      Restauración
+    </a>
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="historial.jsp">
+      Historial de incidencias
+    </a>
   </nav>
 
-  <div class="text-uppercase small text-muted mt-2 mb-1">Cuenta</div>
+  <div class="border-top border-secondary opacity-25 my-3"></div>
   <nav class="nav flex-column">
-    <a class="nav-link text-light" href="../login.jsp">Cerrar sesión</a>
+    <a class="nav-link sidebar-link sidebar-link-danger d-flex align-items-center" href="../login.jsp">
+      <i class="bi bi-box-arrow-right me-2"></i> Cerrar sesión
+    </a>
   </nav>
 </div>

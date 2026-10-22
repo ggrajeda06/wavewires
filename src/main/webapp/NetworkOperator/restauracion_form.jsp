@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <title>WaveWires</title>
+  <title>OceanLink</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 </head>
 <body>
@@ -17,9 +17,9 @@
       <label class="form-label">Seleccionar incidencia</label>
       <select class="form-select mb-3">
         <option>Seleccionar</option>
-        <option>Incidencia 4 — Detectada</option>
-        <option>Incidencia 8 — En análisis</option>
-        <option>Incidencia 9 — En análisis</option>
+        <option>Incidencia 4 — Abierta</option>
+        <option>Incidencia 8 — En proceso</option>
+        <option>Incidencia 9 — En proceso</option>
       </select>
 
       <label class="form-label">Fecha de restauración</label>

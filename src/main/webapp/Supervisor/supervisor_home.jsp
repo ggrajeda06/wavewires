@@ -4,35 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OceanLink - Estado general de la red</title>
+    <title>OceanLink</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <style>
-        .supervisor-sidebar { width: 240px; flex-shrink: 0; height: 100vh; position: sticky; top: 0; }
-        .supervisor-sidebar .nav-link { border-radius: .375rem; padding: .75rem 1rem; }
-        .supervisor-sidebar .nav-link:hover,
-        .supervisor-sidebar .nav-link:focus-visible,
-        .supervisor-sidebar .nav-link.active { background-color: var(--bs-secondary); }
-        .supervisor-main { min-width: 0; }
-        .modal th { white-space: nowrap; }
-        .detail-content { min-width: 180px; }
-        @media (max-width: 767.98px) {
-            .supervisor-sidebar { width: 100%; height: auto; position: static; }
-        }
-    </style>
 </head>
 <body class="bg-light">
 <div class="d-flex flex-column flex-md-row min-vh-100">
-    <nav class="supervisor-sidebar d-flex flex-column bg-dark p-3" aria-label="Navegación del supervisor">
-        <div class="h5 text-white px-3 py-2 mb-3">OceanLink</div>
-        <div class="nav flex-column gap-2 mb-4">
-            <a class="nav-link text-white active fw-semibold" aria-current="page" href="${pageContext.request.contextPath}/Supervisor/supervisor_home.jsp">Estado general de la red</a>
-            <a class="nav-link text-white" href="${pageContext.request.contextPath}/Supervisor/reportes_supervisor.jsp">Reportes</a>
-            <a class="nav-link text-white" href="${pageContext.request.contextPath}/Supervisor/historial_reportes.jsp">
-                Historial de reportes
-            </a>
-        </div>
-        <a class="nav-link text-white mt-auto" href="${pageContext.request.contextPath}/login.jsp?logout=1">Cerrar sesión</a>
-    </nav>
+    <jsp:include page="sidebarSupervisor.jsp"/>
     <main class="supervisor-main flex-grow-1 p-3 p-lg-4">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
             <h1 class="h3 fw-bold mb-0">Estado general de la red</h1>
@@ -64,9 +41,9 @@
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><h2 class="h5 mb-0" id="tituloIncidencias">Incidencias activas</h2><button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalIncidencias">Más detalles</button></div>
                         <div class="table-responsive" tabindex="0" role="region" aria-label="Listado de incidencias">
 <table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th scope="col">ID de incidencia</th><th scope="col">Infraestructura</th><th scope="col">Estado</th><th scope="col">Severidad</th></tr></thead><tbody>
-<tr><th scope="row" class="fw-normal">INC-001</th><td>Landing-A</td><td>En análisis</td><td><span class="badge text-bg-danger">Crítica</span></td></tr>
-<tr><th scope="row" class="fw-normal">INC-002</th><td>Landing-B</td><td>En atención</td><td><span class="badge text-bg-warning">Alta</span></td></tr>
-<tr><th scope="row" class="fw-normal">INC-003</th><td>Landing-C</td><td>Detectada</td><td><span class="badge text-bg-info">Media</span></td></tr>
+<tr><th scope="row" class="fw-normal">INC-001</th><td>Landing-A</td><td>En proceso</td><td><span class="badge text-bg-danger">Crítica</span></td></tr>
+<tr><th scope="row" class="fw-normal">INC-002</th><td>Landing-B</td><td>En proceso</td><td><span class="badge text-bg-warning">Alta</span></td></tr>
+<tr><th scope="row" class="fw-normal">INC-003</th><td>Landing-C</td><td>Abierta</td><td><span class="badge text-bg-info">Media</span></td></tr>
 </tbody></table></div>
                     </div>
                 </section>
@@ -157,11 +134,11 @@
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
         <div class="modal-content">
             <div class="modal-header"><h2 class="modal-title fs-5" id="modalIncidenciasTitulo">Incidencias activas</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-            <div class="modal-body"><p class="small text-secondary" id="buscarIncidenciaNota">La búsqueda y los filtros aún no se aplican.</p><div class="row g-3 mb-4"><div class="col-12 col-lg"><label class="form-label small" for="buscarIncidencia">Buscar</label><input class="form-control" type="search" id="buscarIncidencia" placeholder="Buscar por ID o infraestructura" aria-describedby="buscarIncidenciaNota"></div><div class="col-12 col-sm-6 col-lg-3"><label class="form-label small" for="estadoIncidencia">Estado</label><select class="form-select" id="estadoIncidencia"><option>Todos los estados</option><option>Detectada</option><option>En análisis</option><option>En atención</option></select></div><div class="col-12 col-sm-6 col-lg-3"><label class="form-label small" for="severidadIncidencia">Severidad</label><select class="form-select" id="severidadIncidencia"><option>Todas las severidades</option><option>Crítica</option><option>Alta</option><option>Media</option><option>Baja</option></select></div></div><div class="table-responsive" tabindex="0" role="region" aria-label="Listado de incidencias">
+            <div class="modal-body"><p class="small text-secondary" id="buscarIncidenciaNota">La búsqueda y los filtros aún no se aplican.</p><div class="row g-3 mb-4"><div class="col-12 col-lg"><label class="form-label small" for="buscarIncidencia">Buscar</label><input class="form-control" type="search" id="buscarIncidencia" placeholder="Buscar por ID o infraestructura" aria-describedby="buscarIncidenciaNota"></div><div class="col-12 col-sm-6 col-lg-3"><label class="form-label small" for="estadoIncidencia">Estado</label><select class="form-select" id="estadoIncidencia"><option>Todos los estados</option><option>Abierta</option><option>En proceso</option></select></div><div class="col-12 col-sm-6 col-lg-3"><label class="form-label small" for="severidadIncidencia">Severidad</label><select class="form-select" id="severidadIncidencia"><option>Todas las severidades</option><option>Crítica</option><option>Alta</option><option>Media</option><option>Baja</option></select></div></div><div class="table-responsive" tabindex="0" role="region" aria-label="Listado de incidencias">
 <table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th scope="col">ID de incidencia</th><th scope="col">Infraestructura</th><th scope="col">Observaciones</th><th scope="col">Segmentos afectados</th><th scope="col">Estado</th><th scope="col">Severidad</th><th scope="col">Clientes afectados</th><th scope="col">Detectado</th></tr></thead><tbody>
-<tr><th scope="row" class="fw-normal">INC-001</th><td>Landing-A</td><td><details><summary class="text-decoration-underline">Descripción</summary><div class="bg-light border rounded p-2 mt-2 detail-content">Pérdida intermitente de conectividad en el enlace internacional.</div></details></td><td><details><summary class="text-decoration-underline">Segmentos</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>SEG-001</li><li>SEG-003</li></ul></div></details></td><td><span class="badge text-bg-secondary">En análisis</span></td><td><span class="badge text-bg-danger">Crítica</span></td><td><details><summary class="text-decoration-underline">Clientes</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>Empresa Andina</li><li>Red Pacífico</li></ul></div></details></td><td>17/09/2026</td></tr>
-<tr><th scope="row" class="fw-normal">INC-002</th><td>Landing-B</td><td><details><summary class="text-decoration-underline">Descripción</summary><div class="bg-light border rounded p-2 mt-2 detail-content">Incremento de latencia durante las horas de mayor tráfico.</div></details></td><td><details><summary class="text-decoration-underline">Segmentos</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>SEG-002</li></ul></div></details></td><td><span class="badge text-bg-secondary">En atención</span></td><td><span class="badge text-bg-warning">Alta</span></td><td><details><summary class="text-decoration-underline">Clientes</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>Conecta Perú</li></ul></div></details></td><td>16/09/2026</td></tr>
-<tr><th scope="row" class="fw-normal">INC-003</th><td>Landing-C</td><td><details><summary class="text-decoration-underline">Descripción</summary><div class="bg-light border rounded p-2 mt-2 detail-content">Degradación de señal pendiente de evaluación técnica.</div></details></td><td><details><summary class="text-decoration-underline">Segmentos</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>SEG-005</li></ul></div></details></td><td><span class="badge text-bg-secondary">Detectada</span></td><td><span class="badge text-bg-info">Media</span></td><td><details><summary class="text-decoration-underline">Clientes</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>Servicios del Sur</li></ul></div></details></td><td>17/09/2026</td></tr>
+<tr><th scope="row" class="fw-normal">INC-001</th><td>Landing-A</td><td><details><summary class="text-decoration-underline">Descripción</summary><div class="bg-light border rounded p-2 mt-2 detail-content">Pérdida intermitente de conectividad en el enlace internacional.</div></details></td><td><details><summary class="text-decoration-underline">Segmentos</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>SEG-001</li><li>SEG-003</li></ul></div></details></td><td><span class="badge text-bg-secondary">En proceso</span></td><td><span class="badge text-bg-danger">Crítica</span></td><td><details><summary class="text-decoration-underline">Clientes</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>Empresa Andina</li><li>Red Pacífico</li></ul></div></details></td><td>17/09/2026</td></tr>
+<tr><th scope="row" class="fw-normal">INC-002</th><td>Landing-B</td><td><details><summary class="text-decoration-underline">Descripción</summary><div class="bg-light border rounded p-2 mt-2 detail-content">Incremento de latencia durante las horas de mayor tráfico.</div></details></td><td><details><summary class="text-decoration-underline">Segmentos</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>SEG-002</li></ul></div></details></td><td><span class="badge text-bg-secondary">En proceso</span></td><td><span class="badge text-bg-warning">Alta</span></td><td><details><summary class="text-decoration-underline">Clientes</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>Conecta Perú</li></ul></div></details></td><td>16/09/2026</td></tr>
+<tr><th scope="row" class="fw-normal">INC-003</th><td>Landing-C</td><td><details><summary class="text-decoration-underline">Descripción</summary><div class="bg-light border rounded p-2 mt-2 detail-content">Degradación de señal pendiente de evaluación técnica.</div></details></td><td><details><summary class="text-decoration-underline">Segmentos</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>SEG-005</li></ul></div></details></td><td><span class="badge text-bg-secondary">Abierta</span></td><td><span class="badge text-bg-info">Media</span></td><td><details><summary class="text-decoration-underline">Clientes</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>Servicios del Sur</li></ul></div></details></td><td>17/09/2026</td></tr>
 </tbody></table></div><div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3"><span class="small text-secondary">Página 1 de 1</span><div class="d-flex gap-2" aria-label="Paginación"><button type="button" class="btn btn-outline-secondary btn-sm" disabled>Anterior</button><button type="button" class="btn btn-outline-secondary btn-sm" disabled>Siguiente</button></div></div></div>
             <div class="modal-footer"><a class="btn btn-outline-dark" href="${pageContext.request.contextPath}/Supervisor/reportes_supervisor.jsp">Reportar</a></div>
         </div>

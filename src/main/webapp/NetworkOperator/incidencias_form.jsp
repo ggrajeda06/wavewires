@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <title>WaveWires</title>
+  <title>OceanLink</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 </head>
 <body>
@@ -58,10 +58,9 @@
 
       <label class="form-label">Estado</label>
       <select class="form-select mb-3">
-        <option>Detectada</option>
-        <option>En análisis</option>
-        <option>En reparación</option>
-        <option>Cerrada</option>
+        <option>Abierta</option>
+        <option>En proceso</option>
+        <option>Resuelta</option>
       </select>
 
       <label class="form-label">Observaciones</label>
