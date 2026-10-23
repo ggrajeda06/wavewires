@@ -13,20 +13,20 @@
 
   <div class="sidebar-section-label text-uppercase mb-2 px-2">Network Operator</div>
   <nav class="nav flex-column mb-auto">
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="incidencias.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/IncidenciaServlet">
       Incidencias
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="restauracion.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/NetworkOperator/restauracion.jsp">
       Restauración
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="historial.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/NetworkOperator/historial.jsp">
       Historial de incidencias
     </a>
   </nav>
 
   <div class="border-top border-secondary opacity-25 my-3"></div>
   <nav class="nav flex-column">
-    <a class="nav-link sidebar-link sidebar-link-danger d-flex align-items-center" href="../login.jsp">
+    <a class="nav-link sidebar-link sidebar-link-danger d-flex align-items-center" href="<%=request.getContextPath()%>/login.jsp">
       <i class="bi bi-box-arrow-right me-2"></i> Cerrar sesión
     </a>
   </nav>

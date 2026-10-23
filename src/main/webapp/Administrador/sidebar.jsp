@@ -36,8 +36,7 @@
     <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/CapacityPlanner/capacidad.jsp">
       Monitoreo de Capacidad
     </a>
-    <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/NetworkOperator/incidencias.jsp">
-      Incidencias
+    <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/IncidenciaServlet">      Incidencias
     </a>
     <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/MantenimientoServlet">
        Mantenimiento

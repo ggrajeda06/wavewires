@@ -17,21 +17,21 @@
         <div class="card p-3 border-danger">
           <small class="text-danger">Incidencias críticas</small>
           <div class="fs-4">5 / 9</div>
-          <a href="/NetworkOperator/incidencias.jsp" class="btn btn-sm btn-outline-danger mt-2">Ver</a>
+          <a href="<%=request.getContextPath()%>/IncidenciaServlet" class="btn btn-sm btn-outline-danger mt-2">Ver</a>
         </div>
       </div>
       <div class="col-md-4">
         <div class="card p-3 border-warning">
           <small class="text-warning">Solicitudes pendientes</small>
           <div class="fs-4">4</div>
-          <a href="/CapacityPlanner/solicitudes.jsp" class="btn btn-sm btn-outline-warning mt-2">Ver</a>
+          <a href="<%=request.getContextPath()%>/SolicitudesServlet" class="btn btn-sm btn-outline-warning mt-2">Ver</a>
         </div>
       </div>
       <div class="col-md-4">
         <div class="card p-3">
           <small class="text-muted">Mantenimientos próximos (48h)</small>
           <div class="fs-4">3</div>
-          <a href="/Maintence/Mantenimiento.jsp" class="btn btn-sm btn-outline-secondary mt-2">Ver</a>
+          <a href="<%=request.getContextPath()%>/MantenimientoServlet" class="btn btn-sm btn-outline-secondary mt-2">Ver</a>
         </div>
       </div>
     </div>
@@ -44,7 +44,7 @@
           <div class="progress mt-2 mb-2" style="height: 6px;">
             <div class="progress-bar bg-success" style="width: 80%"></div>
           </div>
-          <a href="admin_landings.jsp" class="btn btn-sm btn-outline-secondary">Ver</a>
+          <a href="<%=request.getContextPath()%>/LandingStationServlet" class="btn btn-sm btn-outline-secondary">Ver</a>
         </div>
       </div>
       <div class="col-md-4">
@@ -54,7 +54,7 @@
           <div class="progress mt-2 mb-2" style="height: 6px;">
             <div class="progress-bar bg-danger" style="width: 45%"></div>
           </div>
-          <a href="admin_segmentos.jsp" class="btn btn-sm btn-outline-secondary">Ver</a>
+          <a href="<%=request.getContextPath()%>/SegmentoServlet" class="btn btn-sm btn-outline-secondary">Ver</a>
         </div>
       </div>
       <div class="col-md-4">
@@ -64,7 +64,7 @@
           <div class="progress mt-2 mb-2" style="height: 6px;">
             <div class="progress-bar bg-success" style="width: 74%"></div>
           </div>
-          <a href="/CapacityPlanner/index.jsp" class="btn btn-sm btn-outline-secondary">Ver</a>
+          <a href="<%=request.getContextPath()%>/CapacityPlanner/capacidad.jsp" class="btn btn-sm btn-outline-secondary">Ver</a>
         </div>
       </div>
     </div>
@@ -74,21 +74,21 @@
         <div class="card p-3">
           <small class="text-muted">Servicios activos</small>
           <div class="fs-4">22</div>
-          <a href="/CapacityPlanner/reservas.jsp" class="btn btn-sm btn-outline-secondary mt-2">Ver</a>
+          <a href="<%=request.getContextPath()%>/CapacityPlanner/servicios.jsp" class="btn btn-sm btn-outline-secondary mt-2">Ver</a>
         </div>
       </div>
       <div class="col-md-4">
         <div class="card p-3">
           <small class="text-muted">Clientes activos</small>
           <div class="fs-4">12 / 15</div>
-          <a href="/CapacityPlanner/clientes.jsp" class="btn btn-sm btn-outline-secondary mt-2">Ver</a>
+          <a href="<%=request.getContextPath()%>/ClienteServlet" class="btn btn-sm btn-outline-secondary mt-2">Ver</a>
         </div>
       </div>
       <div class="col-md-4">
         <div class="card p-3">
           <small class="text-muted">Usuarios activos</small>
           <div class="fs-4">38 / 47</div>
-          <a href="admin_usuarios.jsp" class="btn btn-sm btn-outline-secondary mt-2">Ver</a>
+          <a href="<%=request.getContextPath()%>/UsuarioServlet" class="btn btn-sm btn-outline-secondary mt-2">Ver</a>
         </div>
       </div>
     </div>
@@ -113,35 +113,35 @@
                 <td>Lurín CLS — falla de energía auxiliar</td>
                 <td>Crítica</td>
                 <td>25 min</td>
-                <td><a href="/NetworkOperator/incidencias.jsp?id=1" class="btn btn-sm btn-outline-secondary">Detalle</a></td>
+                <td><a href="<%=request.getContextPath()%>/IncidenciaServlet" class="btn btn-sm btn-outline-secondary">Detalle</a></td>
               </tr>
               <tr>
                 <td>INC-002</td>
                 <td>Valparaíso CLS ➔ Arica CLS — atenuación alta</td>
                 <td>Crítica</td>
                 <td>1 h</td>
-                <td><a href="/NetworkOperator/incidencias.jsp?id=2" class="btn btn-sm btn-outline-secondary">Detalle</a></td>
+                <td><a href="<%=request.getContextPath()%>/IncidenciaServlet" class="btn btn-sm btn-outline-secondary">Detalle</a></td>
               </tr>
               <tr>
                 <td>INC-003</td>
                 <td>Lurín CLS ➔ Valparaíso CLS — corte de fibra</td>
                 <td>Crítica</td>
                 <td>3 h</td>
-                <td><a href="/NetworkOperator/incidencias.jsp?id=3" class="btn btn-sm btn-outline-secondary">Detalle</a></td>
+                <td><a href="<%=request.getContextPath()%>/IncidenciaServlet" class="btn btn-sm btn-outline-secondary">Detalle</a></td>
               </tr>
               <tr>
                 <td>INC-004</td>
                 <td>Las Toninas CLS — pérdida de señal</td>
                 <td>Crítica</td>
                 <td>5 h</td>
-                <td><a href="/NetworkOperator/incidencias.jsp?id=4" class="btn btn-sm btn-outline-secondary">Detalle</a></td>
+                <td><a href="<%=request.getContextPath()%>/IncidenciaServlet" class="btn btn-sm btn-outline-secondary">Detalle</a></td>
               </tr>
               <tr>
                 <td>INC-005</td>
                 <td>Arica CLS — sobrecalentamiento equipo</td>
                 <td>Crítica</td>
                 <td>6 h</td>
-                <td><a href="/NetworkOperator/incidencias.jsp?id=5" class="btn btn-sm btn-outline-secondary">Detalle</a></td>
+                <td><a href="<%=request.getContextPath()%>/IncidenciaServlet" class="btn btn-sm btn-outline-secondary">Detalle</a></td>
               </tr>
             </tbody>
           </table>
@@ -166,7 +166,7 @@
             <span>Hola S.A.C</span>
             <span class="text-muted">15 Gbps</span>
           </div>
-          <a href="/CapacityPlanner/solicitudes.jsp" class="btn btn-sm btn-outline-secondary w-100">Ver todas</a>
+          <a href="<%=request.getContextPath()%>/SolicitudesServlet" class="btn btn-sm btn-outline-secondary w-100">Ver todas</a>
         </div>
       </div>
     </div>

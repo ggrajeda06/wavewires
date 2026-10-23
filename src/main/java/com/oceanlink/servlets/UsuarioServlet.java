@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebServlet(name = "UsuarioServlet", value = "/UsuarioServlet")
-public class UsuarioServlet extends HttpServlet {
+public class    UsuarioServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -55,7 +55,6 @@ public class UsuarioServlet extends HttpServlet {
                 String confirmar = request.getParameter("confirmar");
                 int idRol = Integer.parseInt(request.getParameter("idRol"));
 
-                // Si las contraseñas no coinciden, volvemos a la lista con un aviso
                 if (!contrasenia.equals(confirmar)) {
                     response.sendRedirect(request.getContextPath() + "/UsuarioServlet?error=clave");
                     break;

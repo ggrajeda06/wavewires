@@ -16,14 +16,14 @@
     <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/MantenimientoServlet">
       Mantenimiento
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="/Maintenance/ServiciosAfectados.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/Maintenance/serviciosAfectados.jsp">
       Servicios Afectados
     </a>
   </nav>
 
   <div class="border-top border-secondary opacity-25 my-3"></div>
   <nav class="nav flex-column">
-    <a class="nav-link sidebar-link sidebar-link-danger d-flex align-items-center" href="../login.jsp">
+    <a class="nav-link sidebar-link sidebar-link-danger d-flex align-items-center" href="<%=request.getContextPath()%>/login.jsp">
       <i class="bi bi-box-arrow-right me-2"></i> Cerrar sesión
     </a>
   </nav>
