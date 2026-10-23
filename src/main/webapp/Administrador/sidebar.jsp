@@ -15,7 +15,7 @@
     <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/Administrador/admin_resumen.jsp">
       Resumen
     </a>
-    <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/Administrador/admin_usuarios.jsp">
+    <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/UsuarioServlet">
       Usuarios
     </a>
     <a class="nav-link sidebar-link" data-bs-toggle="collapse" href="#menuInfraestructura" role="button">Infraestructura ▾</a>
