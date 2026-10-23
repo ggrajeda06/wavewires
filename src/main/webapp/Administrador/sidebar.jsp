@@ -23,7 +23,7 @@
       <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/LandingStationServlet">
         Landing Stations
       </a>
-      <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/Administrador/admin_segmentos.jsp">
+      <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/SegmentoServlet">
         Segmentos de Fibra
       </a>
     </div>
