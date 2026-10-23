@@ -1,4 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="com.oceanlink.beans.Solicitudes" %>
+<%@ page import="com.oceanlink.beans.Cliente" %>
+<jsp:useBean id="listaSolicitudes" type="java.util.ArrayList<com.oceanlink.beans.Solicitudes>" scope="request" />
+<jsp:useBean id="listaClientes" type="java.util.ArrayList<com.oceanlink.beans.Cliente>" scope="request" />
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -33,14 +37,15 @@
     <!-- Tarjeta con la tabla de datos -->
     <div class="card shadow-sm border-0 p-3">
 
-      <!-- Buscador visual de la maqueta -->
-      <div class="row mb-3">
+      <!-- Buscador funcional -->
+      <form method="GET" action="<%=request.getContextPath()%>/SolicitudesServlet" class="row mb-3">
         <div class="col-md-4">
-          <input type="text" class="form-control" placeholder="Buscar solicitud o cliente...">
+          <input type="text" name="buscar" class="form-control" placeholder="Buscar solicitud o cliente..."
+                 value="<%=request.getParameter("buscar") != null ? request.getParameter("buscar") : ""%>">
         </div>
-      </div>
+      </form>
 
-      <!-- Tabla estatica con las solicitudes de ejemplo -->
+      <!-- Tabla dinamica con las solicitudes -->
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-3">
           <thead class="table-light">
@@ -56,118 +61,65 @@
           </tr>
           </thead>
           <tbody>
-          <!-- Solicitud 1: Pendiente -->
+          <% if (listaSolicitudes.isEmpty()) { %>
           <tr>
-            <td class="fw-medium">Solicitud 1</td>
-            <td>OAC S.A.C.</td>
-            <td>
-              <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Pendiente</span>
-            </td>
-            <td class="text-muted">No asignado</td>
-            <td>30 Gbps</td>
-            <td>España - Perú</td>
-            <td>5 meses</td>
-            <td class="text-center">
-              <button type="button" class="btn btn-outline-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalEditarSolicitud">
-                Editar
-              </button>
-            </td>
+            <td colspan="8" class="text-center text-muted py-4">No se encontraron solicitudes registradas.</td>
           </tr>
+          <% } else { %>
+            <% for (Solicitudes s : listaSolicitudes) {
+                 // Cruzamos el idCliente para obtener su Razon Social
+                 String nombreCliente = "Cliente " + s.getIdCliente();
+                 for (Cliente c : listaClientes) {
+                     if (c.getIdCliente() == s.getIdCliente()) {
+                         nombreCliente = c.getRazonSocial();
+                         break;
+                     }
+                 }
 
-          <!-- Solicitud 2: En evaluación -->
-          <tr>
-            <td class="fw-medium">Solicitud 2</td>
-            <td>HYDRA S.A.C.</td>
-            <td>
-              <span class="badge bg-warning-subtle text-warning border border-warning-subtle">En evaluación</span>
-            </td>
-            <td>Segmento 2</td>
-            <td>100 Gbps</td>
-            <td>China - Perú</td>
-            <td>6 meses</td>
-            <td class="text-center">
-              <button type="button" class="btn btn-outline-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalEditarSolicitud">
-                Editar
-              </button>
-            </td>
-          </tr>
+                 // Ruta directa desde los String origen y destino
+                 String ruta = s.getOrigen() + " - " + s.getDestino();
 
-          <!-- Solicitud 3: Aprobada -->
-          <tr>
-            <td class="fw-medium">Solicitud 3</td>
-            <td>SIES S.A.C.</td>
-            <td>
-              <span class="badge bg-success-subtle text-success border border-success-subtle">Aprobada</span>
-            </td>
-            <td>Segmento 1</td>
-            <td>50 Gbps</td>
-            <td>Perú - EEUU</td>
-            <td>12 meses</td>
-            <td class="text-center">
-              <button type="button" class="btn btn-outline-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalEditarSolicitud">
-                Editar
-              </button>
-            </td>
-          </tr>
+                 // Estilos de badge segun el estado
+                 String badgeClass = "bg-secondary-subtle text-secondary border border-secondary-subtle";
+                 if ("En evaluación".equalsIgnoreCase(s.getEstado())) {
+                     badgeClass = "bg-warning-subtle text-warning border border-warning-subtle";
+                 } else if ("Aprobada".equalsIgnoreCase(s.getEstado()) || "Aprobado".equalsIgnoreCase(s.getEstado()) || "Activo".equalsIgnoreCase(s.getEstado())) {
+                     badgeClass = "bg-success-subtle text-success border border-success-subtle";
+                 } else if ("Rechazada".equalsIgnoreCase(s.getEstado()) || "Rechazado".equalsIgnoreCase(s.getEstado())) {
+                     badgeClass = "bg-danger-subtle text-danger border border-danger-subtle";
+                 }
 
-          <!-- Solicitud 4: Pendiente -->
-          <tr>
-            <td class="fw-medium">Solicitud 4</td>
-            <td>AMÉRICA MÓVIL</td>
-            <td>
-              <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Pendiente</span>
-            </td>
-            <td>Segmento 3</td>
-            <td>200 Gbps</td>
-            <td>Perú - Japón</td>
-            <td>8 meses</td>
-            <td class="text-center">
-              <button type="button" class="btn btn-outline-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalEditarSolicitud">
-                Editar
-              </button>
-            </td>
-          </tr>
-
-          <!-- Solicitud 5: Aprobada -->
-          <tr>
-            <td class="fw-medium">Solicitud 5</td>
-            <td>TELEFÓNICA DEL PERÚ</td>
-            <td>
-              <span class="badge bg-success-subtle text-success border border-success-subtle">Aprobada</span>
-            </td>
-            <td>Segmento 2</td>
-            <td>80 Gbps</td>
-            <td>Perú - España</td>
-            <td>4 meses</td>
-            <td class="text-center">
-              <button type="button" class="btn btn-outline-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalEditarSolicitud">
-                Editar
-              </button>
-            </td>
-          </tr>
-
-          <!-- Solicitud 6: Rechazada -->
-          <tr>
-            <td class="fw-medium">Solicitud 6</td>
-            <td>ENTEL S.A.</td>
-            <td>
-              <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Rechazada</span>
-            </td>
-            <td>Segmento 1</td>
-            <td>150 Gbps</td>
-            <td>Perú - EEUU</td>
-            <td>3 meses</td>
-            <td class="text-center">
-              <button type="button" class="btn btn-outline-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalEditarSolicitud">
-                Editar
-              </button>
-            </td>
-          </tr>
+                 // Texto del segmento
+                 String textoSegmento = (s.getIdSegmento() == null || s.getIdSegmento() == 0) ? "No asignado" : "Segmento " + s.getIdSegmento();
+                 String obsLimpias = s.getObservaciones() == null ? "" : s.getObservaciones().replace("'", "\\'");
+                 String origenLimpio = s.getOrigen() == null ? "" : s.getOrigen().replace("'", "\\'");
+                 String destinoLimpio = s.getDestino() == null ? "" : s.getDestino().replace("'", "\\'");
+            %>
+            <tr>
+              <td class="fw-medium">Solicitud <%=s.getIdSolicitudCapacidad()%></td>
+              <td><%=nombreCliente%></td>
+              <td>
+                <span class="badge <%=badgeClass%>"><%=s.getEstado()%></span>
+              </td>
+              <td class="<%= (s.getIdSegmento() == null || s.getIdSegmento() == 0) ? "text-muted" : "" %>">
+                <%=textoSegmento%>
+              </td>
+              <td><%= (int) s.getCapacidad() %> Gbps</td>
+              <td><%=ruta%></td>
+              <td><%=s.getDuracionMeses()%> meses</td>
+              <td class="text-center">
+                <button type="button" class="btn btn-outline-dark btn-sm px-3"
+                        onclick="abrirEditar('<%=s.getIdSolicitudCapacidad()%>', '<%=s.getIdCliente()%>', '<%= (int) s.getCapacidad() %>', '<%=origenLimpio%>', '<%=destinoLimpio%>', '<%=s.getEstado()%>', '<%=s.getIdSegmento() == null ? 0 : s.getIdSegmento()%>', '<%=s.getDuracionMeses()%>', '<%=obsLimpias%>')">
+                  Editar
+                </button>
+              </td>
+            </tr>
+            <% } %>
+          <% } %>
           </tbody>
         </table>
       </div>
 
-      <!-- Paginacion estatica -->
       <div class="d-flex justify-content-end gap-2">
         <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Anterior</button>
         <button type="button" class="btn btn-outline-secondary btn-sm">Siguiente</button>
@@ -177,9 +129,7 @@
   </main>
 </div>
 
-
-<!-- Modal: Registrar nueva solicitud -->
-<
+<!-- modal para registrar nueva solicitud -->
 <div class="modal fade" id="modalRegistrarSolicitud" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow">
@@ -189,59 +139,57 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
-      <div class="modal-body p-4">
-        <div class="mb-3">
-          <label class="form-label small fw-semibold">Cliente empresarial</label>
-          <select class="form-select">
-            <option selected disabled>Seleccionar cliente</option>
-            <option>OAC S.A.C.</option>
-            <option>HYDRA S.A.C.</option>
-            <option>SIES S.A.C.</option>
-            <option>AMÉRICA MÓVIL</option>
-            <option>TELEFÓNICA DEL PERÚ</option>
-            <option>ENTEL S.A.</option>
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label small fw-semibold">Capacidad solicitada (Gbps)</label>
-          <input type="number" class="form-control" placeholder="Ejm: 120">
-        </div>
-
-        <div class="row g-2 mb-3">
-          <div class="col-6">
-            <label class="form-label small fw-semibold">Origen</label>
-            <input type="text" class="form-control" placeholder="Ejm: España">
+      <form method="POST" action="<%=request.getContextPath()%>/SolicitudesServlet?action=crear">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Cliente empresarial</label>
+            <select name="idCliente" class="form-select" required>
+              <option value="" selected disabled>Seleccionar cliente</option>
+              <% for (Cliente c : listaClientes) { %>
+                <option value="<%=c.getIdCliente()%>"><%=c.getRazonSocial()%></option>
+              <% } %>
+            </select>
           </div>
-          <div class="col-6">
-            <label class="form-label small fw-semibold">Destino</label>
-            <input type="text" class="form-control" placeholder="Ejm: Perú">
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Capacidad solicitada (Gbps)</label>
+            <input type="number" name="capacidad" class="form-control" placeholder="Ejm: 120" min="1" required>
+          </div>
+
+          <!-- Origen y Destino como texto libre según la BD -->
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label small fw-semibold">Origen</label>
+              <input type="text" name="origen" class="form-control" placeholder="Ejm: España" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-semibold">Destino</label>
+              <input type="text" name="destino" class="form-control" placeholder="Ejm: Perú" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Duración (meses)</label>
+            <input type="number" name="duracionMeses" class="form-control" placeholder="Ejm: 5" min="1" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Observaciones</label>
+            <textarea name="observaciones" class="form-control" rows="2" placeholder="(Opcional)"></textarea>
           </div>
         </div>
 
-        <div class="mb-3">
-          <label class="form-label small fw-semibold">Duración (meses)</label>
-          <input type="number" class="form-control" placeholder="Ejm: 5">
+        <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
+          <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-dark px-3">Guardar solicitud</button>
         </div>
-
-        <div class="mb-3">
-          <label class="form-label small fw-semibold">Observaciones</label>
-          <textarea class="form-control" rows="2" placeholder="(Opcional)"></textarea>
-        </div>
-      </div>
-
-      <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
-        <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-dark px-3" data-bs-dismiss="modal">Guardar solicitud</button>
-      </div>
+      </form>
 
     </div>
   </div>
 </div>
 
-<!-- ======================================================= -->
-<!-- MODAL: EDITAR SOLICITUD DE CAPACIDAD                   -->
-<!-- ======================================================= -->
+<!-- Modal para editar solicitud de capacidad  -->
 <div class="modal fade" id="modalEditarSolicitud" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow">
@@ -251,82 +199,105 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
-      <div class="modal-body p-4">
-        <div class="mb-3">
-          <label class="form-label small fw-semibold">Cliente empresarial</label>
-          <select class="form-select">
-            <option>OAC S.A.C.</option>
-            <option>HYDRA S.A.C.</option>
-            <option>SIES S.A.C.</option>
-            <option>AMÉRICA MÓVIL</option>
-            <option>TELEFÓNICA DEL PERÚ</option>
-            <option>ENTEL S.A.</option>
-          </select>
-        </div>
+      <form method="POST" action="<%=request.getContextPath()%>/SolicitudesServlet?action=actualizar">
+        <!-- Input oculto para enviar el ID de la solicitud a editar -->
+        <input type="hidden" name="idSolicitudCapacidad" id="editId">
 
-        <div class="mb-3">
-          <label class="form-label small fw-semibold">Capacidad solicitada (Gbps)</label>
-          <input type="number" class="form-control" placeholder="Ejm: 30">
-        </div>
-
-        <div class="row g-2 mb-3">
-          <div class="col-6">
-            <label class="form-label small fw-semibold">Origen</label>
-            <input type="text" class="form-control" placeholder="Ejm: España">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Cliente empresarial</label>
+            <select name="idCliente" id="editCliente" class="form-select" required>
+              <% for (Cliente c : listaClientes) { %>
+                <option value="<%=c.getIdCliente()%>"><%=c.getRazonSocial()%></option>
+              <% } %>
+            </select>
           </div>
-          <div class="col-6">
-            <label class="form-label small fw-semibold">Destino</label>
-            <input type="text" class="form-control" placeholder="Ejm: Perú">
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Capacidad solicitada (Gbps)</label>
+            <input type="number" name="capacidad" id="editCapacidad" class="form-control" min="1" required>
+          </div>
+
+          <!-- Origen y Destino como texto libre según la BD -->
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label small fw-semibold">Origen</label>
+              <input type="text" name="origen" id="editOrigen" class="form-control" placeholder="Ejm: España" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-semibold">Destino</label>
+              <input type="text" name="destino" id="editDestino" class="form-control" placeholder="Ejm: Perú" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Estado</label>
+            <select name="estado" id="editEstado" class="form-select">
+              <option value="Pendiente">Pendiente</option>
+              <option value="En evaluación">En evaluación</option>
+              <option value="Aprobada">Aprobada</option>
+              <option value="Rechazada">Rechazada</option>
+            </select>
+            <small class="text-muted">Las reglas de transición se gestionarán en el Servlet.</small>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Segmento</label>
+            <select name="idSegmento" id="editSegmento" class="form-select">
+              <option value="0">No asignado</option>
+              <option value="1">Segmento 1</option>
+              <option value="2">Segmento 2</option>
+              <option value="3">Segmento 3</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Duración (meses)</label>
+            <input type="number" name="duracionMeses" id="editDuracion" class="form-control" min="1" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Observaciones</label>
+            <textarea name="observaciones" id="editObservaciones" class="form-control" rows="2"></textarea>
           </div>
         </div>
 
-        <div class="mb-3">
-          <label class="form-label small fw-semibold">Estado</label>
-          <select class="form-select">
-            <option>Pendiente</option>
-            <option>En evaluación</option>
-            <option>Aprobada</option>
-            <option>Rechazada</option>
-          </select>
-          <small class="text-muted">Las reglas de transición se gestionarán en el Servlet.</small>
+        <div class="modal-footer border-top-0 d-flex justify-content-between pt-0 px-4 pb-4">
+          <a id="btnEliminarModal" href="#" class="btn btn-outline-danger px-3"
+             onclick="return confirm('¿Estás seguro de que deseas eliminar esta solicitud?');">
+            <i class="bi bi-trash me-1"></i> Eliminar Solicitud
+          </a>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary px-4">Guardar</button>
+          </div>
         </div>
-
-        <div class="mb-3">
-          <label class="form-label small fw-semibold">Segmento</label>
-          <select class="form-select">
-            <option>No asignado</option>
-            <option>Segmento 1 (Perú - EEUU)</option>
-            <option>Segmento 2 (Perú - España)</option>
-            <option>Segmento 3 (Perú - Japón)</option>
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label small fw-semibold">Duración (meses)</label>
-          <input type="number" class="form-control" placeholder="Ejm: 5">
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label small fw-semibold">Observaciones</label>
-          <textarea class="form-control" rows="2" placeholder="Sin observaciones preliminares"></textarea>
-        </div>
-      </div>
-
-      <div class="modal-footer border-top-0 d-flex justify-content-between pt-0 px-4 pb-4">
-        <button type="button" class="btn btn-outline-danger px-3" data-bs-dismiss="modal">
-          <i class="bi bi-trash me-1"></i> Eliminar Solicitud
-        </button>
-        <div class="d-flex gap-2">
-          <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">Guardar</button>
-        </div>
-      </div>
+      </form>
 
     </div>
   </div>
 </div>
 
-<!-- Bootstrap 5 JS Bundle -->
+<!-- Bootstrap 5 JS Bundle y Script para precargar datos en el modal de Edicion -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function abrirEditar(id, idCliente, capacidad, origen, destino, estado, idSegmento, duracion, observaciones) {
+  document.getElementById('editId').value = id;
+  document.getElementById('editCliente').value = idCliente;
+  document.getElementById('editCapacidad').value = capacidad;
+  document.getElementById('editOrigen').value = origen;
+  document.getElementById('editDestino').value = destino;
+  document.getElementById('editEstado').value = estado;
+  document.getElementById('editSegmento').value = (idSegmento && idSegmento !== 'null') ? idSegmento : "0";
+  document.getElementById('editDuracion').value = duracion;
+  document.getElementById('editObservaciones').value = observaciones;
+
+  // Enlace dinamico para el boton de eliminar en el modal
+  document.getElementById('btnEliminarModal').href = '<%=request.getContextPath()%>/SolicitudesServlet?action=borrar&id=' + id;
+
+  let modal = new bootstrap.Modal(document.getElementById('modalEditarSolicitud'));
+  modal.show();
+}
+</script>
 </body>
 </html>
