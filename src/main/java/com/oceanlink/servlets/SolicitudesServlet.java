@@ -71,8 +71,8 @@ public class SolicitudesServlet extends HttpServlet {
                 int duracionMeses = Integer.parseInt(request.getParameter("duracionMeses"));
                 String observaciones = request.getParameter("observaciones");
 
-                // Estado inicial 'Pendiente' tal como está en la maqueta
-                solicitudesDao.crearSolicitud(capacidad, origen, destino, "Pendiente", observaciones, duracionMeses, idCliente);
+                // Estado inicial 'Registrado' según la regla 1 del flujo de Miro
+                solicitudesDao.crearSolicitud(capacidad, origen, destino, "Registrado", observaciones, duracionMeses, idCliente);
                 response.sendRedirect(request.getContextPath() + "/SolicitudesServlet");
                 break;
 

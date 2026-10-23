@@ -79,13 +79,15 @@
                  // Ruta directa desde los String origen y destino
                  String ruta = s.getOrigen() + " - " + s.getDestino();
 
-                 // Estilos de badge segun el estado
+                 // Estilos de badge segun los 7 estados de Miro
                  String badgeClass = "bg-secondary-subtle text-secondary border border-secondary-subtle";
                  if ("En evaluación".equalsIgnoreCase(s.getEstado())) {
                      badgeClass = "bg-warning-subtle text-warning border border-warning-subtle";
-                 } else if ("Aprobada".equalsIgnoreCase(s.getEstado()) || "Aprobado".equalsIgnoreCase(s.getEstado()) || "Activo".equalsIgnoreCase(s.getEstado())) {
+                 } else if ("Aprobado".equalsIgnoreCase(s.getEstado()) || "Provisionado".equalsIgnoreCase(s.getEstado())) {
+                     badgeClass = "bg-info-subtle text-info border border-info-subtle";
+                 } else if ("Activo".equalsIgnoreCase(s.getEstado())) {
                      badgeClass = "bg-success-subtle text-success border border-success-subtle";
-                 } else if ("Rechazada".equalsIgnoreCase(s.getEstado()) || "Rechazado".equalsIgnoreCase(s.getEstado())) {
+                 } else if ("Rechazado".equalsIgnoreCase(s.getEstado())) {
                      badgeClass = "bg-danger-subtle text-danger border border-danger-subtle";
                  }
 
@@ -156,7 +158,6 @@
             <input type="number" name="capacidad" class="form-control" placeholder="Ejm: 120" min="1" required>
           </div>
 
-          <!-- Origen y Destino como texto libre según la BD -->
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="form-label small fw-semibold">Origen</label>
@@ -218,7 +219,6 @@
             <input type="number" name="capacidad" id="editCapacidad" class="form-control" min="1" required>
           </div>
 
-          <!-- Origen y Destino como texto libre según la BD -->
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="form-label small fw-semibold">Origen</label>
@@ -230,13 +230,17 @@
             </div>
           </div>
 
+          <!-- Los 7 estados del flujo de Miro -->
           <div class="mb-3">
             <label class="form-label small fw-semibold">Estado</label>
             <select name="estado" id="editEstado" class="form-select">
-              <option value="Pendiente">Pendiente</option>
+              <option value="Registrado">Registrado</option>
               <option value="En evaluación">En evaluación</option>
-              <option value="Aprobada">Aprobada</option>
-              <option value="Rechazada">Rechazada</option>
+              <option value="Aprobado">Aprobado</option>
+              <option value="Rechazado">Rechazado</option>
+              <option value="Pendiente por Capacidad">Pendiente por Capacidad</option>
+              <option value="Provisionado">Provisionado</option>
+              <option value="Activo">Activo</option>
             </select>
             <small class="text-muted">Las reglas de transición se gestionarán en el Servlet.</small>
           </div>
