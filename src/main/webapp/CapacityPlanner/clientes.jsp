@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="com.oceanlink.beans.Cliente" %>
+<jsp:useBean id="listaClientes" type="java.util.ArrayList<com.oceanlink.beans.Cliente>" scope="request" />
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -34,11 +36,12 @@
     <div class="card shadow-sm border-0 p-3">
 
       <!-- Filtro de busqueda -->
-      <div class="row mb-3">
+      <form method="GET" action="<%=request.getContextPath()%>/ClienteServlet" class="row mb-3">
         <div class="col-md-4">
-          <input type="text" class="form-control" placeholder="Buscar cliente o razón social...">
+          <input type="text" name="buscar" class="form-control" placeholder="Buscar cliente o razón social..."
+                 value="<%=request.getParameter("buscar") != null ? request.getParameter("buscar") : ""%>">
         </div>
-      </div>
+      </form>
 
       <!-- Tabla de clientes -->
       <div class="table-responsive">
@@ -54,65 +57,33 @@
           </tr>
           </thead>
           <tbody>
-          <!-- Cliente 1 -->
+          <% for (Cliente c : listaClientes) {
+               String colorBadge = "bg-success-subtle text-success border border-success-subtle";
+               if (c.getEstado() != null && c.getEstado().equalsIgnoreCase("Inactivo")) {
+                   colorBadge = "bg-secondary-subtle text-secondary border border-secondary-subtle";
+               }
+          %>
           <tr>
-            <td class="fw-medium">Cliente 1</td>
-            <td>OAC S.A.C.</td>
+            <td class="fw-medium"><%=c.getIdentificador()%></td>
+            <td><%=c.getRazonSocial()%></td>
             <td>
-              <button type="button" class="btn btn-sm btn-outline-secondary px-3" data-bs-toggle="modal" data-bs-target="#modalServiciosCliente1">
+              <button type="button" class="btn btn-sm btn-outline-secondary px-3" data-bs-toggle="modal" data-bs-target="#modalServicios">
                 Detalles
               </button>
             </td>
-            <td class="text-secondary">14 / 11 / 2026</td>
+            <td class="text-secondary"><%=c.getFechaRegistro()%></td>
             <td>
-              <span class="badge bg-success-subtle text-success border border-success-subtle">Activo</span>
+              <span class="badge <%=colorBadge%>"><%=c.getEstado()%></span>
             </td>
             <td class="text-center">
-              <button type="button" class="btn btn-outline-danger btn-sm px-3">
+              <a href="<%=request.getContextPath()%>/ClienteServlet?action=borrar&id=<%=c.getIdCliente()%>"
+                 class="btn btn-outline-danger btn-sm px-3"
+                 onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?');">
                 <i class="bi bi-trash"></i> Eliminar
-              </button>
+              </a>
             </td>
           </tr>
-
-          <!-- Cliente 2 -->
-          <tr>
-            <td class="fw-medium">Cliente 2</td>
-            <td>HYDRA S.A.C.</td>
-            <td>
-              <button type="button" class="btn btn-sm btn-outline-secondary px-3" data-bs-toggle="modal" data-bs-target="#modalServiciosCliente2">
-                Detalles
-              </button>
-            </td>
-            <td class="text-secondary">13 / 10 / 2022</td>
-            <td>
-              <span class="badge bg-success-subtle text-success border border-success-subtle">Activo</span>
-            </td>
-            <td class="text-center">
-              <button type="button" class="btn btn-outline-danger btn-sm px-3">
-                <i class="bi bi-trash"></i> Eliminar
-              </button>
-            </td>
-          </tr>
-
-          <!-- Cliente 3 -->
-          <tr>
-            <td class="fw-medium">Cliente 3</td>
-            <td>SIES S.A.C.</td>
-            <td>
-              <button type="button" class="btn btn-sm btn-outline-secondary px-3" data-bs-toggle="modal" data-bs-target="#modalServiciosCliente3">
-                Detalles
-              </button>
-            </td>
-            <td class="text-secondary">01 / 06 / 2024</td>
-            <td>
-              <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Inactivo</span>
-            </td>
-            <td class="text-center">
-              <button type="button" class="btn btn-outline-danger btn-sm px-3">
-                <i class="bi bi-trash"></i> Eliminar
-              </button>
-            </td>
-          </tr>
+          <% } %>
           </tbody>
         </table>
       </div>
@@ -127,86 +98,8 @@
   </main>
 </div>
 
-<!-- Modal para ver los servicios contratados de OAC -->
-<div class="modal fade" id="modalServiciosCliente1" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-sm">
-    <div class="modal-content border-0 shadow">
-
-      <div class="modal-header border-0 pb-0">
-        <h6 class="modal-title fw-bold text-dark">Servicios contratados</h6>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-
-      <div class="modal-body px-3 pt-3 pb-3">
-        <table class="table table-bordered text-center align-middle mb-0">
-          <thead>
-            <tr class="fw-bold">
-              <th style="width: 50%;">Servicio</th>
-              <th style="width: 50%;">Capacidad</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Servicio 1</td>
-              <td class="fw-semibold text-secondary">30 Gbps</td>
-            </tr>
-            <tr>
-              <td>Servicio 4</td>
-              <td class="fw-semibold text-secondary">50 Gbps</td>
-            </tr>
-            <tr>
-              <td>Servicio 5</td>
-              <td class="fw-semibold text-secondary">20 Gbps</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
-        <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Cerrar</button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<!-- Modal para ver los servicios de HYDRA -->
-<div class="modal fade" id="modalServiciosCliente2" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-sm">
-    <div class="modal-content border-0 shadow">
-
-      <div class="modal-header border-0 pb-0">
-        <h6 class="modal-title fw-bold text-dark">Servicios contratados</h6>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-
-      <div class="modal-body px-3 pt-3 pb-3">
-        <table class="table table-bordered text-center align-middle mb-0">
-          <thead>
-            <tr class="fw-bold">
-              <th style="width: 50%;">Servicio</th>
-              <th style="width: 50%;">Capacidad</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Servicio 2</td>
-              <td class="fw-semibold text-secondary">100 Gbps</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
-        <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Cerrar</button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<!-- Modal para SIES (sin servicios) -->
-<div class="modal fade" id="modalServiciosCliente3" tabindex="-1" aria-hidden="true">
+<!-- Modal para ver los servicios contratados -->
+<div class="modal fade" id="modalServicios" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
     <div class="modal-content border-0 shadow">
 
@@ -239,19 +132,21 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
-      <div class="modal-body p-4">
-        <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">Datos</h6>
+      <form method="POST" action="<%=request.getContextPath()%>/ClienteServlet?action=crear">
+        <div class="modal-body p-4">
+          <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">Datos</h6>
 
-        <div class="mb-3">
-          <label class="form-label small fw-semibold">Razón social</label>
-          <input type="text" class="form-control" placeholder="Escribe el nombre de la empresa">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Razón social</label>
+            <input type="text" name="razonSocial" class="form-control" placeholder="Escribe el nombre de la empresa" required>
+          </div>
         </div>
-      </div>
 
-      <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
-        <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-dark px-3" data-bs-dismiss="modal">Guardar cliente</button>
-      </div>
+        <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
+          <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-dark px-3">Guardar cliente</button>
+        </div>
+      </form>
 
     </div>
   </div>

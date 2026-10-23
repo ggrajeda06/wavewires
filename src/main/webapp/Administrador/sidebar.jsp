@@ -10,37 +10,36 @@
     <h5 class="sidebar-title mb-0">OceanLink</h5>
   </div>
 
-
   <div class="sidebar-section-label text-uppercase mb-2 px-2">Administrator</div>
   <nav class="nav flex-column mb-auto">
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/Administrador/admin_resumen.jsp">
+    <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/Administrador/admin_resumen.jsp">
       Resumen
-      </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/Administrador/admin_usuarios.jsp">
+    </a>
+    <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/Administrador/admin_usuarios.jsp">
       Usuarios
     </a>
     <a class="nav-link sidebar-link" data-bs-toggle="collapse" href="#menuInfraestructura" role="button">Infraestructura ▾</a>
     <div class="collapse ps-3" id="menuInfraestructura">
-          <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/LandingStationServlet">
-                Landing Stations
-              </a>
-          <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/Administrador/admin_segmentos.jsp">
-                Segmentos de Fibra
-              </a>
-        </div>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/CapacityPlanner/clientes.jsp">
+      <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/LandingStationServlet">
+        Landing Stations
+      </a>
+      <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/Administrador/admin_segmentos.jsp">
+        Segmentos de Fibra
+      </a>
+    </div>
+    <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/ClienteServlet">
       Clientes
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/CapacityPlanner/solicitudes.jsp">
+    <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/SolicitudesServlet">
       Solicitudes de Tráfico
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/CapacityPlanner/capacidad.jsp">
+    <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/CapacityPlanner/capacidad.jsp">
       Monitoreo de Capacidad
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/NetworkOperator/incidencias.jsp">
+    <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/NetworkOperator/incidencias.jsp">
       Incidencias
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/MantenimientoServlet">
+    <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/MantenimientoServlet">
        Mantenimiento
     </a>
   </nav>

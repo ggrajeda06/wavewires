@@ -13,29 +13,29 @@
 
   <div class="sidebar-section-label text-uppercase mb-2 px-2">Capacity Planner</div>
   <nav class="nav flex-column mb-auto">
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="capacidad.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/CapacityPlanner/capacidad.jsp">
       Capacidad de red
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="solicitudes.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/SolicitudesServlet">
       Solicitudes
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="reservas.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/CapacityPlanner/reservas.jsp">
       Registro de reservas
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="servicios.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/CapacityPlanner/servicios.jsp">
       Servicios
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="clientes.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/ClienteServlet">
       Clientes
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="historial.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/CapacityPlanner/historial.jsp">
        Historial de segmentos
     </a>
   </nav>
 
   <div class="border-top border-secondary opacity-25 my-3"></div>
   <nav class="nav flex-column">
-    <a class="nav-link sidebar-link sidebar-link-danger d-flex align-items-center" href="../login.jsp">
+    <a class="nav-link sidebar-link sidebar-link-danger d-flex align-items-center" href="<%=request.getContextPath()%>/login.jsp">
       <i class="bi bi-box-arrow-right me-2"></i> Cerrar sesión
     </a>
   </nav>
