@@ -96,6 +96,16 @@ public class SolicitudesServlet extends HttpServlet {
                     idSegmentoEdit = Integer.parseInt(strSegmento);
                 }
 
+                if ("Provisionado".equalsIgnoreCase(estadoEdit) && idSegmentoEdit != null && idSegmentoEdit != 0) {
+                    SegmentoDao segDao = new SegmentoDao();
+                    Segmento seg = segDao.obtenerSegmento(idSegmentoEdit);
+                    double reservada = (seg != null && seg.getCapacidadReservada() != null) ? seg.getCapacidadReservada().doubleValue() : 0.0;
+                    if (capacidadEdit > reservada) {
+                        response.sendRedirect(request.getContextPath() + "/SolicitudesServlet?error=sinReserva");
+                        break;
+                    }
+                }
+
                 solicitudesDao.actualizarSolicitud(idSolicitud, capacidadEdit, origenEdit, destinoEdit,
                         estadoEdit, observacionesEdit, duracionEdit, idSegmentoEdit, idClienteEdit);
                 response.sendRedirect(request.getContextPath() + "/SolicitudesServlet");

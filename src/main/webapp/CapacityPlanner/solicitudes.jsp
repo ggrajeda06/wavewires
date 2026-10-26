@@ -36,6 +36,13 @@
       </button>
     </div>
 
+    <% if ("sinReserva".equals(request.getParameter("error"))) { %>
+      <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+        No espacio reservado disponible
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <% } %>
+
     <!-- Tarjeta con la tabla de datos -->
     <div class="card shadow-sm border-0 p-3">
 
@@ -255,9 +262,9 @@
           <div class="mb-3">
             <label class="form-label small fw-semibold">Segmento</label>
             <select name="idSegmento" id="editSegmento" class="form-select">
-              <option value="0">No asignado</option>
+              <option value="0" data-reservada="0">No asignado</option>
               <% for (Segmento seg : listaSegmentos) { %>
-                <option value="<%=seg.getIdSegmento()%>">SEG-<%=String.format("%03d", seg.getIdSegmento())%> (<%=seg.getNombreOrigen()%> - <%=seg.getNombreDestino()%>)</option>
+                <option value="<%=seg.getIdSegmento()%>" data-reservada="<%=seg.getCapacidadReservada()%>">SEG-<%=String.format("%03d", seg.getIdSegmento())%> (<%=seg.getNombreOrigen()%> - <%=seg.getNombreDestino()%>)</option>
               <% } %>
             </select>
           </div>
@@ -355,10 +362,20 @@ function validarEdicion() {
   let selectSegmento = document.getElementById('editSegmento');
   let estadoSeleccionado = document.getElementById('editEstado').value;
   let segmentoSeleccionado = selectSegmento.value;
+  let capacidad = parseFloat(document.getElementById('editCapacidad').value) || 0;
 
   if (estadoSeleccionado === 'Aprobado' && (segmentoSeleccionado === '0' || segmentoSeleccionado === '')) {
     alert('Es obligatorio asignar un segmento para poder aprobar la solicitud.');
     return false;
+  }
+
+  if (estadoSeleccionado === 'Provisionado') {
+    let opt = selectSegmento.options[selectSegmento.selectedIndex];
+    let reservada = opt ? (parseFloat(opt.getAttribute('data-reservada')) || 0) : 0;
+    if (capacidad > reservada) {
+      alert('No espacio reservado disponible');
+      return false;
+    }
   }
 
   selectSegmento.disabled = false;

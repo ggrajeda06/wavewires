@@ -10,7 +10,6 @@
     <h5 class="sidebar-title mb-0">OceanLink</h5>
   </div>
 
-
   <div class="sidebar-section-label text-uppercase mb-2 px-2">Capacity Planner</div>
   <nav class="nav flex-column mb-auto">
     <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/CapacityPlanner/capacidad.jsp">
@@ -19,10 +18,10 @@
     <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/SolicitudesServlet">
       Solicitudes
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/CapacityPlanner/reservas.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/ReservaServlet">
       Registro de reservas
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/CapacityPlanner/servicios.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/ServicioServlet">
       Servicios
     </a>
     <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/ClienteServlet">

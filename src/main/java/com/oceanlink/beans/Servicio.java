@@ -12,6 +12,7 @@ public class Servicio {
     private Date fechaCaducidad;
     private int idSegmento;
     private int idSolicitudCapacidad;
+    private int idCliente;
     private String razonSocial;
 
     public int getIdServicio() {
@@ -68,6 +69,14 @@ public class Servicio {
 
     public void setIdSolicitudCapacidad(int idSolicitudCapacidad) {
         this.idSolicitudCapacidad = idSolicitudCapacidad;
+    }
+
+    public int getIdCliente() {
+        return idCliente;
+    }
+
+    public void setIdCliente(int idCliente) {
+        this.idCliente = idCliente;
     }
 
     public String getRazonSocial() {

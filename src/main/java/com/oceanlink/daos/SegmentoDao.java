@@ -118,4 +118,98 @@ public class SegmentoDao extends DaoBase {
             return false;
         }
     }
+
+    // Buscar segmentos por ruta o nombre
+    public ArrayList<Segmento> buscarSegmentos(String texto) {
+        ArrayList<Segmento> lista = new ArrayList<>();
+        String sql = "SELECT s.*, o.nombre AS nombreOrigen, d.nombre AS nombreDestino "
+                + "FROM segmento s "
+                + "JOIN landingstation o ON s.idOrigen = o.idLandingStation "
+                + "JOIN landingstation d ON s.idDestino = d.idLandingStation "
+                + "WHERE CONCAT('Segmento ', s.idSegmento) LIKE ? "
+                + "   OR o.nombre LIKE ? "
+                + "   OR d.nombre LIKE ? "
+                + "   OR CONCAT(o.nombre, ' - ', d.nombre) LIKE ? "
+                + "ORDER BY s.idSegmento ASC";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            String comodin = "%" + texto.trim() + "%";
+            pstmt.setString(1, comodin);
+            pstmt.setString(2, comodin);
+            pstmt.setString(3, comodin);
+            pstmt.setString(4, comodin);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Segmento s = new Segmento();
+                    s.setIdSegmento(rs.getInt("idSegmento"));
+                    s.setIdOrigen(rs.getInt("idOrigen"));
+                    s.setIdDestino(rs.getInt("idDestino"));
+                    s.setCapacidadTotal(rs.getBigDecimal("capacidadTotal"));
+                    s.setCapacidadUsada(rs.getBigDecimal("capacidadUsada"));
+                    s.setCapacidadReservada(rs.getBigDecimal("capacidadReservada"));
+                    s.setEstado(rs.getString("estado"));
+                    s.setNombreOrigen(rs.getString("nombreOrigen"));
+                    s.setNombreDestino(rs.getString("nombreDestino"));
+                    lista.add(s);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    // Obtener segmento por id
+    public Segmento obtenerSegmento(int idSegmento) {
+        Segmento s = null;
+        String sql = "SELECT s.*, o.nombre AS nombreOrigen, d.nombre AS nombreDestino "
+                + "FROM segmento s "
+                + "JOIN landingstation o ON s.idOrigen = o.idLandingStation "
+                + "JOIN landingstation d ON s.idDestino = d.idLandingStation "
+                + "WHERE s.idSegmento = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, idSegmento);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    s = new Segmento();
+                    s.setIdSegmento(rs.getInt("idSegmento"));
+                    s.setIdOrigen(rs.getInt("idOrigen"));
+                    s.setIdDestino(rs.getInt("idDestino"));
+                    s.setCapacidadTotal(rs.getBigDecimal("capacidadTotal"));
+                    s.setCapacidadUsada(rs.getBigDecimal("capacidadUsada"));
+                    s.setCapacidadReservada(rs.getBigDecimal("capacidadReservada"));
+                    s.setEstado(rs.getString("estado"));
+                    s.setNombreOrigen(rs.getString("nombreOrigen"));
+                    s.setNombreDestino(rs.getString("nombreDestino"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return s;
+    }
+
+    // Actualizar capacidad reservada
+    public boolean actualizarCapacidadReservada(int idSegmento, double nuevaReserva) {
+        String sql = "UPDATE segmento SET capacidadReservada = ? WHERE idSegmento = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setDouble(1, nuevaReserva);
+            pstmt.setInt(2, idSegmento);
+            return pstmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

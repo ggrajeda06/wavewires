@@ -1,6 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.oceanlink.beans.Cliente" %>
+<%@ page import="com.oceanlink.beans.Servicio" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.util.ArrayList" %>
 <jsp:useBean id="listaClientes" type="java.util.ArrayList<com.oceanlink.beans.Cliente>" scope="request" />
+<jsp:useBean id="listaServicios" type="java.util.ArrayList<com.oceanlink.beans.Servicio>" scope="request" />
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -67,7 +71,7 @@
             <td class="fw-medium"><%=c.getIdentificador()%></td>
             <td><%=c.getRazonSocial()%></td>
             <td>
-              <button type="button" class="btn btn-sm btn-outline-secondary px-3" data-bs-toggle="modal" data-bs-target="#modalServicios">
+              <button type="button" class="btn btn-sm btn-outline-secondary px-3" data-bs-toggle="modal" data-bs-target="#modalServicios<%=c.getIdCliente()%>">
                 Detalles
               </button>
             </td>
@@ -98,29 +102,62 @@
   </main>
 </div>
 
-<!-- Modal para ver los servicios contratados -->
-<div class="modal fade" id="modalServicios" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-sm">
+<!-- Modales para ver los servicios contratados por cada cliente -->
+<%
+   SimpleDateFormat sdfModal = new SimpleDateFormat("dd/MM/yyyy");
+   for (Cliente c : listaClientes) {
+     ArrayList<Servicio> serviciosDelCliente = new ArrayList<>();
+     if (listaServicios != null) {
+       for (Servicio sv : listaServicios) {
+         if (sv.getIdCliente() == c.getIdCliente()) {
+           serviciosDelCliente.add(sv);
+         }
+       }
+     }
+%>
+<div class="modal fade" id="modalServicios<%=c.getIdCliente()%>" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow">
 
-      <div class="modal-header border-0 pb-0">
-        <h6 class="modal-title fw-bold text-dark">Servicios contratados</h6>
+      <div class="modal-header border-bottom py-3 px-4">
+        <h6 class="modal-title fw-bold text-dark m-0">Servicios contratados - <%=c.getRazonSocial()%></h6>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
-      <div class="modal-body px-3 pt-3 pb-3">
-        <div class="p-3 bg-light text-center rounded border text-muted small">
-          Sin servicios contratados actualmente.
-        </div>
+      <div class="modal-body p-4">
+        <% if (serviciosDelCliente.isEmpty()) { %>
+          <div class="p-3 bg-light text-center rounded border text-muted small">
+            Sin servicios contratados actualmente.
+          </div>
+        <% } else { %>
+          <div class="list-group">
+            <% for (Servicio sv : serviciosDelCliente) {
+                 String cad = sv.getFechaCaducidad() != null ? sdfModal.format(sv.getFechaCaducidad()) : "-";
+                 int cap = sv.getCapacidad() != null ? sv.getCapacidad().intValue() : 0;
+                 String cod = (sv.getIdentificador() != null && !sv.getIdentificador().trim().isEmpty())
+                              ? sv.getIdentificador() : "Servicio " + sv.getIdServicio();
+                 String segTexto = sv.getIdSegmento() > 0 ? "Segmento " + sv.getIdSegmento() : "No asignado";
+            %>
+              <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-semibold"><%=cod%></div>
+                  <small class="text-muted"><%=segTexto%> &bull; Vence: <%=cad%></small>
+                </div>
+                <span class="badge bg-success-subtle text-success border border-success-subtle"><%=cap%> Gbps</span>
+              </div>
+            <% } %>
+          </div>
+        <% } %>
       </div>
 
-      <div class="modal-footer border-0 justify-content-center pt-0 pb-3">
+      <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
         <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Cerrar</button>
       </div>
 
     </div>
   </div>
 </div>
+<% } %>
 
 <!-- Modal para nuevo cliente -->
 <div class="modal fade" id="modalRegistrarCliente" tabindex="-1" aria-hidden="true">

@@ -2,6 +2,7 @@ package com.oceanlink.servlets;
 
 import com.oceanlink.beans.Cliente;
 import com.oceanlink.daos.ClienteDao;
+import com.oceanlink.daos.ServicioDao;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,11 +22,11 @@ public class ClienteServlet extends HttpServlet {
 
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         ClienteDao clienteDao = new ClienteDao();
+        ServicioDao servicioDao = new ServicioDao();
         RequestDispatcher view;
 
         switch (action) {
             case "lista":
-                // Si el usuario escribió algo en el buscador, filtramos; si no, traemos todos
                 String textoBuscar = request.getParameter("buscar");
                 ArrayList<Cliente> lista;
 
@@ -35,8 +36,8 @@ public class ClienteServlet extends HttpServlet {
                     lista = clienteDao.listarClientes();
                 }
 
-                // Guardamos la lista en la "mochila" de la petición
                 request.setAttribute("listaClientes", lista);
+                request.setAttribute("listaServicios", servicioDao.listarServicios());
                 view = request.getRequestDispatcher("CapacityPlanner/clientes.jsp");
                 view.forward(request, response);
                 break;

@@ -10,10 +10,11 @@ public class ClienteDao extends DaoBase {
     // Listar todos los clientes
     public ArrayList<Cliente> listarClientes() {
         ArrayList<Cliente> lista = new ArrayList<>();
-        // Verificamos si tiene solicitudes vinculadas mediante un LEFT JOIN
-        String sql = "SELECT c.*, COUNT(sc.idSolicitudCapacidad) AS totalSolicitudes "
+        // Verificamos si tiene servicios vinculados mediante un LEFT JOIN
+        String sql = "SELECT c.*, COUNT(sv.idServicio) AS totalServicios "
                 + "FROM cliente c "
                 + "LEFT JOIN solicitudcapacidad sc ON c.idCliente = sc.idCliente "
+                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.estado = 'Activo' "
                 + "GROUP BY c.idCliente "
                 + "ORDER BY c.idCliente ASC";
 
@@ -29,7 +30,7 @@ public class ClienteDao extends DaoBase {
                 c.setRazonSocial(rs.getString("razonSocial"));
 
                 // Si tiene al menos una solicitud/servicio es Activo, sino Inactivo
-                int total = rs.getInt("totalSolicitudes");
+                int total = rs.getInt("totalServicios");
                 c.setEstado(total > 0 ? "Activo" : "Inactivo");
 
                 lista.add(c);
@@ -43,12 +44,13 @@ public class ClienteDao extends DaoBase {
     // Buscar por cliente o razón social
     public ArrayList<Cliente> buscarClientes(String texto) {
         ArrayList<Cliente> lista = new ArrayList<>();
-        String sql = "SELECT c.*, COUNT(sc.idSolicitudCapacidad) AS totalSolicitudes "
+        String sql = "SELECT c.*, COUNT(sv.idServicio) AS totalServicios "
                 + "FROM cliente c "
                 + "LEFT JOIN solicitudcapacidad sc ON c.idCliente = sc.idCliente "
-                + "GROUP BY c.idCliente "
+                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.estado = 'Activo' "
+                + "GROUP BY c.idCliente, c.identificador, c.razonSocial " // <-- Modificación aquí
                 + "HAVING c.identificador LIKE ? OR c.razonSocial LIKE ? "
-                + "   OR (IF(COUNT(sc.idSolicitudCapacidad) > 0, 'Activo', 'Inactivo')) LIKE ? "
+                + "   OR (IF(COUNT(sv.idServicio) > 0, 'Activo', 'Inactivo')) LIKE ? "
                 + "ORDER BY c.idCliente ASC";
 
         try (Connection conn = getConnection();
@@ -67,7 +69,7 @@ public class ClienteDao extends DaoBase {
                     c.setFechaRegistro(rs.getDate("fechaRegistro"));
                     c.setRazonSocial(rs.getString("razonSocial"));
 
-                    int total = rs.getInt("totalSolicitudes");
+                    int total = rs.getInt("totalServicios");
                     c.setEstado(total > 0 ? "Activo" : "Inactivo");
 
                     lista.add(c);
@@ -82,9 +84,10 @@ public class ClienteDao extends DaoBase {
     // Obtener cliente por su ID
     public Cliente obtenerCliente(int idCliente) {
         Cliente c = null;
-        String sql = "SELECT c.*, COUNT(sc.idSolicitudCapacidad) AS totalSolicitudes "
+        String sql = "SELECT c.*, COUNT(sv.idServicio) AS totalServicios "
                 + "FROM cliente c "
                 + "LEFT JOIN solicitudcapacidad sc ON c.idCliente = sc.idCliente "
+                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.estado = 'Activo' "
                 + "WHERE c.idCliente = ? "
                 + "GROUP BY c.idCliente";
 
@@ -101,7 +104,7 @@ public class ClienteDao extends DaoBase {
                     c.setFechaRegistro(rs.getDate("fechaRegistro"));
                     c.setRazonSocial(rs.getString("razonSocial"));
 
-                    int total = rs.getInt("totalSolicitudes");
+                    int total = rs.getInt("totalServicios");
                     c.setEstado(total > 0 ? "Activo" : "Inactivo");
                 }
             }
