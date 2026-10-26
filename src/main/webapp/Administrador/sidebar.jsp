@@ -33,7 +33,7 @@
     <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/SolicitudesServlet">
       Solicitudes de Tráfico
     </a>
-    <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/CapacityPlanner/capacidad.jsp">
+    <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/CapacidadServlet">
       Monitoreo de Capacidad
     </a>
     <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/IncidenciaServlet">      Incidencias

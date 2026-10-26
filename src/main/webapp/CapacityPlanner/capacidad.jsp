@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="com.oceanlink.beans.Segmento" %>
+<jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,7 +16,7 @@
 <body class="bg-light">
 
 <div class="row g-0">
-  <!-- Menú lateral reutilizable con directiva include -->
+  <!-- Menú lateral reutilizable -->
   <jsp:include page="sidebar.jsp"/>
 
   <!-- Contenido principal -->
@@ -31,7 +33,7 @@
         <div class="card h-100 text-center shadow-sm border-0 bg-white p-2">
           <div class="card-body">
             <small class="text-muted d-block mb-1 fw-semibold">Capacidad total</small>
-            <span class="fs-4 fw-bold text-dark">3300 Gbps</span>
+            <span class="fs-4 fw-bold text-dark"><%=request.getAttribute("totalRed") != null ? request.getAttribute("totalRed") : 0%> Gbps</span>
           </div>
         </div>
       </div>
@@ -39,7 +41,7 @@
         <div class="card h-100 text-center shadow-sm border-0 bg-white p-2">
           <div class="card-body">
             <small class="text-muted d-block mb-1 fw-semibold">Capacidad usándose</small>
-            <span class="fs-4 fw-bold text-dark">2000 Gbps</span>
+            <span class="fs-4 fw-bold text-dark"><%=request.getAttribute("usadaRed") != null ? request.getAttribute("usadaRed") : 0%> Gbps</span>
           </div>
         </div>
       </div>
@@ -47,7 +49,7 @@
         <div class="card h-100 text-center shadow-sm border-0 bg-white p-2">
           <div class="card-body">
             <small class="text-muted d-block mb-1 fw-semibold">Capacidad reservada</small>
-            <span class="fs-4 fw-bold text-dark">200 Gbps</span>
+            <span class="fs-4 fw-bold text-dark"><%=request.getAttribute("reservadaRed") != null ? request.getAttribute("reservadaRed") : 0%> Gbps</span>
           </div>
         </div>
       </div>
@@ -55,7 +57,7 @@
         <div class="card h-100 text-center shadow-sm border-0 bg-white p-2">
           <div class="card-body">
             <small class="text-muted d-block mb-1 fw-semibold">Capacidad disponible</small>
-            <span class="fs-4 fw-bold text-dark">1100 Gbps</span>
+            <span class="fs-4 fw-bold text-dark"><%=request.getAttribute("disponibleRed") != null ? request.getAttribute("disponibleRed") : 0%> Gbps</span>
           </div>
         </div>
       </div>
@@ -64,14 +66,15 @@
     <!-- Contenedor de la Tabla -->
     <div class="card shadow-sm border-0 p-3">
 
-      <!-- Barra de búsqueda visual -->
-      <div class="row mb-3">
+      <!-- Barra de búsqueda -->
+      <form method="GET" action="<%=request.getContextPath()%>/CapacidadServlet" class="row mb-3">
         <div class="col-md-4">
-          <input type="text" class="form-control" placeholder="Buscar segmento o ruta...">
+          <input type="text" name="buscar" class="form-control" placeholder="Buscar segmento, ruta o estado..."
+                 value="<%=request.getParameter("buscar") != null ? request.getParameter("buscar") : ""%>">
         </div>
-      </div>
+      </form>
 
-      <!-- Tabla estática de Capacidad -->
+      <!-- Tabla de Capacidad -->
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-3">
           <thead class="table-light">
@@ -85,46 +88,47 @@
           </tr>
           </thead>
           <tbody>
+          <% if (listaSegmentos.isEmpty()) { %>
           <tr>
-            <td class="fw-medium">Segmento 1</td>
-            <td>Perú - EEUU</td>
-            <td>500 Gbps</td>
-            <td>100 Gbps</td>
-            <td>400 Gbps</td>
-            <td>
-              <span class="badge bg-success-subtle text-success border border-success-subtle">
-                <i class="bi bi-circle-fill me-1 small"></i> &lt; 80% (Normal)
-              </span>
-            </td>
+            <td colspan="6" class="text-center text-muted py-4">No se encontraron segmentos registrados.</td>
           </tr>
-          <tr>
-            <td class="fw-medium">Segmento 2</td>
-            <td>Perú - España</td>
-            <td>500 Gbps</td>
-            <td>400 Gbps</td>
-            <td>100 Gbps</td>
-            <td>
-              <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
-                <i class="bi bi-circle-fill me-1 small"></i> 80% - 95% (Alto uso)
-              </span>
-            </td>
-          </tr>
-          <tr>
-            <td class="fw-medium">Segmento 3</td>
-            <td>Perú - Japón</td>
-            <td>500 Gbps</td>
-            <td>465 Gbps</td>
-            <td>35 Gbps</td>
-            <td>
-              <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
-                <i class="bi bi-circle-fill me-1 small"></i> &gt; 95% (Uso crítico)
-              </span>
-            </td>
-          </tr>
+          <% } else { %>
+            <% for (Segmento s : listaSegmentos) {
+                 int total = s.getCapacidadTotal() != null ? s.getCapacidadTotal().intValue() : 0;
+                 int usada = s.getCapacidadUsada() != null ? s.getCapacidadUsada().intValue() : 0;
+                 int reservada = s.getCapacidadReservada() != null ? s.getCapacidadReservada().intValue() : 0;
+                 int disponible = Math.max(0, total - usada - reservada);
+                 int ocupada = usada + reservada;
+                 double pct = (total > 0) ? ((double) ocupada / total) * 100.0 : 0.0;
+                 String ruta = s.getNombreOrigen() + " - " + s.getNombreDestino();
+            %>
+            <tr>
+              <td class="fw-medium">Segmento <%=s.getIdSegmento()%></td>
+              <td><%=ruta%></td>
+              <td><%=total%> Gbps</td>
+              <td><%=usada%> Gbps</td>
+              <td><%=disponible%> Gbps</td>
+              <td>
+                <% if (pct < 80.0) { %>
+                  <span class="badge bg-success-subtle text-success border border-success-subtle">
+                    <i class="bi bi-circle-fill me-1 small"></i> &lt; 80% (Normal)
+                  </span>
+                <% } else if (pct <= 95.0) { %>
+                  <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                    <i class="bi bi-circle-fill me-1 small"></i> 80% - 95% (Alto uso)
+                  </span>
+                <% } else { %>
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                    <i class="bi bi-circle-fill me-1 small"></i> &gt; 95% (Uso crítico)
+                  </span>
+                <% } %>
+              </td>
+            </tr>
+            <% } %>
+          <% } %>
           </tbody>
         </table>
       </div>
-
 
     </div>
 
