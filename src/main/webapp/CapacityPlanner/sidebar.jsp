@@ -27,7 +27,7 @@
     <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/ClienteServlet">
       Clientes
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/CapacityPlanner/historial.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/HistorialServlet">
        Historial de segmentos
     </a>
   </nav>

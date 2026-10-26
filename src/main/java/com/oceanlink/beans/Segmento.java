@@ -1,8 +1,10 @@
 package com.oceanlink.beans;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 public class Segmento {
+
     private int idSegmento;
     private int idOrigen;
     private int idDestino;
@@ -12,6 +14,9 @@ public class Segmento {
     private String estado;
     private String nombreOrigen;
     private String nombreDestino;
+
+    // Lista para servicios caducados
+    private ArrayList<Servicio> serviciosCaducados = new ArrayList<>();
 
     public int getIdSegmento() {
         return idSegmento;
@@ -83,5 +88,13 @@ public class Segmento {
 
     public void setNombreDestino(String nombreDestino) {
         this.nombreDestino = nombreDestino;
+    }
+
+    public ArrayList<Servicio> getServiciosCaducados() {
+        return serviciosCaducados;
+    }
+
+    public void setServiciosCaducados(ArrayList<Servicio> serviciosCaducados) {
+        this.serviciosCaducados = serviciosCaducados;
     }
 }

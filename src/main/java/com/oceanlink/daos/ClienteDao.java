@@ -10,11 +10,10 @@ public class ClienteDao extends DaoBase {
     // Listar todos los clientes
     public ArrayList<Cliente> listarClientes() {
         ArrayList<Cliente> lista = new ArrayList<>();
-        // Verificamos si tiene servicios vinculados mediante un LEFT JOIN
         String sql = "SELECT c.*, COUNT(sv.idServicio) AS totalServicios "
                 + "FROM cliente c "
                 + "LEFT JOIN solicitudcapacidad sc ON c.idCliente = sc.idCliente "
-                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.estado = 'Activo' "
+                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.fechaCaducidad >= CURDATE() "
                 + "GROUP BY c.idCliente "
                 + "ORDER BY c.idCliente ASC";
 
@@ -29,7 +28,6 @@ public class ClienteDao extends DaoBase {
                 c.setFechaRegistro(rs.getDate("fechaRegistro"));
                 c.setRazonSocial(rs.getString("razonSocial"));
 
-                // Si tiene al menos una solicitud/servicio es Activo, sino Inactivo
                 int total = rs.getInt("totalServicios");
                 c.setEstado(total > 0 ? "Activo" : "Inactivo");
 
@@ -41,14 +39,14 @@ public class ClienteDao extends DaoBase {
         return lista;
     }
 
-    // Buscar por cliente o razón social
+    // Buscar por cliente o razon social
     public ArrayList<Cliente> buscarClientes(String texto) {
         ArrayList<Cliente> lista = new ArrayList<>();
         String sql = "SELECT c.*, COUNT(sv.idServicio) AS totalServicios "
                 + "FROM cliente c "
                 + "LEFT JOIN solicitudcapacidad sc ON c.idCliente = sc.idCliente "
-                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.estado = 'Activo' "
-                + "GROUP BY c.idCliente, c.identificador, c.razonSocial " // <-- Modificación aquí
+                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.fechaCaducidad >= CURDATE() "
+                + "GROUP BY c.idCliente, c.identificador, c.razonSocial "
                 + "HAVING c.identificador LIKE ? OR c.razonSocial LIKE ? "
                 + "   OR (IF(COUNT(sv.idServicio) > 0, 'Activo', 'Inactivo')) LIKE ? "
                 + "ORDER BY c.idCliente ASC";
@@ -81,13 +79,13 @@ public class ClienteDao extends DaoBase {
         return lista;
     }
 
-    // Obtener cliente por su ID
+    // Obtener cliente por id
     public Cliente obtenerCliente(int idCliente) {
         Cliente c = null;
         String sql = "SELECT c.*, COUNT(sv.idServicio) AS totalServicios "
                 + "FROM cliente c "
                 + "LEFT JOIN solicitudcapacidad sc ON c.idCliente = sc.idCliente "
-                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.estado = 'Activo' "
+                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.fechaCaducidad >= CURDATE() "
                 + "WHERE c.idCliente = ? "
                 + "GROUP BY c.idCliente";
 
@@ -114,10 +112,9 @@ public class ClienteDao extends DaoBase {
         return c;
     }
 
-    // Registrar cliente (Para el modal "Registrar Cliente")
+    // Registrar cliente
     public void registrarCliente(String razonSocial) {
         String sqlIdentificador = "SELECT COALESCE(MAX(idCliente), 0) + 1 AS siguiente FROM cliente";
-        // Nace como Inactivo porque recién se crea y no tiene solicitudes ni servicios vinculados
         String sqlInsert = "INSERT INTO cliente (identificador, fechaRegistro, razonSocial, estado) "
                 + "VALUES (?, CURDATE(), ?, 'Inactivo')";
 
@@ -143,7 +140,7 @@ public class ClienteDao extends DaoBase {
         }
     }
 
-    // Eliminar cliente (Para el boton de la tabla)
+    // Eliminar cliente
     public void borrarCliente(int idCliente) {
         String sqlServicios = "DELETE FROM servicio WHERE idSolicitudCapacidad IN "
                 + "(SELECT idSolicitudCapacidad FROM solicitudcapacidad WHERE idCliente = ?)";

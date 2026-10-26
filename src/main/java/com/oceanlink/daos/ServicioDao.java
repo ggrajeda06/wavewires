@@ -7,13 +7,14 @@ import java.util.ArrayList;
 
 public class ServicioDao extends DaoBase {
 
-    // Listar servicios
+    // Listar servicios activos
     public ArrayList<Servicio> listarServicios() {
         ArrayList<Servicio> lista = new ArrayList<>();
         String sql = "SELECT sv.*, sc.idCliente, c.razonSocial "
                 + "FROM servicio sv "
                 + "JOIN solicitudcapacidad sc ON sc.idSolicitudCapacidad = sv.idSolicitudCapacidad "
                 + "JOIN cliente c ON c.idCliente = sc.idCliente "
+                + "WHERE sv.fechaCaducidad >= CURDATE() "
                 + "ORDER BY sv.idServicio";
         try (Connection conn = this.getConnection();
              Statement stmt = conn.createStatement();
@@ -39,17 +40,18 @@ public class ServicioDao extends DaoBase {
         return lista;
     }
 
-    // Buscar servicio
+    // Buscar servicios activos
     public ArrayList<Servicio> buscarServicios(String texto) {
         ArrayList<Servicio> lista = new ArrayList<>();
         String sql = "SELECT sv.*, sc.idCliente, c.razonSocial "
                 + "FROM servicio sv "
                 + "JOIN solicitudcapacidad sc ON sc.idSolicitudCapacidad = sv.idSolicitudCapacidad "
                 + "JOIN cliente c ON c.idCliente = sc.idCliente "
-                + "WHERE sv.identificador LIKE ? "
+                + "WHERE sv.fechaCaducidad >= CURDATE() AND ("
+                + "   sv.identificador LIKE ? "
                 + "   OR CONCAT('Servicio ', sv.idServicio) LIKE ? "
                 + "   OR c.razonSocial LIKE ? "
-                + "   OR CONCAT('Segmento ', sv.idSegmento) LIKE ? "
+                + "   OR CONCAT('Segmento ', sv.idSegmento) LIKE ?) "
                 + "ORDER BY sv.idServicio";
 
         try (Connection conn = this.getConnection();
@@ -83,7 +85,7 @@ public class ServicioDao extends DaoBase {
         return lista;
     }
 
-    // Listar servicios por landing
+    // Listar servicios por landing station
     public ArrayList<Servicio> listarServiciosPorLanding(int idLandingStation) {
         ArrayList<Servicio> lista = new ArrayList<>();
         String sql = "SELECT sv.*, sc.idCliente, c.razonSocial "
@@ -92,14 +94,15 @@ public class ServicioDao extends DaoBase {
                 + "JOIN solicitudcapacidad sc ON sc.idSolicitudCapacidad = sv.idSolicitudCapacidad "
                 + "JOIN cliente c ON c.idCliente = sc.idCliente "
                 + "WHERE (s.idOrigen = ? OR s.idDestino = ?) "
-                + "AND sv.estado = 'Activo' "
                 + "AND sv.fechaCaducidad >= CURDATE() "
                 + "ORDER BY sv.idServicio";
+
         try (Connection conn = this.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, idLandingStation);
             pstmt.setInt(2, idLandingStation);
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     Servicio sv = new Servicio();
@@ -122,17 +125,48 @@ public class ServicioDao extends DaoBase {
         return lista;
     }
 
-    // Eliminar servicio
+    // Listar servicios caducados
+    public ArrayList<Servicio> listarServiciosCaducados() {
+        ArrayList<Servicio> lista = new ArrayList<>();
+        String sql = "SELECT sv.*, sc.idCliente, c.razonSocial "
+                + "FROM servicio sv "
+                + "JOIN solicitudcapacidad sc ON sc.idSolicitudCapacidad = sv.idSolicitudCapacidad "
+                + "JOIN cliente c ON c.idCliente = sc.idCliente "
+                + "WHERE sv.fechaCaducidad < CURDATE() "
+                + "ORDER BY sv.idServicio";
+        try (Connection conn = this.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Servicio sv = new Servicio();
+                sv.setIdServicio(rs.getInt("idServicio"));
+                sv.setIdentificador(rs.getString("identificador"));
+                sv.setCapacidad(rs.getBigDecimal("capacidad"));
+                sv.setEstado(rs.getString("estado"));
+                sv.setFechaCaducidad(rs.getDate("fechaCaducidad"));
+                sv.setIdSegmento(rs.getInt("idSegmento"));
+                sv.setIdSolicitudCapacidad(rs.getInt("idSolicitudCapacidad"));
+                sv.setIdCliente(rs.getInt("idCliente"));
+                sv.setRazonSocial(rs.getString("razonSocial"));
+                lista.add(sv);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return lista;
+    }
+
+    // Dar de baja servicio activo
     public void eliminarServicio(int idServicio) {
-        String sqlSelect = "SELECT capacidad, idSegmento, idSolicitudCapacidad FROM servicio WHERE idServicio = ?";
-        String sqlDeleteServicio = "DELETE FROM servicio WHERE idServicio = ?";
-        String sqlDeleteSolicitud = "DELETE FROM solicitudcapacidad WHERE idSolicitudCapacidad = ?";
-        String sqlUpdateSegmento = "UPDATE segmento SET capacidadUsada = GREATEST(0, capacidadUsada - ?) WHERE idSegmento = ?";
+        String sqlSelect = "SELECT capacidad, idSegmento FROM servicio WHERE idServicio = ?";
+        String sqlCaducar = "UPDATE servicio SET fechaCaducidad = DATE_SUB(CURDATE(), INTERVAL 1 DAY) WHERE idServicio = ?";
+        String sqlLibera = "UPDATE segmento SET capacidadUsada = GREATEST(0, capacidadUsada - ?) WHERE idSegmento = ?";
 
         try (Connection conn = this.getConnection()) {
             double capacidad = 0;
             int idSegmento = 0;
-            int idSolicitud = 0;
 
             try (PreparedStatement pstmtSel = conn.prepareStatement(sqlSelect)) {
                 pstmtSel.setInt(1, idServicio);
@@ -140,9 +174,50 @@ public class ServicioDao extends DaoBase {
                     if (rs.next()) {
                         capacidad = rs.getDouble("capacidad");
                         idSegmento = rs.getInt("idSegmento");
+                    }
+                }
+            }
+
+            try (PreparedStatement pstmtCad = conn.prepareStatement(sqlCaducar)) {
+                pstmtCad.setInt(1, idServicio);
+                pstmtCad.executeUpdate();
+            }
+
+            if (idSegmento > 0 && capacidad > 0) {
+                try (PreparedStatement pstmtLib = conn.prepareStatement(sqlLibera)) {
+                    pstmtLib.setDouble(1, capacidad);
+                    pstmtLib.setInt(2, idSegmento);
+                    pstmtLib.executeUpdate();
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Eliminar definitivamente del historial
+    public void eliminarServicioPermanente(int idServicio) {
+        String sqlSelect = "SELECT idSolicitudCapacidad FROM servicio WHERE idServicio = ?";
+        String sqlDeleteIncidencia = "DELETE FROM incidencia_has_servicio WHERE idServicio = ?";
+        String sqlDeleteServicio = "DELETE FROM servicio WHERE idServicio = ?";
+        String sqlDeleteSolicitud = "DELETE FROM solicitudcapacidad WHERE idSolicitudCapacidad = ?";
+
+        try (Connection conn = this.getConnection()) {
+            int idSolicitud = 0;
+
+            try (PreparedStatement pstmtSel = conn.prepareStatement(sqlSelect)) {
+                pstmtSel.setInt(1, idServicio);
+                try (ResultSet rs = pstmtSel.executeQuery()) {
+                    if (rs.next()) {
                         idSolicitud = rs.getInt("idSolicitudCapacidad");
                     }
                 }
+            }
+
+            try (PreparedStatement pstmtInc = conn.prepareStatement(sqlDeleteIncidencia)) {
+                pstmtInc.setInt(1, idServicio);
+                pstmtInc.executeUpdate();
             }
 
             try (PreparedStatement pstmtDelServ = conn.prepareStatement(sqlDeleteServicio)) {
@@ -154,14 +229,6 @@ public class ServicioDao extends DaoBase {
                 try (PreparedStatement pstmtDelSol = conn.prepareStatement(sqlDeleteSolicitud)) {
                     pstmtDelSol.setInt(1, idSolicitud);
                     pstmtDelSol.executeUpdate();
-                }
-            }
-
-            if (idSegmento > 0 && capacidad > 0) {
-                try (PreparedStatement pstmtUpdSeg = conn.prepareStatement(sqlUpdateSegmento)) {
-                    pstmtUpdSeg.setDouble(1, capacidad);
-                    pstmtUpdSeg.setInt(2, idSegmento);
-                    pstmtUpdSeg.executeUpdate();
                 }
             }
 

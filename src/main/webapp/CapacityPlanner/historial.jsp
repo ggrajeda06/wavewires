@@ -1,25 +1,25 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="com.oceanlink.beans.Segmento" %>
+<%@ page import="com.oceanlink.beans.Servicio" %>
+<%@ page import="java.util.ArrayList" %>
+<jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
+<jsp:useBean id="listaServiciosCaducados" type="java.util.ArrayList<com.oceanlink.beans.Servicio>" scope="request" />
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>WaveWires - Historial de segmentos</title>
-  <!-- Bootstrap 5 CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body class="bg-light">
 
 <div class="row g-0">
-  <!-- Sidebar compartido -->
   <jsp:include page="sidebar.jsp"/>
 
-  <!-- Contenido principal -->
   <main class="col p-4">
 
-    <!-- Encabezado de la vista -->
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h2 class="h3 fw-bold text-dark m-0">Historial de segmentos</h2>
@@ -27,15 +27,15 @@
       </div>
     </div>
 
-    <!-- Tarjeta con buscador y tabla -->
     <div class="card shadow-sm border-0 p-3">
 
       <!-- Buscador -->
-      <div class="row mb-3">
+      <form method="GET" action="<%=request.getContextPath()%>/HistorialServlet" class="row mb-3">
         <div class="col-md-4">
-          <input type="text" class="form-control" placeholder="Buscar segmento o ruta...">
+          <input type="text" name="buscar" class="form-control" placeholder="Buscar segmento o ruta..."
+                 value="<%=request.getParameter("buscar") != null ? request.getParameter("buscar") : ""%>">
         </div>
-      </div>
+      </form>
 
       <!-- Tabla de segmentos -->
       <div class="table-responsive">
@@ -48,43 +48,39 @@
           </tr>
           </thead>
           <tbody>
-          <!-- Segmento 1: Tiene servicios caducados -->
+          <% if (listaSegmentos.isEmpty()) { %>
           <tr>
-            <td class="fw-medium">Segmento 1</td>
-            <td>Perú - EEUU</td>
-            <td class="text-center">
-              <button type="button" class="btn btn-outline-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalServiciosCaducados">
-                Ver más
-              </button>
-            </td>
+            <td colspan="3" class="text-center text-muted py-4">No se encontraron segmentos registrados.</td>
           </tr>
-
-          <!-- Segmento 2: Sin servicios caducados -->
-          <tr>
-            <td class="fw-medium">Segmento 2</td>
-            <td>Perú - España</td>
-            <td class="text-center">
-              <button type="button" class="btn btn-outline-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalSinCaducados">
-                Ver más
-              </button>
-            </td>
-          </tr>
-
-          <!-- Segmento 3: Sin servicios caducados -->
-          <tr>
-            <td class="fw-medium">Segmento 3</td>
-            <td>Perú - Japón</td>
-            <td class="text-center">
-              <button type="button" class="btn btn-outline-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalSinCaducados">
-                Ver más
-              </button>
-            </td>
-          </tr>
+          <% } else { %>
+            <% for (Segmento s : listaSegmentos) {
+                 String ruta = s.getNombreOrigen() + " - " + s.getNombreDestino();
+                 int cantCaducados = 0;
+                 if (listaServiciosCaducados != null) {
+                   for (Servicio sv : listaServiciosCaducados) {
+                     if (sv.getIdSegmento() == s.getIdSegmento()) {
+                       cantCaducados++;
+                     }
+                   }
+                 }
+                 String targetModal = (cantCaducados > 0) ? "#modalCaducados" + s.getIdSegmento() : "#modalSinCaducados";
+            %>
+            <tr>
+              <td class="fw-medium">Segmento <%=s.getIdSegmento()%></td>
+              <td><%=ruta%></td>
+              <td class="text-center">
+                <button type="button" class="btn btn-outline-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="<%=targetModal%>">
+                  Ver más
+                </button>
+              </td>
+            </tr>
+            <% } %>
+          <% } %>
           </tbody>
         </table>
       </div>
 
-      <!-- Paginacion estatica -->
+      <!-- Paginacion -->
       <div class="d-flex justify-content-end gap-2">
         <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Anterior</button>
         <button type="button" class="btn btn-outline-secondary btn-sm">Siguiente</button>
@@ -94,26 +90,28 @@
   </main>
 </div>
 
-<!-- Modal para ver los servicios caducados del segmento -->
-<div class="modal fade" id="modalServiciosCaducados" tabindex="-1" aria-hidden="true">
+<!-- Modales con el detalle de servicios caducados por cada segmento -->
+<%
+   if (listaSegmentos != null && listaServiciosCaducados != null) {
+     for (Segmento s : listaSegmentos) {
+       ArrayList<Servicio> caducadosDelSegmento = new ArrayList<>();
+       for (Servicio sv : listaServiciosCaducados) {
+         if (sv.getIdSegmento() == s.getIdSegmento()) {
+           caducadosDelSegmento.add(sv);
+         }
+       }
+       if (!caducadosDelSegmento.isEmpty()) {
+%>
+<div class="modal fade" id="modalCaducados<%=s.getIdSegmento()%>" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content border-0 shadow">
 
       <div class="modal-header border-bottom py-3 px-4">
-        <h5 class="modal-title fw-bold m-0 text-dark">Servicios Caducados</h5>
+        <h5 class="modal-title fw-bold m-0 text-dark">Servicios Caducados - Segmento <%=s.getIdSegmento()%></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
       <div class="modal-body p-4">
-
-        <!-- Buscador dentro del modal -->
-        <div class="row mb-3">
-          <div class="col-md-5">
-            <input type="text" class="form-control" placeholder="Buscar servicio o cliente...">
-          </div>
-        </div>
-
-        <!-- Tabla con el detalle de servicios de baja -->
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
@@ -126,47 +124,44 @@
             </tr>
             </thead>
             <tbody>
+            <% for (Servicio sv : caducadosDelSegmento) {
+                 String nombreServicio = (sv.getIdentificador() != null && !sv.getIdentificador().trim().isEmpty())
+                                         ? sv.getIdentificador() : "Servicio " + sv.getIdServicio();
+                 int cap = sv.getCapacidad() != null ? sv.getCapacidad().intValue() : 0;
+            %>
             <tr>
-              <td class="fw-medium">Servicio 1</td>
-              <td>OAC S.A.C.</td>
-              <td>Segmento 1</td>
-              <td class="text-secondary fw-semibold">30 Gbps</td>
+              <td class="fw-medium"><%=nombreServicio%></td>
+              <td><%=sv.getRazonSocial() != null ? sv.getRazonSocial() : "-"%></td>
+              <td>Segmento <%=sv.getIdSegmento()%></td>
+              <td class="text-secondary fw-semibold"><%=cap%> Gbps</td>
               <td class="text-center">
-                <button type="button" class="btn btn-outline-danger btn-sm px-3 text-nowrap">
+                <a href="<%=request.getContextPath()%>/HistorialServlet?action=borrar&id=<%=sv.getIdServicio()%>"
+                   class="btn btn-outline-danger btn-sm px-3 text-nowrap"
+                   onclick="return confirm('¿Estás seguro de que deseas eliminar este servicio del historial?');">
                   <i class="bi bi-trash me-1"></i> Eliminar
-                </button>
+                </a>
               </td>
             </tr>
-            <tr>
-              <td class="fw-medium">Servicio 2</td>
-              <td>HYDRA S.A.C.</td>
-              <td>Segmento 1</td>
-              <td class="text-secondary fw-semibold">100 Gbps</td>
-              <td class="text-center">
-                <button type="button" class="btn btn-outline-danger btn-sm px-3 text-nowrap">
-                  <i class="bi bi-trash me-1"></i> Eliminar
-                </button>
-              </td>
-            </tr>
+            <% } %>
             </tbody>
           </table>
         </div>
-
       </div>
 
-      <div class="modal-footer d-flex justify-content-between align-items-center border-top py-3 px-4 bg-light-subtle">
+      <div class="modal-footer d-flex justify-content-end border-top py-3 px-4 bg-light-subtle">
         <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">
           Cerrar
         </button>
-        <div class="d-flex gap-2">
-          <button type="button" class="btn btn-outline-secondary btn-sm px-3" disabled>Anterior</button>
-          <button type="button" class="btn btn-outline-secondary btn-sm px-3">Siguiente</button>
-        </div>
       </div>
 
     </div>
   </div>
 </div>
+<%
+       }
+     }
+   }
+%>
 
 <!-- Modal para cuando no hay registros finalizados -->
 <div class="modal fade" id="modalSinCaducados" tabindex="-1" aria-hidden="true">
@@ -182,7 +177,6 @@
   </div>
 </div>
 
-<!-- Scripts de Bootstrap para los modales -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
