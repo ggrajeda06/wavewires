@@ -1,8 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.oceanlink.beans.Solicitudes" %>
 <%@ page import="com.oceanlink.beans.Cliente" %>
+<%@ page import="com.oceanlink.beans.Segmento" %>
 <jsp:useBean id="listaSolicitudes" type="java.util.ArrayList<com.oceanlink.beans.Solicitudes>" scope="request" />
 <jsp:useBean id="listaClientes" type="java.util.ArrayList<com.oceanlink.beans.Cliente>" scope="request" />
+<jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -45,7 +47,7 @@
         </div>
       </form>
 
-      <!-- Tabla dinamica con las solicitudes -->
+      <!-- Tabla con las solicitudes -->
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-3">
           <thead class="table-light">
@@ -79,20 +81,30 @@
                  // Ruta directa desde los String origen y destino
                  String ruta = s.getOrigen() + " - " + s.getDestino();
 
-                 // Estilos de badge segun los 7 estados de Miro
+                 // Estilos de badge segun el estado
                  String badgeClass = "bg-secondary-subtle text-secondary border border-secondary-subtle";
                  if ("En evaluación".equalsIgnoreCase(s.getEstado())) {
                      badgeClass = "bg-warning-subtle text-warning border border-warning-subtle";
-                 } else if ("Aprobado".equalsIgnoreCase(s.getEstado()) || "Provisionado".equalsIgnoreCase(s.getEstado())) {
+                 } else if ("Aprobado".equalsIgnoreCase(s.getEstado())) {
                      badgeClass = "bg-info-subtle text-info border border-info-subtle";
+                 } else if ("Provisionado".equalsIgnoreCase(s.getEstado())) {
+                     badgeClass = "bg-primary-subtle text-primary border border-primary-subtle";
+                 } else if ("Pendiente por Capacidad".equalsIgnoreCase(s.getEstado())) {
+                     badgeClass = "bg-dark-subtle text-dark border border-dark-subtle";
                  } else if ("Activo".equalsIgnoreCase(s.getEstado())) {
                      badgeClass = "bg-success-subtle text-success border border-success-subtle";
-                 } else if ("Rechazado".equalsIgnoreCase(s.getEstado())) {
+                 } else if ("Rechazado".equalsIgnoreCase(s.getEstado()) || "Rechazada".equalsIgnoreCase(s.getEstado())) {
                      badgeClass = "bg-danger-subtle text-danger border border-danger-subtle";
                  }
 
                  // Texto del segmento
                  String textoSegmento = (s.getIdSegmento() == null || s.getIdSegmento() == 0) ? "No asignado" : "Segmento " + s.getIdSegmento();
+                 for (Segmento seg : listaSegmentos) {
+                     if (s.getIdSegmento() != null && seg.getIdSegmento() == s.getIdSegmento()) {
+                         textoSegmento = "SEG-" + String.format("%03d", seg.getIdSegmento());
+                         break;
+                     }
+                 }
                  String obsLimpias = s.getObservaciones() == null ? "" : s.getObservaciones().replace("'", "\\'");
                  String origenLimpio = s.getOrigen() == null ? "" : s.getOrigen().replace("'", "\\'");
                  String destinoLimpio = s.getDestino() == null ? "" : s.getDestino().replace("'", "\\'");
@@ -158,6 +170,7 @@
             <input type="number" name="capacidad" class="form-control" placeholder="Ejm: 120" min="1" required>
           </div>
 
+          <!-- Origen y Destino como texto libre según la BD -->
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="form-label small fw-semibold">Origen</label>
@@ -200,7 +213,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
-      <form method="POST" action="<%=request.getContextPath()%>/SolicitudesServlet?action=actualizar">
+      <form method="POST" action="<%=request.getContextPath()%>/SolicitudesServlet?action=actualizar" onsubmit="return validarEdicion();">
         <!-- Input oculto para enviar el ID de la solicitud a editar -->
         <input type="hidden" name="idSolicitudCapacidad" id="editId">
 
@@ -219,6 +232,7 @@
             <input type="number" name="capacidad" id="editCapacidad" class="form-control" min="1" required>
           </div>
 
+          <!-- Origen y Destino como texto libre según la BD -->
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="form-label small fw-semibold">Origen</label>
@@ -234,13 +248,6 @@
           <div class="mb-3">
             <label class="form-label small fw-semibold">Estado</label>
             <select name="estado" id="editEstado" class="form-select">
-              <option value="Registrado">Registrado</option>
-              <option value="En evaluación">En evaluación</option>
-              <option value="Aprobado">Aprobado</option>
-              <option value="Rechazado">Rechazado</option>
-              <option value="Pendiente por Capacidad">Pendiente por Capacidad</option>
-              <option value="Provisionado">Provisionado</option>
-              <option value="Activo">Activo</option>
             </select>
             <small class="text-muted">Las reglas de transición se gestionarán en el Servlet.</small>
           </div>
@@ -249,9 +256,9 @@
             <label class="form-label small fw-semibold">Segmento</label>
             <select name="idSegmento" id="editSegmento" class="form-select">
               <option value="0">No asignado</option>
-              <option value="1">Segmento 1</option>
-              <option value="2">Segmento 2</option>
-              <option value="3">Segmento 3</option>
+              <% for (Segmento seg : listaSegmentos) { %>
+                <option value="<%=seg.getIdSegmento()%>">SEG-<%=String.format("%03d", seg.getIdSegmento())%> (<%=seg.getNombreOrigen()%> - <%=seg.getNombreDestino()%>)</option>
+              <% } %>
             </select>
           </div>
 
@@ -291,16 +298,80 @@ function abrirEditar(id, idCliente, capacidad, origen, destino, estado, idSegmen
   document.getElementById('editCapacidad').value = capacidad;
   document.getElementById('editOrigen').value = origen;
   document.getElementById('editDestino').value = destino;
-  document.getElementById('editEstado').value = estado;
-  document.getElementById('editSegmento').value = (idSegmento && idSegmento !== 'null') ? idSegmento : "0";
   document.getElementById('editDuracion').value = duracion;
   document.getElementById('editObservaciones').value = observaciones;
+
+  let selectEstado = document.getElementById('editEstado');
+  let selectSegmento = document.getElementById('editSegmento');
+  selectEstado.innerHTML = '';
+
+  if (estado === 'Registrado') {
+    selectEstado.innerHTML = '<option value="Registrado">Registrado</option>' +
+                             '<option value="En evaluación">En evaluación</option>';
+    selectSegmento.value = "0";
+    selectSegmento.disabled = true;
+  } else if (estado === 'En evaluación') {
+    selectEstado.innerHTML = '<option value="En evaluación">En evaluación</option>' +
+                             '<option value="Aprobado">Aprobado</option>' +
+                             '<option value="Rechazado">Rechazado</option>';
+    selectSegmento.disabled = false;
+    selectSegmento.value = (idSegmento && idSegmento !== 'null') ? idSegmento : "0";
+  } else if (estado === 'Aprobado') {
+    selectEstado.innerHTML = '<option value="Aprobado">Aprobado</option>' +
+                             '<option value="Provisionado">Provisionado</option>' +
+                             '<option value="Pendiente por Capacidad">Pendiente por Capacidad</option>';
+    selectSegmento.disabled = false;
+    selectSegmento.value = (idSegmento && idSegmento !== 'null') ? idSegmento : "0";
+  } else if (estado === 'Pendiente por Capacidad') {
+    selectEstado.innerHTML = '<option value="Pendiente por Capacidad">Pendiente por Capacidad</option>' +
+                             '<option value="Provisionado">Provisionado</option>' +
+                             '<option value="Rechazado">Rechazado</option>';
+    selectSegmento.disabled = false;
+    selectSegmento.value = (idSegmento && idSegmento !== 'null') ? idSegmento : "0";
+  } else if (estado === 'Provisionado') {
+    selectEstado.innerHTML = '<option value="Provisionado">Provisionado</option>' +
+                             '<option value="Activo">Activo</option>';
+    selectSegmento.disabled = false;
+    selectSegmento.value = (idSegmento && idSegmento !== 'null') ? idSegmento : "0";
+  } else if (estado === 'Rechazado') {
+    selectEstado.innerHTML = '<option value="Rechazado">Rechazado</option>';
+    selectSegmento.disabled = true;
+    selectSegmento.value = (idSegmento && idSegmento !== 'null') ? idSegmento : "0";
+  } else {
+    selectEstado.innerHTML = '<option value="' + estado + '">' + estado + '</option>';
+    selectSegmento.disabled = false;
+    selectSegmento.value = (idSegmento && idSegmento !== 'null') ? idSegmento : "0";
+  }
+  selectEstado.value = estado;
 
   // Enlace dinamico para el boton de eliminar en el modal
   document.getElementById('btnEliminarModal').href = '<%=request.getContextPath()%>/SolicitudesServlet?action=borrar&id=' + id;
 
   let modal = new bootstrap.Modal(document.getElementById('modalEditarSolicitud'));
   modal.show();
+}
+
+function validarEdicion() {
+  let selectSegmento = document.getElementById('editSegmento');
+  let estadoSeleccionado = document.getElementById('editEstado').value;
+  let segmentoSeleccionado = selectSegmento.value;
+
+  if (estadoSeleccionado === 'Aprobado' && (segmentoSeleccionado === '0' || segmentoSeleccionado === '')) {
+    alert('Es obligatorio asignar un segmento para poder aprobar la solicitud.');
+    return false;
+  }
+
+  selectSegmento.disabled = false;
+
+  if (estadoSeleccionado === 'Rechazado') {
+    return confirm('¿Estas seguro que quieres Rechazar la Solicitud?');
+  } else if (estadoSeleccionado === 'Aprobado') {
+    return confirm('¿Estas seguro que quieres Aprobar la Solicitud?');
+  } else if (estadoSeleccionado === 'Activo') {
+    return confirm('¿Estas seguro que quieres guardar, esta solicitud se convertirá en un servicio y desaparecerá de esta tabla?');
+  } else {
+    return confirm('¿Esta seguro de guardar cambios?');
+  }
 }
 </script>
 </body>

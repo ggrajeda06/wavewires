@@ -1,8 +1,10 @@
 package com.oceanlink.servlets;
 
 import com.oceanlink.beans.Cliente;
+import com.oceanlink.beans.Segmento;
 import com.oceanlink.beans.Solicitudes;
 import com.oceanlink.daos.ClienteDao;
+import com.oceanlink.daos.SegmentoDao;
 import com.oceanlink.daos.SolicitudesDao;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -24,6 +26,7 @@ public class SolicitudesServlet extends HttpServlet {
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         SolicitudesDao solicitudesDao = new SolicitudesDao();
         ClienteDao clienteDao = new ClienteDao();
+        SegmentoDao segmentoDao = new SegmentoDao();
         RequestDispatcher view;
 
         switch (action) {
@@ -40,6 +43,7 @@ public class SolicitudesServlet extends HttpServlet {
                 // Guardamos en el request las solicitudes y clientes para los comboboxes
                 request.setAttribute("listaSolicitudes", lista);
                 request.setAttribute("listaClientes", clienteDao.listarClientes());
+                request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
 
                 view = request.getRequestDispatcher("CapacityPlanner/solicitudes.jsp");
                 view.forward(request, response);

@@ -10,7 +10,7 @@ public class SolicitudesDao extends DaoBase {
     // Listar
     public ArrayList<Solicitudes> listarSolicitudes() {
         ArrayList<Solicitudes> lista = new ArrayList<>();
-        String sql = "SELECT * FROM solicitudcapacidad ORDER BY idSolicitudCapacidad ASC";
+        String sql = "SELECT * FROM solicitudcapacidad WHERE estado != 'Activo' ORDER BY idSolicitudCapacidad ASC";
 
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
@@ -31,10 +31,11 @@ public class SolicitudesDao extends DaoBase {
         ArrayList<Solicitudes> lista = new ArrayList<>();
         String sql = "SELECT sc.* FROM solicitudcapacidad sc "
                 + "LEFT JOIN cliente c ON sc.idCliente = c.idCliente "
-                + "WHERE sc.idSolicitudCapacidad LIKE ? "
+                + "WHERE sc.estado != 'Activo' AND ("
+                + "   sc.idSolicitudCapacidad LIKE ? "
                 + "   OR CONCAT('Solicitud ', sc.idSolicitudCapacidad) LIKE ? "
                 + "   OR c.razonSocial LIKE ? "
-                + "   OR sc.estado LIKE ? "
+                + "   OR sc.estado LIKE ?) "
                 + "ORDER BY sc.idSolicitudCapacidad ASC";
 
         try (Connection conn = getConnection();
@@ -131,6 +132,23 @@ public class SolicitudesDao extends DaoBase {
             pstmt.setInt(9, idSolicitudCapacidad);
 
             pstmt.executeUpdate();
+
+            if ("Activo".equalsIgnoreCase(estado)) {
+                String sqlServicio = "INSERT INTO servicio (identificador, capacidad, estado, fechaCaducidad, idSegmento, idSolicitudCapacidad) "
+                        + "VALUES (CONCAT('SRV-', ?), ?, 'Activo', DATE_ADD(CURDATE(), INTERVAL ? MONTH), ?, ?)";
+                try (PreparedStatement pstmtServ = conn.prepareStatement(sqlServicio)) {
+                    pstmtServ.setInt(1, idSolicitudCapacidad);
+                    pstmtServ.setDouble(2, capacidad);
+                    pstmtServ.setInt(3, duracionMeses);
+                    if (idSegmento == null || idSegmento == 0) {
+                        pstmtServ.setNull(4, Types.INTEGER);
+                    } else {
+                        pstmtServ.setInt(4, idSegmento);
+                    }
+                    pstmtServ.setInt(5, idSolicitudCapacidad);
+                    pstmtServ.executeUpdate();
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
