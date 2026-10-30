@@ -1,4 +1,51 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.LinkedHashMap" %>
+<jsp:useBean id="filasSegmentos" type="java.util.ArrayList<java.util.LinkedHashMap<java.lang.String, java.lang.String>>" scope="request" />
+<jsp:useBean id="filasIncidencias" type="java.util.ArrayList<java.util.LinkedHashMap<java.lang.String, java.lang.String>>" scope="request" />
+<jsp:useBean id="filasMantenimientos" type="java.util.ArrayList<java.util.LinkedHashMap<java.lang.String, java.lang.String>>" scope="request" />
+<%!
+    private String esc(String texto) {
+        if (texto == null) {
+            return "";
+        }
+        return texto.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                .replace("\"", "&quot;").replace("'", "&#39;");
+    }
+
+    private String colorBarra(String utilizacion) {
+        double valor = Double.parseDouble(utilizacion);
+        if (valor >= 90) {
+            return "bg-danger";
+        } else if (valor >= 80) {
+            return "bg-warning";
+        }
+        return "bg-secondary";
+    }
+
+    private String colorSeveridad(String severidad) {
+        switch (severidad) {
+            case "Crítica":
+                return "text-bg-danger";
+            case "Alta":
+                return "text-bg-warning";
+            case "Media":
+                return "text-bg-info";
+            default:
+                return "text-bg-secondary";
+        }
+    }
+
+    private String colorMantenimiento(String estado) {
+        switch (estado) {
+            case "Activo":
+                return "text-bg-primary";
+            case "Finalizado":
+                return "text-bg-success";
+            default:
+                return "text-bg-secondary";
+        }
+    }
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -19,18 +66,25 @@
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                     <h2 class="h5 mb-0" id="tituloCapacidad">Capacidad de la red</h2><button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCapacidad">Más detalles</button>
                 </div>
-                <div class="row g-3 mb-4"><div class="col-12 col-sm-6 col-xl-3"><div class="border rounded p-3 h-100"><span class="text-secondary small">Capacidad total</span><p class="fs-5 fw-semibold mb-0 mt-2">3300 Gbps</p></div></div>
-<div class="col-12 col-sm-6 col-xl-3"><div class="border rounded p-3 h-100"><span class="text-secondary small">Capacidad en uso</span><p class="fs-5 fw-semibold mb-0 mt-2">2000 Gbps</p></div></div>
-<div class="col-12 col-sm-6 col-xl-3"><div class="border rounded p-3 h-100"><span class="text-secondary small">Capacidad reservada</span><p class="fs-5 fw-semibold mb-0 mt-2">200 Gbps</p></div></div>
-<div class="col-12 col-sm-6 col-xl-3"><div class="border rounded p-3 h-100"><span class="text-secondary small">Capacidad disponible</span><p class="fs-5 fw-semibold mb-0 mt-2">1100 Gbps</p></div></div></div>
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-sm-6 col-xl-3"><div class="border rounded p-3 h-100"><span class="text-secondary small">Capacidad total</span><p class="fs-5 fw-semibold mb-0 mt-2"><%=request.getAttribute("capTotal")%></p></div></div>
+                    <div class="col-12 col-sm-6 col-xl-3"><div class="border rounded p-3 h-100"><span class="text-secondary small">Capacidad en uso</span><p class="fs-5 fw-semibold mb-0 mt-2"><%=request.getAttribute("capUsada")%></p></div></div>
+                    <div class="col-12 col-sm-6 col-xl-3"><div class="border rounded p-3 h-100"><span class="text-secondary small">Capacidad reservada</span><p class="fs-5 fw-semibold mb-0 mt-2"><%=request.getAttribute("capReservada")%></p></div></div>
+                    <div class="col-12 col-sm-6 col-xl-3"><div class="border rounded p-3 h-100"><span class="text-secondary small">Capacidad disponible</span><p class="fs-5 fw-semibold mb-0 mt-2"><%=request.getAttribute("capDisponible")%></p></div></div>
+                </div>
                 <div class="border rounded p-3">
                     <h3 class="h6 mb-3">Más utilizados</h3>
-                    <div class="row g-3"><div class="col-12 col-lg-6"><div class="d-flex justify-content-between small mb-1"><span>Segmento 1</span><span>97%</span></div><div class="progress" role="progressbar" aria-label="Utilización del segmento 1" aria-valuenow="97" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar bg-secondary" style="width: 97%"></div></div></div>
-<div class="col-12 col-lg-6"><div class="d-flex justify-content-between small mb-1"><span>Segmento 2</span><span>96%</span></div><div class="progress" role="progressbar" aria-label="Utilización del segmento 2" aria-valuenow="96" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar bg-secondary" style="width: 96%"></div></div></div>
-<div class="col-12 col-lg-6"><div class="d-flex justify-content-between small mb-1"><span>Segmento 3</span><span>93%</span></div><div class="progress" role="progressbar" aria-label="Utilización del segmento 3" aria-valuenow="93" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar bg-secondary" style="width: 93%"></div></div></div>
-<div class="col-12 col-lg-6"><div class="d-flex justify-content-between small mb-1"><span>Segmento 4</span><span>85%</span></div><div class="progress" role="progressbar" aria-label="Utilización del segmento 4" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar bg-secondary" style="width: 85%"></div></div></div>
-<div class="col-12 col-lg-6"><div class="d-flex justify-content-between small mb-1"><span>Segmento 5</span><span>82%</span></div><div class="progress" role="progressbar" aria-label="Utilización del segmento 5" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar bg-secondary" style="width: 82%"></div></div></div>
-<div class="col-12 col-lg-6"><div class="d-flex justify-content-between small mb-1"><span>Segmento 6</span><span>75%</span></div><div class="progress" role="progressbar" aria-label="Utilización del segmento 6" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar bg-secondary" style="width: 75%"></div></div></div></div>
+                    <div class="row g-3">
+                        <% for (int i = 0; i < filasSegmentos.size() && i < 6; i++) {
+                               LinkedHashMap<String, String> s = filasSegmentos.get(i); %>
+                        <div class="col-12 col-lg-6">
+                            <div class="d-flex justify-content-between small mb-1"><span><%=esc(s.get("ID"))%> · <%=esc(s.get("Ruta"))%></span><span><%=esc(s.get("Utilización"))%></span></div>
+                            <div class="progress" role="progressbar" aria-label="Utilización de <%=esc(s.get("ID"))%>" aria-valuenow="<%=s.get("UtilizacionValor")%>" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar <%=colorBarra(s.get("UtilizacionValor"))%>" style="width: <%=s.get("UtilizacionValor")%>%"></div>
+                            </div>
+                        </div>
+                        <% } %>
+                    </div>
                 </div>
             </div>
         </section>
@@ -40,11 +94,23 @@
                     <div class="card-body">
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><h2 class="h5 mb-0" id="tituloIncidencias">Incidencias activas</h2><button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalIncidencias">Más detalles</button></div>
                         <div class="table-responsive" tabindex="0" role="region" aria-label="Listado de incidencias">
-<table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th scope="col">ID de incidencia</th><th scope="col">Infraestructura</th><th scope="col">Estado</th><th scope="col">Severidad</th></tr></thead><tbody>
-<tr><th scope="row" class="fw-normal">INC-001</th><td>Landing-A</td><td>En proceso</td><td><span class="badge text-bg-danger">Crítica</span></td></tr>
-<tr><th scope="row" class="fw-normal">INC-002</th><td>Landing-B</td><td>En proceso</td><td><span class="badge text-bg-warning">Alta</span></td></tr>
-<tr><th scope="row" class="fw-normal">INC-003</th><td>Landing-C</td><td>Abierta</td><td><span class="badge text-bg-info">Media</span></td></tr>
-</tbody></table></div>
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light"><tr><th scope="col">ID de incidencia</th><th scope="col">Segmentos</th><th scope="col">Estado</th><th scope="col">Severidad</th></tr></thead>
+                                <tbody>
+                                <% for (LinkedHashMap<String, String> inc : filasIncidencias) { %>
+                                <tr>
+                                    <th scope="row" class="fw-normal"><%=esc(inc.get("Incidencia"))%></th>
+                                    <td><%=esc(inc.get("Segmentos afectados"))%></td>
+                                    <td><%=esc(inc.get("Estado"))%></td>
+                                    <td><span class="badge <%=colorSeveridad(inc.get("Severidad"))%>"><%=esc(inc.get("Severidad"))%></span></td>
+                                </tr>
+                                <% } %>
+                                <% if (filasIncidencias.isEmpty()) { %>
+                                <tr><td colspan="4" class="text-secondary">No hay incidencias activas.</td></tr>
+                                <% } %>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -53,10 +119,28 @@
                     <div class="card-body">
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><h2 class="h5 mb-0" id="tituloMantenimientos">Mantenimientos pendientes</h2><button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalMantenimientos">Más detalles</button></div>
                         <div class="table-responsive" tabindex="0" role="region" aria-label="Listado de mantenimientos">
-<table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th scope="col">ID de mantenimiento</th><th scope="col">Infraestructura</th><th scope="col">Tipo</th><th scope="col">Fecha</th></tr></thead><tbody>
-<tr><th scope="row" class="fw-normal">MANT-001</th><td>Landing Station A</td><td>Correctivo</td><td>10/10/2026</td></tr>
-<tr><th scope="row" class="fw-normal">MANT-002</th><td>Landing Station B</td><td>Preventivo</td><td>15/10/2026</td></tr>
-</tbody></table></div>
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light"><tr><th scope="col">ID de mantenimiento</th><th scope="col">Infraestructura</th><th scope="col">Tipo</th><th scope="col">Fecha</th></tr></thead>
+                                <tbody>
+                                <% int pendientes = 0;
+                                   for (LinkedHashMap<String, String> m : filasMantenimientos) {
+                                       if (!"Pendiente".equals(m.get("Estado"))) {
+                                           continue;
+                                       }
+                                       pendientes++; %>
+                                <tr>
+                                    <th scope="row" class="fw-normal"><%=esc(m.get("ID"))%></th>
+                                    <td><%=esc(m.get("Infraestructura"))%></td>
+                                    <td><%=esc(m.get("Tipo"))%></td>
+                                    <td><%=esc(m.get("Fecha"))%></td>
+                                </tr>
+                                <% } %>
+                                <% if (pendientes == 0) { %>
+                                <tr><td colspan="4" class="text-secondary">No hay mantenimientos pendientes.</td></tr>
+                                <% } %>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -64,68 +148,38 @@
     </main>
 </div>
 
-<!-- Los modales pertenecen a esta vista; no se incluyen archivos externos JSP. -->
 <div class="modal fade" id="modalCapacidad" tabindex="-1" aria-labelledby="modalCapacidadTitulo" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
         <div class="modal-content">
             <div class="modal-header"><h2 class="modal-title fs-5" id="modalCapacidadTitulo">Capacidad por segmento</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
             <div class="modal-body">
-                <p class="small text-secondary">La capacidad disponible descuenta el uso y la reserva de cada segmento.</p><p class="small text-secondary" id="buscarCapacidadNota">La búsqueda y los filtros aún no se aplican.</p><div class="row g-3 mb-4"><div class="col-12 col-lg"><label class="form-label small" for="buscarCapacidad">Buscar</label><input class="form-control" type="search" id="buscarCapacidad" placeholder="Buscar segmento o ruta" aria-describedby="buscarCapacidadNota"></div>
-                <div class="col-12 col-lg-4">
-                    <label class="form-label small" for="nivelUtilizacion">Nivel de utilización</label>
-                    <select class="form-select" id="nivelUtilizacion" aria-describedby="buscarCapacidadNota">
-                        <option value="todos">Todos</option>
-                        <option value="bajo">Menos del 80 %</option>
-                        <option value="alto">Del 80 % al 89 %</option>
-                        <option value="critico">Desde el 90 %</option>
-                    </select>
+                <p class="small text-secondary">La capacidad disponible descuenta el uso y la reserva de cada segmento.</p>
+                <div class="table-responsive" tabindex="0" role="region" aria-label="Capacidad por segmento">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light"><tr><th scope="col">Segmento</th><th scope="col">Ruta</th><th scope="col">Total</th><th scope="col">En uso</th><th scope="col">Reservada</th><th scope="col">Disponible</th><th scope="col">Estado</th><th scope="col">Utilización</th></tr></thead>
+                        <tbody>
+                        <% for (LinkedHashMap<String, String> s : filasSegmentos) { %>
+                        <tr>
+                            <th scope="row" class="fw-normal"><%=esc(s.get("ID"))%></th>
+                            <td><%=esc(s.get("Ruta"))%></td>
+                            <td><%=esc(s.get("Total"))%></td>
+                            <td><%=esc(s.get("En uso"))%></td>
+                            <td><%=esc(s.get("Reservada"))%></td>
+                            <td><%=esc(s.get("Disponible"))%></td>
+                            <td><%=esc(s.get("Estado"))%></td>
+                            <td>
+                                <span class="small text-nowrap"><%=esc(s.get("Utilización"))%></span>
+                                <div class="progress" role="progressbar" aria-label="Utilización de <%=esc(s.get("ID"))%>" aria-valuenow="<%=s.get("UtilizacionValor")%>" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar <%=colorBarra(s.get("UtilizacionValor"))%>" style="width: <%=s.get("UtilizacionValor")%>%"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <% } %>
+                        </tbody>
+                    </table>
                 </div>
-            </div><div class="table-responsive" tabindex="0" role="region" aria-label="Capacidad por segmento">
-<table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th scope="col">Segmento</th><th scope="col">Ruta</th><th scope="col">Total</th><th scope="col">En uso</th><th scope="col">Reservada</th><th scope="col">Disponible</th><th scope="col">Utilización</th></tr></thead><tbody>
-<tr><th scope="row" class="fw-normal">Segmento 1</th><td>Perú - EE. UU.</td><td>300 Gbps</td><td>291 Gbps</td><td>0 Gbps</td><td>9 Gbps</td><td>
-    <span class="small text-nowrap">97 %</span>
-    <div class="progress" role="progressbar" aria-label="Utilización del segmento 1" aria-valuenow="97" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar bg-danger" style="width: 97%"></div>
-    </div>
-</td></tr>
-<tr><th scope="row" class="fw-normal">Segmento 2</th><td>Perú - España</td><td>300 Gbps</td><td>288 Gbps</td><td>0 Gbps</td><td>12 Gbps</td><td>
-    <span class="small text-nowrap">96 %</span>
-    <div class="progress" role="progressbar" aria-label="Utilización del segmento 2" aria-valuenow="96" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar bg-danger" style="width: 96%"></div>
-    </div>
-</td></tr>
-<tr><th scope="row" class="fw-normal">Segmento 3</th><td>Perú - Japón</td><td>300 Gbps</td><td>279 Gbps</td><td>0 Gbps</td><td>21 Gbps</td><td>
-    <span class="small text-nowrap">93 %</span>
-    <div class="progress" role="progressbar" aria-label="Utilización del segmento 3" aria-valuenow="93" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar bg-danger" style="width: 93%"></div>
-    </div>
-</td></tr>
-<tr><th scope="row" class="fw-normal">Segmento 4</th><td>Perú - Chile</td><td>200 Gbps</td><td>170 Gbps</td><td>0 Gbps</td><td>30 Gbps</td><td>
-    <span class="small text-nowrap">85 %</span>
-    <div class="progress" role="progressbar" aria-label="Utilización del segmento 4" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar bg-warning" style="width: 85%"></div>
-    </div>
-</td></tr>
-<tr><th scope="row" class="fw-normal">Segmento 5</th><td>Perú - Brasil</td><td>200 Gbps</td><td>164 Gbps</td><td>0 Gbps</td><td>36 Gbps</td><td>
-    <span class="small text-nowrap">82 %</span>
-    <div class="progress" role="progressbar" aria-label="Utilización del segmento 5" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar bg-warning" style="width: 82%"></div>
-    </div>
-</td></tr>
-<tr><th scope="row" class="fw-normal">Segmento 6</th><td>Perú - Ecuador</td><td>200 Gbps</td><td>150 Gbps</td><td>0 Gbps</td><td>50 Gbps</td><td>
-    <span class="small text-nowrap">75 %</span>
-    <div class="progress" role="progressbar" aria-label="Utilización del segmento 6" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar bg-secondary" style="width: 75%"></div>
-    </div>
-</td></tr>
-<tr><th scope="row" class="fw-normal">Segmento 7</th><td>Perú - Colombia</td><td>1800 Gbps</td><td>658 Gbps</td><td>200 Gbps</td><td>942 Gbps</td><td>
-    <span class="small text-nowrap">36,6 %</span>
-    <div class="progress" role="progressbar" aria-label="Utilización del segmento 7" aria-valuenow="36.6" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar bg-secondary" style="width: 36.6%"></div>
-    </div>
-</td></tr>
-</tbody></table></div></div>
-            <div class="modal-footer"><a class="btn btn-outline-dark" href="${pageContext.request.contextPath}/Supervisor/reportes_supervisor.jsp">Reportar</a></div>
+            </div>
+            <div class="modal-footer"><a class="btn btn-outline-dark" href="<%=request.getContextPath()%>/SupervisorServlet?action=reportes">Reportar</a></div>
         </div>
     </div>
 </div>
@@ -134,13 +188,31 @@
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
         <div class="modal-content">
             <div class="modal-header"><h2 class="modal-title fs-5" id="modalIncidenciasTitulo">Incidencias activas</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-            <div class="modal-body"><p class="small text-secondary" id="buscarIncidenciaNota">La búsqueda y los filtros aún no se aplican.</p><div class="row g-3 mb-4"><div class="col-12 col-lg"><label class="form-label small" for="buscarIncidencia">Buscar</label><input class="form-control" type="search" id="buscarIncidencia" placeholder="Buscar por ID o infraestructura" aria-describedby="buscarIncidenciaNota"></div><div class="col-12 col-sm-6 col-lg-3"><label class="form-label small" for="estadoIncidencia">Estado</label><select class="form-select" id="estadoIncidencia"><option>Todos los estados</option><option>Abierta</option><option>En proceso</option></select></div><div class="col-12 col-sm-6 col-lg-3"><label class="form-label small" for="severidadIncidencia">Severidad</label><select class="form-select" id="severidadIncidencia"><option>Todas las severidades</option><option>Crítica</option><option>Alta</option><option>Media</option><option>Baja</option></select></div></div><div class="table-responsive" tabindex="0" role="region" aria-label="Listado de incidencias">
-<table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th scope="col">ID de incidencia</th><th scope="col">Infraestructura</th><th scope="col">Observaciones</th><th scope="col">Segmentos afectados</th><th scope="col">Estado</th><th scope="col">Severidad</th><th scope="col">Clientes afectados</th><th scope="col">Detectado</th></tr></thead><tbody>
-<tr><th scope="row" class="fw-normal">INC-001</th><td>Landing-A</td><td><details><summary class="text-decoration-underline">Descripción</summary><div class="bg-light border rounded p-2 mt-2 detail-content">Pérdida intermitente de conectividad en el enlace internacional.</div></details></td><td><details><summary class="text-decoration-underline">Segmentos</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>SEG-001</li><li>SEG-003</li></ul></div></details></td><td><span class="badge text-bg-secondary">En proceso</span></td><td><span class="badge text-bg-danger">Crítica</span></td><td><details><summary class="text-decoration-underline">Clientes</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>Empresa Andina</li><li>Red Pacífico</li></ul></div></details></td><td>17/09/2026</td></tr>
-<tr><th scope="row" class="fw-normal">INC-002</th><td>Landing-B</td><td><details><summary class="text-decoration-underline">Descripción</summary><div class="bg-light border rounded p-2 mt-2 detail-content">Incremento de latencia durante las horas de mayor tráfico.</div></details></td><td><details><summary class="text-decoration-underline">Segmentos</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>SEG-002</li></ul></div></details></td><td><span class="badge text-bg-secondary">En proceso</span></td><td><span class="badge text-bg-warning">Alta</span></td><td><details><summary class="text-decoration-underline">Clientes</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>Conecta Perú</li></ul></div></details></td><td>16/09/2026</td></tr>
-<tr><th scope="row" class="fw-normal">INC-003</th><td>Landing-C</td><td><details><summary class="text-decoration-underline">Descripción</summary><div class="bg-light border rounded p-2 mt-2 detail-content">Degradación de señal pendiente de evaluación técnica.</div></details></td><td><details><summary class="text-decoration-underline">Segmentos</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>SEG-005</li></ul></div></details></td><td><span class="badge text-bg-secondary">Abierta</span></td><td><span class="badge text-bg-info">Media</span></td><td><details><summary class="text-decoration-underline">Clientes</summary><div class="bg-light border rounded p-2 mt-2 detail-content"><ul class="mb-0 ps-3"><li>Servicios del Sur</li></ul></div></details></td><td>17/09/2026</td></tr>
-</tbody></table></div><div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3"><span class="small text-secondary">Página 1 de 1</span><div class="d-flex gap-2" aria-label="Paginación"><button type="button" class="btn btn-outline-secondary btn-sm" disabled>Anterior</button><button type="button" class="btn btn-outline-secondary btn-sm" disabled>Siguiente</button></div></div></div>
-            <div class="modal-footer"><a class="btn btn-outline-dark" href="${pageContext.request.contextPath}/Supervisor/reportes_supervisor.jsp">Reportar</a></div>
+            <div class="modal-body">
+                <div class="table-responsive" tabindex="0" role="region" aria-label="Listado de incidencias">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light"><tr><th scope="col">ID de incidencia</th><th scope="col">Landings afectadas</th><th scope="col">Observaciones</th><th scope="col">Segmentos afectados</th><th scope="col">Estado</th><th scope="col">Severidad</th><th scope="col">Clientes afectados</th><th scope="col">Detectado</th></tr></thead>
+                        <tbody>
+                        <% for (LinkedHashMap<String, String> inc : filasIncidencias) { %>
+                        <tr>
+                            <th scope="row" class="fw-normal"><%=esc(inc.get("Incidencia"))%></th>
+                            <td><%=esc(inc.get("Landings afectadas"))%></td>
+                            <td><details><summary class="text-decoration-underline">Descripción</summary><div class="bg-light border rounded p-2 mt-2"><%=esc(inc.get("Observaciones"))%></div></details></td>
+                            <td><%=esc(inc.get("Segmentos afectados"))%></td>
+                            <td><span class="badge text-bg-secondary"><%=esc(inc.get("Estado"))%></span></td>
+                            <td><span class="badge <%=colorSeveridad(inc.get("Severidad"))%>"><%=esc(inc.get("Severidad"))%></span></td>
+                            <td><details><summary class="text-decoration-underline">Clientes</summary><div class="bg-light border rounded p-2 mt-2"><%=esc(inc.get("Clientes afectados"))%></div></details></td>
+                            <td><%=esc(inc.get("Detectado"))%></td>
+                        </tr>
+                        <% } %>
+                        <% if (filasIncidencias.isEmpty()) { %>
+                        <tr><td colspan="8" class="text-secondary">No hay incidencias activas.</td></tr>
+                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer"><a class="btn btn-outline-dark" href="<%=request.getContextPath()%>/SupervisorServlet?action=reportes">Reportar</a></div>
         </div>
     </div>
 </div>
@@ -149,70 +221,57 @@
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
         <div class="modal-content">
             <div class="modal-header"><h2 class="modal-title fs-5" id="modalMantenimientosTitulo">Historial de mantenimiento</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
-            <div class="modal-body"><p class="small text-secondary" id="buscarMantenimientoNota">La búsqueda y los filtros aún no se aplican.</p><div class="row g-3 mb-4"><div class="col-12 col-lg"><label class="form-label small" for="buscarMantenimiento">Buscar</label><input class="form-control" type="search" id="buscarMantenimiento" placeholder="Buscar por ID o infraestructura" aria-describedby="buscarMantenimientoNota"></div><div class="col-12 col-sm-6 col-lg-3"><label class="form-label small" for="estadoMantenimiento">Estado</label><select class="form-select" id="estadoMantenimiento"><option>Todos los estados</option><option>Pendiente</option><option>Activo</option><option>Finalizado</option></select></div><div class="col-12 col-sm-6 col-lg-3"><label class="form-label small" for="tipoMantenimiento">Tipo</label><select class="form-select" id="tipoMantenimiento"><option>Todos los tipos</option><option>Preventivo</option><option>Correctivo</option></select></div></div><div class="table-responsive" tabindex="0" role="region" aria-label="Listado de mantenimientos">
-<table class="table table-hover align-middle mb-0"><thead class="table-light"><tr><th scope="col">ID de mantenimiento</th><th scope="col">Infraestructura</th><th scope="col">Servicios afectados</th><th scope="col">Tipo</th><th scope="col">Estado</th><th scope="col">Fecha</th><th scope="col">Ubicación</th><th scope="col">Información</th></tr></thead><tbody>
-<tr><th scope="row" class="fw-normal">MANT-001</th><td>Landing Station A</td><td><ul class="mb-0 ps-3"><li>Internet empresarial</li><li>Transporte de datos</li></ul></td><td>Correctivo</td><td><span class="badge text-bg-secondary">Pendiente</span></td><td>10/10/2026</td><td>Lima, PE</td><td><button type="button" class="btn btn-link btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#modalDetalleMANT001" aria-label="Ver detalle de MANT-001">Ver detalle</button></td></tr>
-<tr><th scope="row" class="fw-normal">MANT-002</th><td>Landing Station B</td><td><ul class="mb-0 ps-3"><li>Enlace internacional</li></ul></td><td>Preventivo</td><td><span class="badge text-bg-secondary">Pendiente</span></td><td>15/10/2026</td><td>Lima, PE</td><td><button type="button" class="btn btn-link btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#modalDetalleMANT002" aria-label="Ver detalle de MANT-002">Ver detalle</button></td></tr>
-<tr><th scope="row" class="fw-normal">MANT-003</th><td>Landing Station C</td><td><ul class="mb-0 ps-3"><li>Transporte de datos</li></ul></td><td>Correctivo</td><td><span class="badge text-bg-primary">Activo</span></td><td>17/09/2026</td><td>Lima, PE</td><td><button type="button" class="btn btn-link btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#modalDetalleMANT003" aria-label="Ver detalle de MANT-003">Ver detalle</button></td></tr>
-<tr><th scope="row" class="fw-normal">MANT-004</th><td>Landing Station A</td><td><ul class="mb-0 ps-3"><li>Internet empresarial</li></ul></td><td>Preventivo</td><td><span class="badge text-bg-success">Finalizado</span></td><td>11/09/2026</td><td>Lima, PE</td><td><button type="button" class="btn btn-link btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#modalDetalleMANT004" aria-label="Ver detalle de MANT-004">Ver detalle</button></td></tr>
-</tbody></table></div><div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3"><span class="small text-secondary">Página 1 de 1</span><div class="d-flex gap-2" aria-label="Paginación"><button type="button" class="btn btn-outline-secondary btn-sm" disabled>Anterior</button><button type="button" class="btn btn-outline-secondary btn-sm" disabled>Siguiente</button></div></div></div>
-            <div class="modal-footer"><a class="btn btn-outline-dark" href="${pageContext.request.contextPath}/Supervisor/reportes_supervisor.jsp">Reportar</a></div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="modalDetalleMANT001" tabindex="-1" aria-labelledby="modalDetalleMANT001Titulo" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title fs-5" id="modalDetalleMANT001Titulo">Detalle de mantenimiento MANT-001</h2>
-                <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#modalMantenimientos" aria-label="Cerrar detalle y volver al listado"></button>
+            <div class="modal-body">
+                <div class="table-responsive" tabindex="0" role="region" aria-label="Listado de mantenimientos">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light"><tr><th scope="col">ID de mantenimiento</th><th scope="col">Infraestructura</th><th scope="col">Servicios afectados</th><th scope="col">Tipo</th><th scope="col">Estado</th><th scope="col">Fecha</th><th scope="col">Ubicación</th><th scope="col">Información</th></tr></thead>
+                        <tbody>
+                        <% for (LinkedHashMap<String, String> m : filasMantenimientos) { %>
+                        <tr>
+                            <th scope="row" class="fw-normal"><%=esc(m.get("ID"))%></th>
+                            <td><%=esc(m.get("Infraestructura"))%></td>
+                            <td><%=esc(m.get("Servicios afectados"))%></td>
+                            <td><%=esc(m.get("Tipo"))%></td>
+                            <td><span class="badge <%=colorMantenimiento(m.get("Estado"))%>"><%=esc(m.get("Estado"))%></span></td>
+                            <td><%=esc(m.get("Fecha"))%></td>
+                            <td><%=esc(m.get("Ubicación"))%></td>
+                            <td>
+                                <button type="button" class="btn btn-link btn-sm text-nowrap"
+                                        data-id="<%=esc(m.get("ID"))%>"
+                                        data-descripcion="<%=esc(m.get("Descripción"))%>"
+                                        data-duracion="<%=esc(m.get("Duración (horas)"))%>"
+                                        data-actividades="<%=esc(m.get("Actividades realizadas"))%>"
+                                        onclick="verDetalle(this)">Ver detalle</button>
+                            </td>
+                        </tr>
+                        <% } %>
+                        <% if (filasMantenimientos.isEmpty()) { %>
+                        <tr><td colspan="8" class="text-secondary">No hay mantenimientos registrados.</td></tr>
+                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="modal-body"><dl class="mb-0"><dt>ID</dt><dd>MANT-001</dd><dt>Descripción</dt><dd>Revisión de conectores y recuperación del enlace.</dd><dt>Duración estimada</dt><dd>3 horas</dd><dt>Actividades realizadas</dt><dd class="mb-0">Sin actividades realizadas; mantenimiento pendiente.</dd></dl></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalMantenimientos">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalDetalleMANT002" tabindex="-1" aria-labelledby="modalDetalleMANT002Titulo" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title fs-5" id="modalDetalleMANT002Titulo">Detalle de mantenimiento MANT-002</h2>
-                <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#modalMantenimientos" aria-label="Cerrar detalle y volver al listado"></button>
-            </div>
-            <div class="modal-body"><dl class="mb-0"><dt>ID</dt><dd>MANT-002</dd><dt>Descripción</dt><dd>Inspección y limpieza de equipos de transmisión.</dd><dt>Duración estimada</dt><dd>2 horas</dd><dt>Actividades realizadas</dt><dd class="mb-0">Sin actividades realizadas; mantenimiento pendiente.</dd></dl></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalMantenimientos">Cerrar</button>
-            </div>
+            <div class="modal-footer"><a class="btn btn-outline-dark" href="<%=request.getContextPath()%>/SupervisorServlet?action=reportes">Reportar</a></div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="modalDetalleMANT003" tabindex="-1" aria-labelledby="modalDetalleMANT003Titulo" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="modalDetalleMantenimiento" tabindex="-1" aria-labelledby="modalDetalleTitulo" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title fs-5" id="modalDetalleMANT003Titulo">Detalle de mantenimiento MANT-003</h2>
+                <h2 class="modal-title fs-5" id="modalDetalleTitulo">Detalle de mantenimiento</h2>
                 <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#modalMantenimientos" aria-label="Cerrar detalle y volver al listado"></button>
             </div>
-            <div class="modal-body"><dl class="mb-0"><dt>ID</dt><dd>MANT-003</dd><dt>Descripción</dt><dd>Sustitución de un módulo de transmisión.</dd><dt>Duración estimada</dt><dd>4 horas</dd><dt>Actividades realizadas</dt><dd class="mb-0">Diagnóstico completado. Sustitución del módulo en curso.</dd></dl></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalMantenimientos">Cerrar</button>
+            <div class="modal-body">
+                <dl class="mb-0">
+                    <dt>ID</dt><dd id="detalleId"></dd>
+                    <dt>Descripción</dt><dd id="detalleDescripcion"></dd>
+                    <dt>Duración estimada</dt><dd id="detalleDuracion"></dd>
+                    <dt>Actividades realizadas</dt><dd class="mb-0" id="detalleActividades"></dd>
+                </dl>
             </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalDetalleMANT004" tabindex="-1" aria-labelledby="modalDetalleMANT004Titulo" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title fs-5" id="modalDetalleMANT004Titulo">Detalle de mantenimiento MANT-004</h2>
-                <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#modalMantenimientos" aria-label="Cerrar detalle y volver al listado"></button>
-            </div>
-            <div class="modal-body"><dl class="mb-0"><dt>ID</dt><dd>MANT-004</dd><dt>Descripción</dt><dd>Verificación periódica del sistema de respaldo.</dd><dt>Duración estimada</dt><dd>2 horas</dd><dt>Actividades realizadas</dt><dd class="mb-0">Inspección y pruebas de respaldo completadas.</dd></dl></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalMantenimientos">Cerrar</button>
             </div>
@@ -221,5 +280,17 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function verDetalle(boton) {
+  document.getElementById('modalDetalleTitulo').textContent = 'Detalle de mantenimiento ' + boton.dataset.id;
+  document.getElementById('detalleId').textContent = boton.dataset.id;
+  document.getElementById('detalleDescripcion').textContent = boton.dataset.descripcion;
+  document.getElementById('detalleDuracion').textContent = boton.dataset.duracion + ' horas';
+  document.getElementById('detalleActividades').textContent = boton.dataset.actividades;
+
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalMantenimientos')).hide();
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalDetalleMantenimiento')).show();
+}
+</script>
 </body>
 </html>

@@ -15,7 +15,7 @@
     <main class="flex-grow-1 p-3 p-lg-4 w-100" style="min-width: 0;">
         <div>
             <a class="btn btn-outline-secondary btn-sm mb-3"
-               href="${pageContext.request.contextPath}/Supervisor/supervisor_home.jsp">&larr; Volver al inicio</a>
+               href="${pageContext.request.contextPath}/SupervisorServlet">&larr; Volver al inicio</a>
         </div>
 
         <h1 class="h3 fw-bold mb-4">Historial de reportes</h1>

@@ -13,10 +13,10 @@
 
   <div class="sidebar-section-label text-uppercase mb-2 px-2">Supervisor</div>
   <nav class="nav flex-column mb-auto">
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="${pageContext.request.contextPath}/Supervisor/supervisor_home.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="${pageContext.request.contextPath}/SupervisorServlet">
       Estado general de la red
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="${pageContext.request.contextPath}/Supervisor/reportes_supervisor.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="${pageContext.request.contextPath}/SupervisorServlet?action=reportes">
       Reportes
     </a>
     <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="${pageContext.request.contextPath}/Supervisor/historial_reportes.jsp">
