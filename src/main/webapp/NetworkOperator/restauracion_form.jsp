@@ -25,9 +25,9 @@
       <label class="form-label">Fecha de restauración</label>
       <input type="date" class="form-control mb-4">
 
-      <a href="restauracion.jsp" class="btn btn-danger" onclick="return confirm('¿Seguro que quieres eliminar esta restauración?')">Eliminar</a>
-      <a href="restauracion.jsp" class="btn btn-secondary">Cancelar</a>
-      <a href="restauracion.jsp" class="btn btn-primary">Guardar solicitud</a>
+      <a href="<%=request.getContextPath()%>/IncidenciaServlet?action=restauraciones" class="btn btn-danger" onclick="return confirm('¿Seguro que quieres eliminar esta restauración?')">Eliminar</a>
+      <a href="<%=request.getContextPath()%>/IncidenciaServlet?action=restauraciones" class="btn btn-secondary">Cancelar</a>
+      <a href="<%=request.getContextPath()%>/IncidenciaServlet?action=restauraciones" class="btn btn-primary">Guardar solicitud</a>
     </div>
   </main>
 </div>

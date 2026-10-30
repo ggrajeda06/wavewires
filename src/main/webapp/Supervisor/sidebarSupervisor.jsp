@@ -26,7 +26,7 @@
 
   <div class="border-top border-secondary opacity-25 my-3"></div>
   <nav class="nav flex-column">
-    <a class="nav-link sidebar-link sidebar-link-danger d-flex align-items-center" href="../login.jsp">
+    <a class="nav-link sidebar-link sidebar-link-danger d-flex align-items-center" href="${pageContext.request.contextPath}/login.jsp">
       <i class="bi bi-box-arrow-right me-2"></i> Cerrar sesión
     </a>
   </nav>
