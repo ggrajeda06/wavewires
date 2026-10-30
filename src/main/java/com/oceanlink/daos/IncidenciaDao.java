@@ -9,38 +9,23 @@ import java.util.List;
 
 public class IncidenciaDao extends DaoBase {
 
-    // lista con filtros: si un filtro llega vacio (o 0) no se aplica
-    public ArrayList<Incidencia> listarIncidencias(boolean soloActivas, String estado, String severidad,
-                                                   int idSegmento, String desde, String hasta) {
+    // soloActivas = true: sin las cerradas (incidencias activas); false: todas (historial)
+    public ArrayList<Incidencia> listarIncidencias(boolean soloActivas) {
         ArrayList<Incidencia> lista = new ArrayList<>();
-        String sql = "SELECT * FROM incidencia "
-                + "WHERE (? = 0 OR estado <> 'Cerrada') "
-                + "AND (? = '' OR estado = ?) "
-                + "AND (? = '' OR severidad = ?) "
-                + "AND (? = 0 OR idIncidencia IN (SELECT idIncidencia FROM incidencia_has_segmento WHERE idSegmento = ?)) "
-                + "AND DATE(fechaRegistro) BETWEEN ? AND ? "
-                + "ORDER BY fechaRegistro DESC";
+        String sql = "SELECT * FROM incidencia ORDER BY fechaRegistro DESC";
+        if (soloActivas) {
+            sql = "SELECT * FROM incidencia WHERE estado <> 'Cerrada' ORDER BY fechaRegistro DESC";
+        }
 
         try (Connection conn = this.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
-            pstmt.setInt(1, soloActivas ? 1 : 0);
-            pstmt.setString(2, estado);
-            pstmt.setString(3, estado);
-            pstmt.setString(4, severidad);
-            pstmt.setString(5, severidad);
-            pstmt.setInt(6, idSegmento);
-            pstmt.setInt(7, idSegmento);
-            pstmt.setString(8, desde);
-            pstmt.setString(9, hasta);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Incidencia i = mapearIncidencia(rs);
-                    i.setIdsSegmentos(listarIds(conn, "SELECT idSegmento FROM incidencia_has_segmento WHERE idIncidencia = ?", i.getIdIncidencia()));
-                    i.setIdsServicios(listarIds(conn, "SELECT idServicio FROM incidencia_has_servicio WHERE idIncidencia = ?", i.getIdIncidencia()));
-                    lista.add(i);
-                }
+            while (rs.next()) {
+                Incidencia i = mapearIncidencia(rs);
+                i.setIdsSegmentos(listarIds(conn, "SELECT idSegmento FROM incidencia_has_segmento WHERE idIncidencia = ?", i.getIdIncidencia()));
+                i.setIdsServicios(listarIds(conn, "SELECT idServicio FROM incidencia_has_servicio WHERE idIncidencia = ?", i.getIdIncidencia()));
+                lista.add(i);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -89,7 +74,6 @@ public class IncidenciaDao extends DaoBase {
         return i;
     }
 
-    // crea la incidencia en estado Detectada, le pone su identificador y guarda sus segmentos y servicios
     // la primera observacion se guarda despues con agregarObservacion
     public int crearIncidencia(Incidencia incidencia) {
         String sqlInc = "INSERT INTO incidencia (severidad, estado) VALUES (?, 'Detectada')";

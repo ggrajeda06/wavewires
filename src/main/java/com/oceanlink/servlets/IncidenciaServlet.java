@@ -34,20 +34,8 @@ public class IncidenciaServlet extends HttpServlet {
         switch (action) {
             case "lista":
             case "historial":
-                String estado = texto(request.getParameter("estado"));
-                String severidad = texto(request.getParameter("severidad"));
-                int idSegmento = numero(request.getParameter("idSegmento"));
-                String desde = texto(request.getParameter("desde"));
-                String hasta = texto(request.getParameter("hasta"));
-                if (desde.isEmpty()) {
-                    desde = "1000-01-01";
-                }
-                if (hasta.isEmpty()) {
-                    hasta = "9999-12-31";
-                }
-
-                boolean soloActivas = action.equals("lista");
-                request.setAttribute("lista", incidenciaDao.listarIncidencias(soloActivas, estado, severidad, idSegmento, desde, hasta));
+                // lista = incidencias activas, historial = todas (RF23)
+                request.setAttribute("lista", incidenciaDao.listarIncidencias(action.equals("lista")));
                 request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
                 request.setAttribute("modo", action);
                 view = request.getRequestDispatcher("NetworkOperator/incidencias.jsp");
@@ -92,7 +80,7 @@ public class IncidenciaServlet extends HttpServlet {
 
             case "estadoRed":
                 request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
-                request.setAttribute("listaActivas", incidenciaDao.listarIncidencias(true, "", "", 0, "1000-01-01", "9999-12-31"));
+                request.setAttribute("listaActivas", incidenciaDao.listarIncidencias(true));
                 view = request.getRequestDispatcher("NetworkOperator/estadoRed.jsp");
                 view.forward(request, response);
                 break;

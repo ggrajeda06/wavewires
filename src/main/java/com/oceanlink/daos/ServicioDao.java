@@ -39,50 +39,6 @@ public class ServicioDao extends DaoBase {
         return lista;
     }
 
-    // Buscar servicio
-    public ArrayList<Servicio> buscarServicios(String texto) {
-        ArrayList<Servicio> lista = new ArrayList<>();
-        String sql = "SELECT sv.*, sc.idCliente, c.razonSocial "
-                + "FROM servicio sv "
-                + "JOIN solicitudcapacidad sc ON sc.idSolicitudCapacidad = sv.idSolicitudCapacidad "
-                + "JOIN cliente c ON c.idCliente = sc.idCliente "
-                + "WHERE sv.identificador LIKE ? "
-                + "   OR CONCAT('Servicio ', sv.idServicio) LIKE ? "
-                + "   OR c.razonSocial LIKE ? "
-                + "   OR CONCAT('Segmento ', sv.idSegmento) LIKE ? "
-                + "ORDER BY sv.idServicio";
-
-        try (Connection conn = this.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            String comodin = "%" + texto.trim() + "%";
-            pstmt.setString(1, comodin);
-            pstmt.setString(2, comodin);
-            pstmt.setString(3, comodin);
-            pstmt.setString(4, comodin);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Servicio sv = new Servicio();
-                    sv.setIdServicio(rs.getInt("idServicio"));
-                    sv.setIdentificador(rs.getString("identificador"));
-                    sv.setCapacidad(rs.getBigDecimal("capacidad"));
-                    sv.setEstado(rs.getString("estado"));
-                    sv.setFechaCaducidad(rs.getDate("fechaCaducidad"));
-                    sv.setIdSegmento(rs.getInt("idSegmento"));
-                    sv.setIdSolicitudCapacidad(rs.getInt("idSolicitudCapacidad"));
-                    sv.setIdCliente(rs.getInt("idCliente"));
-                    sv.setRazonSocial(rs.getString("razonSocial"));
-                    lista.add(sv);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return lista;
-    }
-
     // Listar servicios por landing
     public ArrayList<Servicio> listarServiciosPorLanding(int idLandingStation) {
         ArrayList<Servicio> lista = new ArrayList<>();
@@ -123,7 +79,8 @@ public class ServicioDao extends DaoBase {
     }
 
     // Eliminar servicio
-    public void eliminarServicio(int idServicio) {
+    // devuelve false si no se pudo borrar (por ejemplo, porque el servicio esta en una incidencia)
+    public boolean eliminarServicio(int idServicio) {
         String sqlSelect = "SELECT capacidad, idSegmento, idSolicitudCapacidad FROM servicio WHERE idServicio = ?";
         String sqlDeleteServicio = "DELETE FROM servicio WHERE idServicio = ?";
         String sqlDeleteSolicitud = "DELETE FROM solicitudcapacidad WHERE idSolicitudCapacidad = ?";
@@ -164,9 +121,11 @@ public class ServicioDao extends DaoBase {
                     pstmtUpdSeg.executeUpdate();
                 }
             }
+            return true;
 
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
@@ -242,7 +201,7 @@ public class ServicioDao extends DaoBase {
 
     // borrar un servicio vencido desde el historial: hace lo mismo que eliminarServicio
     // (borra el servicio y su solicitud y devuelve la capacidad al segmento)
-    public void eliminarServicioPermanente(int idServicio) {
-        eliminarServicio(idServicio);
+    public boolean eliminarServicioPermanente(int idServicio) {
+        return eliminarServicio(idServicio);
     }
 }

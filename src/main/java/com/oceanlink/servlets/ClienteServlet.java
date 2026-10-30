@@ -1,6 +1,5 @@
 package com.oceanlink.servlets;
 
-import com.oceanlink.beans.Cliente;
 import com.oceanlink.daos.ClienteDao;
 import com.oceanlink.daos.ServicioDao;
 import jakarta.servlet.RequestDispatcher;
@@ -11,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 @WebServlet(name = "ClienteServlet", value = "/ClienteServlet")
 public class ClienteServlet extends HttpServlet {
@@ -27,16 +25,7 @@ public class ClienteServlet extends HttpServlet {
 
         switch (action) {
             case "lista":
-                String textoBuscar = request.getParameter("buscar");
-                ArrayList<Cliente> lista;
-
-                if (textoBuscar != null && !textoBuscar.trim().isEmpty()) {
-                    lista = clienteDao.buscarClientes(textoBuscar);
-                } else {
-                    lista = clienteDao.listarClientes();
-                }
-
-                request.setAttribute("listaClientes", lista);
+                request.setAttribute("listaClientes", clienteDao.listarClientes());
                 request.setAttribute("listaServicios", servicioDao.listarServicios());
                 view = request.getRequestDispatcher("CapacityPlanner/clientes.jsp");
                 view.forward(request, response);
@@ -77,7 +66,8 @@ public class ClienteServlet extends HttpServlet {
             error = "largo";
         } else if (!ruc.matches("[0-9]{11}")) {
             error = "ruc";
-        } else if (!correo.contains("@")) {
+        } else if (!correo.matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+")) {
+            // correo con la forma algo@algo.algo
             error = "correo";
         } else if (clienteDao.existeRuc(ruc, action.equals("crear") ? 0 : idCliente)) {
             error = "rucRepetido";

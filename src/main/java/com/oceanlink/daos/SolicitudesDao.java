@@ -26,39 +26,6 @@ public class SolicitudesDao extends DaoBase {
         return lista;
     }
 
-    // Buscador filtrado por cliente, estado y numero de solicitud
-    public ArrayList<Solicitudes> buscarSolicitudes(String texto) {
-        ArrayList<Solicitudes> lista = new ArrayList<>();
-        String sql = "SELECT sc.* FROM solicitudcapacidad sc "
-                + "LEFT JOIN cliente c ON sc.idCliente = c.idCliente "
-                + "WHERE sc.estado != 'Activo' AND ("
-                + "   sc.idSolicitudCapacidad LIKE ? "
-                + "   OR CONCAT('Solicitud ', sc.idSolicitudCapacidad) LIKE ? "
-                + "   OR c.razonSocial LIKE ? "
-                + "   OR sc.estado LIKE ?) "
-                + "ORDER BY sc.idSolicitudCapacidad ASC";
-
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            String comodin = "%" + texto.trim() + "%";
-            pstmt.setString(1, comodin);
-            pstmt.setString(2, comodin);
-            pstmt.setString(3, comodin);
-            pstmt.setString(4, comodin);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Solicitudes s = mapearSolicitud(rs);
-                    lista.add(s);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return lista;
-    }
-
     // Obtener una solicitud para editar por ID
     public Solicitudes obtenerSolicitud(int idSolicitudCapacidad) {
         Solicitudes s = null;

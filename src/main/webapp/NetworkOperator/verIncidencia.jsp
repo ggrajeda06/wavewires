@@ -64,7 +64,8 @@
             <thead>
               <tr>
                 <th>Segmento</th>
-                <th>Ruta</th>
+                <th>Origen</th>
+                <th>Destino</th>
                 <th>Estado actual</th>
               </tr>
             </thead>
@@ -72,7 +73,8 @@
               <% for (Segmento s : listaSegmentos) { %>
               <tr>
                 <td>SEG-<%= String.format("%03d", s.getIdSegmento()) %></td>
-                <td><%= s.getNombreOrigen() %> - <%= s.getNombreDestino() %></td>
+                <td><%= s.getNombreOrigen() %></td>
+                <td><%= s.getNombreDestino() %></td>
                 <td><%= s.getEstado() %></td>
               </tr>
               <% } %>

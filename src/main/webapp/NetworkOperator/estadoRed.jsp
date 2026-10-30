@@ -67,7 +67,8 @@
             <thead class="table-light border-bottom">
               <tr>
                 <th class="ps-4">Segmento</th>
-                <th>Ruta</th>
+                <th>Origen</th>
+                <th>Destino</th>
                 <th>Estado</th>
                 <th>Total</th>
                 <th>Usada</th>
@@ -113,20 +114,15 @@
               %>
               <tr>
                 <td class="ps-4 fw-bold">SEG-<%= String.format("%03d", s.getIdSegmento()) %></td>
-                <td><%= s.getNombreOrigen() %> - <%= s.getNombreDestino() %></td>
+                <td><%= s.getNombreOrigen() %></td>
+                <td><%= s.getNombreDestino() %></td>
                 <td><span class="badge <%= colorEstado %>"><%= s.getEstado() %></span></td>
                 <td><%= Math.round(total) %> Gbps</td>
                 <td><%= Math.round(usada) %> Gbps</td>
                 <td><%= Math.round(reservada) %> Gbps</td>
                 <td><%= Math.round(disponible) %> Gbps</td>
                 <td><span class="badge <%= colorNivel %>"><%= Math.round(porcentaje) %>% · <%= nivel %></span></td>
-                <td>
-                  <% if (incidenciasSegmento == 0) { %>
-                  0
-                  <% } else { %>
-                  <a href="<%=request.getContextPath()%>/IncidenciaServlet?idSegmento=<%= s.getIdSegmento() %>"><%= incidenciasSegmento %></a>
-                  <% } %>
-                </td>
+                <td><%= incidenciasSegmento %></td>
               </tr>
               <% } %>
             </tbody>

@@ -43,49 +43,6 @@ public class ClienteDao extends DaoBase {
         return lista;
     }
 
-    // Buscar por cliente o razón social
-    public ArrayList<Cliente> buscarClientes(String texto) {
-        ArrayList<Cliente> lista = new ArrayList<>();
-        String sql = "SELECT c.*, COUNT(sv.idServicio) AS totalServicios "
-                + "FROM cliente c "
-                + "LEFT JOIN solicitudcapacidad sc ON c.idCliente = sc.idCliente "
-                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.estado = 'Activo' "
-                + "GROUP BY c.idCliente, c.identificador, c.razonSocial "
-                + "HAVING c.identificador LIKE ? OR c.razonSocial LIKE ? OR c.ruc LIKE ? "
-                + "   OR (IF(COUNT(sv.idServicio) > 0, 'Activo', 'Inactivo')) LIKE ? "
-                + "ORDER BY c.idCliente ASC";
-
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            String comodin = "%" + texto.trim() + "%";
-            pstmt.setString(1, comodin);
-            pstmt.setString(2, comodin);
-            pstmt.setString(3, comodin);
-            pstmt.setString(4, comodin);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Cliente c = new Cliente();
-                    c.setIdCliente(rs.getInt("idCliente"));
-                    c.setIdentificador(rs.getString("identificador"));
-                    c.setFechaRegistro(rs.getDate("fechaRegistro"));
-                    c.setRazonSocial(rs.getString("razonSocial"));
-                    c.setRuc(rs.getString("ruc"));
-                    c.setCorreo(rs.getString("correo"));
-
-                    int total = rs.getInt("totalServicios");
-                    c.setEstado(total > 0 ? "Activo" : "Inactivo");
-
-                    lista.add(c);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return lista;
-    }
-
     // Obtener cliente por su ID
     public Cliente obtenerCliente(int idCliente) {
         Cliente c = null;

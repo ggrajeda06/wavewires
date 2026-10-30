@@ -1,6 +1,5 @@
 package com.oceanlink.servlets;
 
-import com.oceanlink.beans.Servicio;
 import com.oceanlink.daos.ServicioDao;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -10,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 @WebServlet(name = "ServicioServlet", value = "/ServicioServlet")
 public class ServicioServlet extends HttpServlet {
@@ -25,23 +23,20 @@ public class ServicioServlet extends HttpServlet {
 
         switch (action) {
             case "lista":
-                String textoBuscar = request.getParameter("buscar");
-                ArrayList<Servicio> lista;
-
-                if (textoBuscar != null && !textoBuscar.trim().isEmpty()) {
-                    lista = servicioDao.buscarServicios(textoBuscar);
-                } else {
-                    lista = servicioDao.listarServicios();
-                }
-
-                request.setAttribute("listaServicios", lista);
+                request.setAttribute("listaServicios", servicioDao.listarServicios());
                 view = request.getRequestDispatcher("CapacityPlanner/servicios.jsp");
                 view.forward(request, response);
                 break;
 
             case "borrar":
-                int idBorrar = Integer.parseInt(request.getParameter("id"));
-                servicioDao.eliminarServicio(idBorrar);
+                if (servicioDao.eliminarServicio(numero(request.getParameter("id")))) {
+                    response.sendRedirect(request.getContextPath() + "/ServicioServlet");
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/ServicioServlet?error=enUso");
+                }
+                break;
+
+            default:
                 response.sendRedirect(request.getContextPath() + "/ServicioServlet");
                 break;
         }
@@ -52,5 +47,13 @@ public class ServicioServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         doGet(request, response);
+    }
+
+    private int numero(String valor) {
+        try {
+            return Integer.parseInt(valor);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }

@@ -33,7 +33,8 @@ public class SegmentoServlet extends HttpServlet {
                 break;
 
             case "borrar":
-                if (segmentoDao.borrarSegmento(numero(request.getParameter("id")))) {
+                int idBorrar = numero(request.getParameter("id"));
+                if (segmentoDao.obtenerSegmento(idBorrar) == null || segmentoDao.borrarSegmento(idBorrar)) {
                     response.sendRedirect(request.getContextPath() + "/SegmentoServlet");
                 } else {
                     response.sendRedirect(request.getContextPath() + "/SegmentoServlet?error=enUso");

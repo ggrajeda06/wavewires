@@ -1,6 +1,5 @@
 package com.oceanlink.servlets;
 
-import com.oceanlink.beans.Cliente;
 import com.oceanlink.beans.Segmento;
 import com.oceanlink.beans.Solicitudes;
 import com.oceanlink.daos.ClienteDao;
@@ -31,26 +30,22 @@ public class SolicitudesServlet extends HttpServlet {
 
         switch (action) {
             case "lista":
-                String textoBuscar = request.getParameter("buscar");
-                ArrayList<Solicitudes> lista;
-
-                if (textoBuscar != null && !textoBuscar.trim().isEmpty()) {
-                    lista = solicitudesDao.buscarSolicitudes(textoBuscar);
-                } else {
-                    lista = solicitudesDao.listarSolicitudes();
-                }
-
-                request.setAttribute("listaSolicitudes", lista);
+                request.setAttribute("listaSolicitudes", solicitudesDao.listarSolicitudes());
                 request.setAttribute("listaClientes", clienteDao.listarClientes());
                 request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
-
                 view = request.getRequestDispatcher("CapacityPlanner/solicitudes.jsp");
                 view.forward(request, response);
                 break;
 
             case "borrar":
-                int idBorrar = Integer.parseInt(request.getParameter("id"));
-                solicitudesDao.borrarSolicitud(idBorrar);
+                Solicitudes solicitudBorrar = solicitudesDao.obtenerSolicitud(numero(request.getParameter("id")));
+                if (solicitudBorrar != null) {
+                    solicitudesDao.borrarSolicitud(solicitudBorrar.getIdSolicitudCapacidad());
+                }
+                response.sendRedirect(request.getContextPath() + "/SolicitudesServlet");
+                break;
+
+            default:
                 response.sendRedirect(request.getContextPath() + "/SolicitudesServlet");
                 break;
         }
@@ -64,59 +59,113 @@ public class SolicitudesServlet extends HttpServlet {
 
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         SolicitudesDao solicitudesDao = new SolicitudesDao();
+        SegmentoDao segmentoDao = new SegmentoDao();
+
+        int idCliente = numero(request.getParameter("idCliente"));
+        double capacidad = decimal(request.getParameter("capacidad"));
+        String origen = texto(request.getParameter("origen"));
+        String destino = texto(request.getParameter("destino"));
+        int duracionMeses = numero(request.getParameter("duracionMeses"));
+        String observaciones = texto(request.getParameter("observaciones"));
+
+        // datos minimos de cualquier solicitud
+        boolean datosMal = new ClienteDao().obtenerCliente(idCliente) == null
+                || origen.isEmpty() || destino.isEmpty() || origen.length() > 100 || destino.length() > 100
+                || capacidad <= 0 || capacidad > 99999999
+                || duracionMeses < 1 || duracionMeses > 120
+                || observaciones.length() > 255;
 
         switch (action) {
             case "crear":
-                int idCliente = Integer.parseInt(request.getParameter("idCliente"));
-                double capacidad = Double.parseDouble(request.getParameter("capacidad"));
-                String origen = request.getParameter("origen");
-                String destino = request.getParameter("destino");
-                int duracionMeses = Integer.parseInt(request.getParameter("duracionMeses"));
-                String observaciones = request.getParameter("observaciones");
-
+                if (datosMal) {
+                    response.sendRedirect(request.getContextPath() + "/SolicitudesServlet?error=datos");
+                    break;
+                }
                 solicitudesDao.crearSolicitud(capacidad, origen, destino, "Registrado", observaciones, duracionMeses, idCliente);
                 response.sendRedirect(request.getContextPath() + "/SolicitudesServlet");
                 break;
 
             case "actualizar":
-                int idSolicitud = Integer.parseInt(request.getParameter("idSolicitudCapacidad"));
-                int idClienteEdit = Integer.parseInt(request.getParameter("idCliente"));
-                double capacidadEdit = Double.parseDouble(request.getParameter("capacidad"));
-                String origenEdit = request.getParameter("origen");
-                String destinoEdit = request.getParameter("destino");
-                String estadoEdit = request.getParameter("estado");
-                int duracionEdit = Integer.parseInt(request.getParameter("duracionMeses"));
-                String observacionesEdit = request.getParameter("observaciones");
-
-                String strSegmento = request.getParameter("idSegmento");
-                Integer idSegmentoEdit = null;
-                if (strSegmento != null && !strSegmento.equals("0") && !strSegmento.trim().isEmpty()) {
-                    idSegmentoEdit = Integer.parseInt(strSegmento);
+                Solicitudes actual = solicitudesDao.obtenerSolicitud(numero(request.getParameter("idSolicitudCapacidad")));
+                // una solicitud Activa ya es un servicio: no se vuelve a editar
+                if (actual == null || actual.getEstado().equals("Activo")) {
+                    response.sendRedirect(request.getContextPath() + "/SolicitudesServlet");
+                    break;
                 }
+                String estado = texto(request.getParameter("estado"));
+                Segmento segmento = segmentoDao.obtenerSegmento(numero(request.getParameter("idSegmento")));
+                boolean necesitaSegmento = estado.equals("Aprobado") || estado.equals("Provisionado") || estado.equals("Activo");
 
-                // regla 3: no se activa un servicio sobre un segmento Fuera de servicio
-                if ("Activo".equalsIgnoreCase(estadoEdit) && idSegmentoEdit != null && idSegmentoEdit != 0) {
-                    Segmento segActivo = new SegmentoDao().obtenerSegmento(idSegmentoEdit);
-                    if (segActivo != null && "Fuera de servicio".equals(segActivo.getEstado())) {
-                        response.sendRedirect(request.getContextPath() + "/SolicitudesServlet?error=fueraServicio");
-                        break;
-                    }
+                if (datosMal) {
+                    response.sendRedirect(request.getContextPath() + "/SolicitudesServlet?error=datos");
+                } else if (!estadosPermitidos(actual.getEstado()).contains(estado)) {
+                    // RN7: se respeta el flujo de estados
+                    response.sendRedirect(request.getContextPath() + "/SolicitudesServlet?error=estado");
+                } else if (necesitaSegmento && segmento == null) {
+                    response.sendRedirect(request.getContextPath() + "/SolicitudesServlet?error=segmento");
+                } else if (estado.equals("Provisionado") && capacidad > segmento.getCapacidadReservada().doubleValue()) {
+                    // RN2: no se provisiona sin capacidad reservada
+                    response.sendRedirect(request.getContextPath() + "/SolicitudesServlet?error=sinReserva");
+                } else if (estado.equals("Activo") && segmento.getEstado().equals("Fuera de servicio")) {
+                    // RN3: no se activa un servicio sobre un segmento Fuera de servicio
+                    response.sendRedirect(request.getContextPath() + "/SolicitudesServlet?error=fueraServicio");
+                } else if (estado.equals("Activo")
+                        && segmento.getCapacidadUsada().doubleValue() + capacidad > segmento.getCapacidadTotal().doubleValue()) {
+                    // RN1: lo usado no puede pasar la capacidad total del segmento
+                    response.sendRedirect(request.getContextPath() + "/SolicitudesServlet?error=capacidad");
+                } else {
+                    Integer idSegmento = segmento == null ? null : segmento.getIdSegmento();
+                    solicitudesDao.actualizarSolicitud(actual.getIdSolicitudCapacidad(), capacidad, origen, destino,
+                            estado, observaciones, duracionMeses, idSegmento, idCliente);
+                    response.sendRedirect(request.getContextPath() + "/SolicitudesServlet");
                 }
+                break;
 
-                if ("Provisionado".equalsIgnoreCase(estadoEdit) && idSegmentoEdit != null && idSegmentoEdit != 0) {
-                    SegmentoDao segDao = new SegmentoDao();
-                    Segmento seg = segDao.obtenerSegmento(idSegmentoEdit);
-                    double reservada = (seg != null && seg.getCapacidadReservada() != null) ? seg.getCapacidadReservada().doubleValue() : 0.0;
-                    if (capacidadEdit > reservada) {
-                        response.sendRedirect(request.getContextPath() + "/SolicitudesServlet?error=sinReserva");
-                        break;
-                    }
-                }
-
-                solicitudesDao.actualizarSolicitud(idSolicitud, capacidadEdit, origenEdit, destinoEdit,
-                        estadoEdit, observacionesEdit, duracionEdit, idSegmentoEdit, idClienteEdit);
+            default:
                 response.sendRedirect(request.getContextPath() + "/SolicitudesServlet");
                 break;
+        }
+    }
+
+    // estados a los que puede pasar una solicitud desde su estado actual (incluye quedarse igual)
+    private ArrayList<String> estadosPermitidos(String estado) {
+        ArrayList<String> estados = new ArrayList<>();
+        estados.add(estado);
+        if (estado.equals("Registrado")) {
+            estados.add("En evaluación");
+        } else if (estado.equals("En evaluación")) {
+            estados.add("Aprobado");
+            estados.add("Rechazado");
+        } else if (estado.equals("Aprobado")) {
+            estados.add("Provisionado");
+            estados.add("Pendiente por Capacidad");
+        } else if (estado.equals("Pendiente por Capacidad")) {
+            estados.add("Provisionado");
+            estados.add("Rechazado");
+        } else if (estado.equals("Provisionado")) {
+            estados.add("Activo");
+        }
+        return estados;
+    }
+
+    private String texto(String valor) {
+        return valor == null ? "" : valor.trim();
+    }
+
+    private int numero(String valor) {
+        try {
+            return Integer.parseInt(valor);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private double decimal(String valor) {
+        try {
+            double d = Double.parseDouble(valor);
+            return Double.isNaN(d) ? 0 : d;
+        } catch (NumberFormatException | NullPointerException e) {
+            return 0;
         }
     }
 }

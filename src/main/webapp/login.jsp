@@ -23,7 +23,7 @@
             </div>
         </header>
 
-        <!-- Contenido Central -->
+        <-- Contenido Central -->
         <main class="row align-items-center my-auto">
 
             <!-- Columna Formulario (Izquierda) -->

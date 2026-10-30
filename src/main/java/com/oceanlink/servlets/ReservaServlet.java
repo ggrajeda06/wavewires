@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 @WebServlet(name = "ReservaServlet", value = "/ReservaServlet")
 public class ReservaServlet extends HttpServlet {
@@ -20,26 +19,10 @@ public class ReservaServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         SegmentoDao segmentoDao = new SegmentoDao();
-        RequestDispatcher view;
-
-        switch (action) {
-            case "lista":
-                String textoBuscar = request.getParameter("buscar");
-                ArrayList<Segmento> lista;
-
-                if (textoBuscar != null && !textoBuscar.trim().isEmpty()) {
-                    lista = segmentoDao.buscarSegmentos(textoBuscar);
-                } else {
-                    lista = segmentoDao.listarSegmentos();
-                }
-
-                request.setAttribute("listaSegmentos", lista);
-                view = request.getRequestDispatcher("CapacityPlanner/reservas.jsp");
-                view.forward(request, response);
-                break;
-        }
+        request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
+        RequestDispatcher view = request.getRequestDispatcher("CapacityPlanner/reservas.jsp");
+        view.forward(request, response);
     }
 
     // Actualizar reserva
@@ -54,24 +37,46 @@ public class ReservaServlet extends HttpServlet {
 
         switch (action) {
             case "actualizar":
-                int idSegmento = Integer.parseInt(request.getParameter("idSegmento"));
-                double nuevaReserva = Double.parseDouble(request.getParameter("capacidadReservada"));
+                Segmento seg = segmentoDao.obtenerSegmento(numero(request.getParameter("idSegmento")));
+                double nuevaReserva = decimal(request.getParameter("capacidadReservada"));
 
-                Segmento seg = segmentoDao.obtenerSegmento(idSegmento);
-                if (seg != null) {
-                    double total = seg.getCapacidadTotal().doubleValue();
-                    double usada = seg.getCapacidadUsada().doubleValue();
-
-                    if (nuevaReserva >= 0 && (nuevaReserva + usada) <= total) {
-                        segmentoDao.actualizarCapacidadReservada(idSegmento, nuevaReserva);
-                        response.sendRedirect(request.getContextPath() + "/ReservaServlet");
-                    } else {
-                        response.sendRedirect(request.getContextPath() + "/ReservaServlet?error=excede");
-                    }
-                } else {
+                if (seg == null) {
                     response.sendRedirect(request.getContextPath() + "/ReservaServlet");
+                    break;
                 }
+                double total = seg.getCapacidadTotal().doubleValue();
+                double usada = seg.getCapacidadUsada().doubleValue();
+
+                // la reserva no puede ser negativa ni pasar lo que queda libre (RN1)
+                if (nuevaReserva < 0 || nuevaReserva + usada > total) {
+                    response.sendRedirect(request.getContextPath() + "/ReservaServlet?error=excede");
+                    break;
+                }
+                segmentoDao.actualizarCapacidadReservada(seg.getIdSegmento(), nuevaReserva);
+                response.sendRedirect(request.getContextPath() + "/ReservaServlet");
                 break;
+
+            default:
+                response.sendRedirect(request.getContextPath() + "/ReservaServlet");
+                break;
+        }
+    }
+
+    private int numero(String valor) {
+        try {
+            return Integer.parseInt(valor);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    // si no es numero devuelve -1 para que la validacion lo rechace (aqui 0 si es un valor valido)
+    private double decimal(String valor) {
+        try {
+            double d = Double.parseDouble(valor);
+            return Double.isNaN(d) ? -1 : d;
+        } catch (NumberFormatException | NullPointerException e) {
+            return -1;
         }
     }
 }

@@ -5,16 +5,6 @@
 <jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
 <%
     boolean esHistorial = "historial".equals(request.getAttribute("modo"));
-    String accion = esHistorial ? "historial" : "lista";
-
-    String estadoFiltro = request.getParameter("estado") == null ? "" : request.getParameter("estado");
-    String severidadFiltro = request.getParameter("severidad") == null ? "" : request.getParameter("severidad");
-    String segmentoFiltro = request.getParameter("idSegmento") == null ? "" : request.getParameter("idSegmento");
-    String desdeFiltro = request.getParameter("desde") == null ? "" : request.getParameter("desde");
-    String hastaFiltro = request.getParameter("hasta") == null ? "" : request.getParameter("hasta");
-
-    String[] estados = {"Detectada", "En análisis", "Reparación programada", "En reparación", "Servicio restaurado", "Cerrada"};
-    String[] severidades = {"Crítica", "Alta", "Media", "Baja"};
 
     int operativos = 0;
     int afectados = 0;
@@ -62,62 +52,11 @@
       </div>
       <div class="col-md-4">
         <div class="card p-3 shadow-sm border-0">
-          <small class="text-muted"><%= esHistorial ? "Incidencias encontradas" : "Incidencias activas" %></small>
+          <small class="text-muted"><%= esHistorial ? "Incidencias registradas" : "Incidencias activas" %></small>
           <div class="fs-4 fw-semibold"><%= lista.size() %></div>
         </div>
       </div>
     </div>
-
-    <form method="GET" action="<%=request.getContextPath()%>/IncidenciaServlet" class="card shadow-sm border-0 p-3 mb-3">
-      <input type="hidden" name="action" value="<%= accion %>">
-      <div class="row g-2 align-items-end">
-        <div class="col-md-2">
-          <label class="form-label small fw-semibold">Estado</label>
-          <select class="form-select form-select-sm" name="estado">
-            <option value="">Todos</option>
-            <% for (String e : estados) {
-                 if (!esHistorial && e.equals("Cerrada")) {
-                     continue;
-                 }
-            %>
-            <option value="<%= e %>" <%= e.equals(estadoFiltro) ? "selected" : "" %>><%= e %></option>
-            <% } %>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label small fw-semibold">Severidad</label>
-          <select class="form-select form-select-sm" name="severidad">
-            <option value="">Todas</option>
-            <% for (String sev : severidades) { %>
-            <option value="<%= sev %>" <%= sev.equals(severidadFiltro) ? "selected" : "" %>><%= sev %></option>
-            <% } %>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label small fw-semibold">Segmento</label>
-          <select class="form-select form-select-sm" name="idSegmento">
-            <option value="0">Todos</option>
-            <% for (Segmento s : listaSegmentos) { %>
-            <option value="<%= s.getIdSegmento() %>" <%= String.valueOf(s.getIdSegmento()).equals(segmentoFiltro) ? "selected" : "" %>>
-              SEG-<%= String.format("%03d", s.getIdSegmento()) %> (<%= s.getNombreOrigen() %> - <%= s.getNombreDestino() %>)
-            </option>
-            <% } %>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label small fw-semibold">Detectada desde</label>
-          <input type="date" class="form-control form-control-sm" name="desde" value="<%= desdeFiltro %>">
-        </div>
-        <div class="col-md-2">
-          <label class="form-label small fw-semibold">Hasta</label>
-          <input type="date" class="form-control form-control-sm" name="hasta" value="<%= hastaFiltro %>">
-        </div>
-        <div class="col-md-2 d-flex gap-1">
-          <button type="submit" class="btn btn-sm btn-dark">Filtrar</button>
-          <a class="btn btn-sm btn-outline-secondary" href="<%=request.getContextPath()%>/IncidenciaServlet?action=<%= accion %>">Limpiar</a>
-        </div>
-      </div>
-    </form>
 
     <div class="card shadow-sm border-0">
       <div class="card-body p-0">
@@ -140,7 +79,7 @@
             <tbody>
               <% if (lista.isEmpty()) { %>
               <tr>
-                <td colspan="8" class="text-center text-muted py-4">No hay incidencias con esos filtros.</td>
+                <td colspan="8" class="text-center text-muted py-4">No hay incidencias.</td>
               </tr>
               <% } %>
               <% for (Incidencia inc : lista) {
