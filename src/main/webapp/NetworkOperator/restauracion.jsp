@@ -1,60 +1,58 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page import="com.oceanlink.beans.ServicioAfectado" %>
+<jsp:useBean id="listaRestauraciones" type="java.util.ArrayList<com.oceanlink.beans.ServicioAfectado>" scope="request" />
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <title>OceanLink</title>
+  <title>OceanLink - Restauraciones</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
 <div class="row g-0">
   <jsp:include page="/NetworkOperator/sidebar.jsp"/>
-  <main class="col p-4">
-    <h4>Restauración</h4>
+  <main class="col p-4 bg-light">
+    <h3 class="fw-bold mb-1">Restauraciones</h3>
+    <p class="text-muted mb-4">Un servicio se restaura solo cuando su incidencia pasa a Servicio restaurado.</p>
 
-    <div class="d-flex gap-2 mb-3">
-      <input class="form-control" placeholder="Buscar">
-      <a href="restauracion_form.jsp" class="btn btn-primary">+ Registrar restauración</a>
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light border-bottom">
+              <tr>
+                <th class="ps-4">Incidencia</th>
+                <th>Servicio</th>
+                <th>Segmento</th>
+                <th>Cliente</th>
+                <th>Capacidad</th>
+                <th>Fecha de restauración</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (listaRestauraciones.isEmpty()) { %>
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">Todavía no hay servicios restaurados.</td>
+              </tr>
+              <% } %>
+              <% for (ServicioAfectado sa : listaRestauraciones) { %>
+              <tr>
+                <td class="ps-4">
+                  <a class="fw-bold text-decoration-none" href="<%=request.getContextPath()%>/IncidenciaServlet?action=ver&id=<%= sa.getIdIncidencia() %>"><%= sa.getIdentificadorIncidencia() %></a>
+                </td>
+                <td><%= sa.getIdentificadorServicio() %></td>
+                <td>SEG-<%= String.format("%03d", sa.getIdSegmento()) %></td>
+                <td><%= sa.getRazonSocial() %></td>
+                <td><%= sa.getCapacidad().stripTrailingZeros().toPlainString() %> Gbps</td>
+                <td><%= sa.getFechaRestauracion() %></td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Restauración</th>
-          <th>Incidencia</th>
-          <th>Fecha de restauración</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Restauración 1</td>
-          <td>Incidencia 1</td>
-          <td>01/11/2020</td>
-          <td><a href="restauracion_form.jsp?id=1" class="btn btn-sm btn-outline-secondary">Editar</a></td>
-        </tr>
-        <tr>
-          <td>Restauración 2</td>
-          <td>Incidencia 2</td>
-          <td>01/11/2020</td>
-          <td><a href="restauracion_form.jsp?id=2" class="btn btn-sm btn-outline-secondary">Editar</a></td>
-        </tr>
-        <tr>
-          <td>Restauración 3</td>
-          <td>Incidencia 3</td>
-          <td>01/11/2020</td>
-          <td><a href="restauracion_form.jsp?id=3" class="btn btn-sm btn-outline-secondary">Editar</a></td>
-        </tr>
-        <tr>
-          <td>Restauración 4</td>
-          <td>Incidencia 4</td>
-          <td>01/11/2020</td>
-          <td><a href="restauracion_form.jsp?id=4" class="btn btn-sm btn-outline-secondary">Editar</a></td>
-        </tr>
-      </tbody>
-    </table>
-
   </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

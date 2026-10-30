@@ -11,21 +11,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>WaveWires - Solicitudes de capacidad</title>
-  <!-- Bootstrap 5 CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body class="bg-light">
 
 <div class="row g-0">
-  <!-- Sidebar compartido del Capacity Planner -->
   <jsp:include page="sidebar.jsp"/>
 
-  <!-- Contenido principal -->
   <main class="col p-4">
 
-    <!-- Encabezado con boton para registrar solicitud -->
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h2 class="h3 fw-bold text-dark m-0">Solicitudes de capacidad</h2>
@@ -43,10 +38,14 @@
       </div>
     <% } %>
 
-    <!-- Tarjeta con la tabla de datos -->
+    <% if ("fueraServicio".equals(request.getParameter("error"))) { %>
+      <div class="alert alert-danger mb-3" role="alert">
+        No se puede activar: el segmento asignado está Fuera de servicio por una incidencia.
+      </div>
+    <% } %>
+
     <div class="card shadow-sm border-0 p-3">
 
-      <!-- Buscador funcional -->
       <form method="GET" action="<%=request.getContextPath()%>/SolicitudesServlet" class="row mb-3">
         <div class="col-md-4">
           <input type="text" name="buscar" class="form-control" placeholder="Buscar solicitud o cliente..."
@@ -54,7 +53,6 @@
         </div>
       </form>
 
-      <!-- Tabla con las solicitudes -->
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-3">
           <thead class="table-light">
@@ -140,17 +138,10 @@
           </tbody>
         </table>
       </div>
-
-      <div class="d-flex justify-content-end gap-2">
-        <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Anterior</button>
-        <button type="button" class="btn btn-outline-secondary btn-sm">Siguiente</button>
-      </div>
-
     </div>
   </main>
 </div>
 
-<!-- modal para registrar nueva solicitud -->
 <div class="modal fade" id="modalRegistrarSolicitud" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow">
@@ -177,7 +168,6 @@
             <input type="number" name="capacidad" class="form-control" placeholder="Ejm: 120" min="1" required>
           </div>
 
-          <!-- Origen y Destino como texto libre según la BD -->
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="form-label small fw-semibold">Origen</label>
@@ -210,7 +200,6 @@
   </div>
 </div>
 
-<!-- Modal para editar solicitud de capacidad  -->
 <div class="modal fade" id="modalEditarSolicitud" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow">
@@ -221,7 +210,6 @@
       </div>
 
       <form method="POST" action="<%=request.getContextPath()%>/SolicitudesServlet?action=actualizar" onsubmit="return validarEdicion();">
-        <!-- Input oculto para enviar el ID de la solicitud a editar -->
         <input type="hidden" name="idSolicitudCapacidad" id="editId">
 
         <div class="modal-body p-4">
@@ -239,7 +227,6 @@
             <input type="number" name="capacidad" id="editCapacidad" class="form-control" min="1" required>
           </div>
 
-          <!-- Origen y Destino como texto libre según la BD -->
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="form-label small fw-semibold">Origen</label>
@@ -251,7 +238,6 @@
             </div>
           </div>
 
-          <!-- Los 7 estados del flujo de Miro -->
           <div class="mb-3">
             <label class="form-label small fw-semibold">Estado</label>
             <select name="estado" id="editEstado" class="form-select">
@@ -296,7 +282,6 @@
   </div>
 </div>
 
-<!-- Bootstrap 5 JS Bundle y Script para precargar datos en el modal de Edicion -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 function abrirEditar(id, idCliente, capacidad, origen, destino, estado, idSegmento, duracion, observaciones) {

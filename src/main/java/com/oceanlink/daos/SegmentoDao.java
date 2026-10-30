@@ -212,4 +212,83 @@ public class SegmentoDao extends DaoBase {
             return false;
         }
     }
+
+    // segmentos asociados a una incidencia, con el nombre de sus landings
+    public ArrayList<Segmento> listarSegmentosPorIncidencia(int idIncidencia) {
+        ArrayList<Segmento> lista = new ArrayList<>();
+        String sql = "SELECT s.*, o.nombre AS nombreOrigen, d.nombre AS nombreDestino "
+                + "FROM incidencia_has_segmento ihs "
+                + "JOIN segmento s ON s.idSegmento = ihs.idSegmento "
+                + "JOIN landingstation o ON s.idOrigen = o.idLandingStation "
+                + "JOIN landingstation d ON s.idDestino = d.idLandingStation "
+                + "WHERE ihs.idIncidencia = ? "
+                + "ORDER BY s.idSegmento ASC";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, idIncidencia);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Segmento s = new Segmento();
+                    s.setIdSegmento(rs.getInt("idSegmento"));
+                    s.setIdOrigen(rs.getInt("idOrigen"));
+                    s.setIdDestino(rs.getInt("idDestino"));
+                    s.setCapacidadTotal(rs.getBigDecimal("capacidadTotal"));
+                    s.setCapacidadUsada(rs.getBigDecimal("capacidadUsada"));
+                    s.setCapacidadReservada(rs.getBigDecimal("capacidadReservada"));
+                    s.setEstado(rs.getString("estado"));
+                    s.setNombreOrigen(rs.getString("nombreOrigen"));
+                    s.setNombreDestino(rs.getString("nombreDestino"));
+                    lista.add(s);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    // el estado del segmento sale de lo que tiene encima, en este orden:
+    // incidencia critica abierta -> Fuera de servicio, mantenimiento activo -> En mantenimiento,
+    // otra incidencia abierta -> Degradado, nada -> Operativo
+    public void recalcularEstado(int idSegmento) {
+        String sqlMantenimiento = "SELECT COUNT(*) FROM mantenimiento WHERE idSegmento = ? AND estado = 'Activo'";
+        String sqlCriticas = "SELECT COUNT(*) FROM incidencia i "
+                + "JOIN incidencia_has_segmento ihs ON ihs.idIncidencia = i.idIncidencia "
+                + "WHERE ihs.idSegmento = ? AND i.estado NOT IN ('Servicio restaurado', 'Cerrada') AND i.severidad = 'Crítica'";
+        String sqlAbiertas = "SELECT COUNT(*) FROM incidencia i "
+                + "JOIN incidencia_has_segmento ihs ON ihs.idIncidencia = i.idIncidencia "
+                + "WHERE ihs.idSegmento = ? AND i.estado NOT IN ('Servicio restaurado', 'Cerrada')";
+        String sqlUpdate = "UPDATE segmento SET estado = ? WHERE idSegmento = ?";
+
+        try (Connection conn = getConnection()) {
+            String estado = "Operativo";
+            if (contar(conn, sqlCriticas, idSegmento) > 0) {
+                estado = "Fuera de servicio";
+            } else if (contar(conn, sqlMantenimiento, idSegmento) > 0) {
+                estado = "En mantenimiento";
+            } else if (contar(conn, sqlAbiertas, idSegmento) > 0) {
+                estado = "Degradado";
+            }
+
+            try (PreparedStatement pstmt = conn.prepareStatement(sqlUpdate)) {
+                pstmt.setString(1, estado);
+                pstmt.setInt(2, idSegmento);
+                pstmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private int contar(Connection conn, String sql, int id) throws SQLException {
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                rs.next();
+                return rs.getInt(1);
+            }
+        }
+    }
 }

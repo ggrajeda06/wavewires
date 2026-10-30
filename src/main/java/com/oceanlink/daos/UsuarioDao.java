@@ -29,6 +29,27 @@ public class UsuarioDao extends DaoBase{
         return lista;
     }
 
+    // true si otro usuario ya usa ese correo (idExcluir = el que se esta editando, 0 al crear)
+    public boolean existeCorreo(String correo, int idExcluir) {
+        boolean existe = false;
+        String sql = "SELECT COUNT(*) FROM usuario WHERE correo = ? AND idUsuario <> ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, correo);
+            pstmt.setInt(2, idExcluir);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    existe = rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return existe;
+    }
+
     // Listar roles (para el select del formulario)
     public ArrayList<Rol> listarRoles() {
         ArrayList<Rol> lista = new ArrayList<>();

@@ -12,6 +12,8 @@ public class Mantenimiento {
     private int duracionHoras;
     private String actividadesRealizadas;
     private int idLandingStation;
+    private int idSegmento;
+    private int idIncidencia;
 
     public int getIdMantenimiento() {
         return idMantenimiento;
@@ -83,5 +85,21 @@ public class Mantenimiento {
 
     public void setIdLandingStation(int idLandingStation) {
         this.idLandingStation = idLandingStation;
+    }
+
+    public int getIdSegmento() {
+        return idSegmento;
+    }
+
+    public void setIdSegmento(int idSegmento) {
+        this.idSegmento = idSegmento;
+    }
+
+    public int getIdIncidencia() {
+        return idIncidencia;
+    }
+
+    public void setIdIncidencia(int idIncidencia) {
+        this.idIncidencia = idIncidencia;
     }
 }

@@ -1,5 +1,6 @@
 package com.oceanlink.servlets;
 
+import com.oceanlink.beans.Segmento;
 import com.oceanlink.daos.LandingStationDao;
 import com.oceanlink.daos.SegmentoDao;
 import jakarta.servlet.RequestDispatcher;
@@ -32,12 +33,15 @@ public class SegmentoServlet extends HttpServlet {
                 break;
 
             case "borrar":
-                int idBorrar = Integer.parseInt(request.getParameter("id"));
-                if (segmentoDao.borrarSegmento(idBorrar)) {
+                if (segmentoDao.borrarSegmento(numero(request.getParameter("id")))) {
                     response.sendRedirect(request.getContextPath() + "/SegmentoServlet");
                 } else {
                     response.sendRedirect(request.getContextPath() + "/SegmentoServlet?error=enUso");
                 }
+                break;
+
+            default:
+                response.sendRedirect(request.getContextPath() + "/SegmentoServlet");
                 break;
         }
     }
@@ -50,38 +54,79 @@ public class SegmentoServlet extends HttpServlet {
 
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         SegmentoDao segmentoDao = new SegmentoDao();
+        LandingStationDao landingStationDao = new LandingStationDao();
+
+        int idSegmento = numero(request.getParameter("idSegmento"));
+        int idOrigen = numero(request.getParameter("idOrigen"));
+        int idDestino = numero(request.getParameter("idDestino"));
+        double capacidadTotal = decimal(request.getParameter("capacidadTotal"));
+        String estado = texto(request.getParameter("estado"));
+
+        String error = null;
+        if (landingStationDao.obtenerLandingStation(idOrigen) == null || landingStationDao.obtenerLandingStation(idDestino) == null) {
+            error = "landing";
+        } else if (idOrigen == idDestino) {
+            error = "ruta";
+        } else if (capacidadTotal <= 0 || capacidadTotal > 99999999) {
+            error = "capacidad";
+        } else if (!estado.equals("Operativo") && !estado.equals("Degradado")
+                && !estado.equals("En mantenimiento") && !estado.equals("Fuera de servicio")) {
+            error = "estado";
+        }
 
         switch (action) {
             case "crear":
-                int idOrigen = Integer.parseInt(request.getParameter("idOrigen"));
-                int idDestino = Integer.parseInt(request.getParameter("idDestino"));
-                double capacidadTotal = Double.parseDouble(request.getParameter("capacidadTotal"));
-                String estado = request.getParameter("estado");
-
-                if (idOrigen == idDestino) {
-                    response.sendRedirect(request.getContextPath() + "/SegmentoServlet?error=ruta");
+                if (error != null) {
+                    response.sendRedirect(request.getContextPath() + "/SegmentoServlet?error=" + error);
                     break;
                 }
-
                 segmentoDao.registrarSegmento(idOrigen, idDestino, capacidadTotal, estado);
                 response.sendRedirect(request.getContextPath() + "/SegmentoServlet");
                 break;
 
             case "actualizar":
-                int idSegmento = Integer.parseInt(request.getParameter("idSegmento"));
-                int idOrigenEdit = Integer.parseInt(request.getParameter("idOrigen"));
-                int idDestinoEdit = Integer.parseInt(request.getParameter("idDestino"));
-                double capacidadEdit = Double.parseDouble(request.getParameter("capacidadTotal"));
-                String estadoEdit = request.getParameter("estado");
-
-                if (idOrigenEdit == idDestinoEdit) {
-                    response.sendRedirect(request.getContextPath() + "/SegmentoServlet?error=ruta");
+                Segmento actual = segmentoDao.obtenerSegmento(idSegmento);
+                if (actual == null) {
+                    response.sendRedirect(request.getContextPath() + "/SegmentoServlet");
                     break;
                 }
-
-                segmentoDao.actualizarSegmento(idSegmento, idOrigenEdit, idDestinoEdit, capacidadEdit, estadoEdit);
+                // la capacidad total no puede quedar por debajo de lo que ya esta usado y reservado
+                double ocupada = actual.getCapacidadUsada().doubleValue() + actual.getCapacidadReservada().doubleValue();
+                if (error == null && capacidadTotal < ocupada) {
+                    error = "capacidadMenor";
+                }
+                if (error != null) {
+                    response.sendRedirect(request.getContextPath() + "/SegmentoServlet?error=" + error);
+                    break;
+                }
+                segmentoDao.actualizarSegmento(idSegmento, idOrigen, idDestino, capacidadTotal, estado);
                 response.sendRedirect(request.getContextPath() + "/SegmentoServlet");
                 break;
+
+            default:
+                response.sendRedirect(request.getContextPath() + "/SegmentoServlet");
+                break;
+        }
+    }
+
+    private String texto(String valor) {
+        return valor == null ? "" : valor.trim();
+    }
+
+    private int numero(String valor) {
+        try {
+            return Integer.parseInt(valor);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private double decimal(String valor) {
+        try {
+            double d = Double.parseDouble(valor);
+            return Double.isNaN(d) ? 0 : d;
+        } catch (NumberFormatException | NullPointerException e) {
+            return 0;
         }
     }
 }

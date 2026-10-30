@@ -1,8 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="com.oceanlink.beans.Usuario" %>
-<jsp:useBean id="lista" type="java.util.ArrayList<com.oceanlink.beans.Usuario>" scope="request" />
 <%@ page import="com.oceanlink.beans.Rol" %>
+<jsp:useBean id="lista" type="java.util.ArrayList<com.oceanlink.beans.Usuario>" scope="request" />
 <jsp:useBean id="listaRoles" type="java.util.ArrayList<com.oceanlink.beans.Rol>" scope="request" />
+<%
+  String error = request.getParameter("error");
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -15,19 +18,24 @@
   <main class="col p-4">
     <h4>Usuarios</h4>
 
-    <div class="d-flex gap-2 mb-3">
-      <input class="form-control" placeholder="Buscar">
-      <select class="form-select w-auto">
-        <option>Ordenar</option>
-        <option>A - Z</option>
-        <option>Rol</option>
-        <option>Estado</option>
-      </select>
+    <div class="d-flex justify-content-end mb-3">
       <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalRegistrarUsuario">+ Nuevo</button>
     </div>
-    <% if ("clave".equals(request.getParameter("error"))) { %>
-       <div class="alert alert-danger">Las contraseñas no coinciden. Inténtalo de nuevo.</div>
+
+    <% if ("vacio".equals(error)) { %>
+    <div class="alert alert-danger">Completa el nombre, el correo y la contraseña.</div>
+    <% } else if ("largo".equals(error)) { %>
+    <div class="alert alert-danger">El nombre y el correo pueden tener como máximo 100 caracteres.</div>
+    <% } else if ("correo".equals(error)) { %>
+    <div class="alert alert-danger">El correo no es válido.</div>
+    <% } else if ("rol".equals(error)) { %>
+    <div class="alert alert-danger">Elige un rol y un estado válidos.</div>
+    <% } else if ("clave".equals(error)) { %>
+    <div class="alert alert-danger">Las contraseñas no coinciden. Inténtalo de nuevo.</div>
+    <% } else if ("correoRepetido".equals(error)) { %>
+    <div class="alert alert-danger">Ya existe un usuario con ese correo.</div>
     <% } %>
+
     <table class="table">
       <thead>
         <tr>
@@ -52,10 +60,8 @@
               </span>
             </td>
             <td>
-              <button type="button" class="btn btn-sm btn-outline-secondary"
-                      onclick="abrirEditar('<%=u.getIdUsuario()%>', '<%=u.getNombre().replace("'", "\\'")%>', '<%=u.getCorreo()%>', '<%=u.getIdRol()%>', '<%=u.getEstado()%>')">
-                Editar
-              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editar<%=u.getIdUsuario()%>">Editar</button>
+              <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#borrar<%=u.getIdUsuario()%>">Eliminar</button>
             </td>
           </tr>
           <% } %>
@@ -63,7 +69,7 @@
     </table>
   </main>
 </div>
-<!-- Modal para nuevo usuario -->
+
 <div class="modal fade" id="modalRegistrarUsuario" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow">
@@ -79,12 +85,12 @@
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Nombre</label>
-            <input type="text" name="nombre" class="form-control" placeholder="Ingresar nombre" required>
+            <input type="text" name="nombre" class="form-control" maxlength="100" placeholder="Ingresar nombre" required>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Correo</label>
-            <input type="email" name="correo" class="form-control" placeholder="Ingresar correo" required>
+            <input type="email" name="correo" class="form-control" maxlength="100" placeholder="Ingresar correo" required>
           </div>
 
           <div class="mb-3">
@@ -125,45 +131,47 @@
     </div>
   </div>
 </div>
-<div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-hidden="true">
+
+<% for (Usuario u : lista) { %>
+<div class="modal fade" id="editar<%=u.getIdUsuario()%>" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow">
 
       <div class="modal-header border-bottom py-3 px-4">
-        <h5 class="modal-title fw-bold m-0">Editar Usuario</h5>
+        <h5 class="modal-title fw-bold m-0">Editar Usuario U-<%=String.format("%03d", u.getIdUsuario())%></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
       <form method="POST" action="<%=request.getContextPath()%>/UsuarioServlet?action=actualizar">
-        <input type="hidden" name="idUsuario" id="editId">
+        <input type="hidden" name="idUsuario" value="<%=u.getIdUsuario()%>">
 
         <div class="modal-body p-4">
           <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">Datos</h6>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Nombre</label>
-            <input type="text" name="nombre" id="editNombre" class="form-control" required>
+            <input type="text" name="nombre" class="form-control" maxlength="100" value="<%=u.getNombre()%>" required>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Correo</label>
-            <input type="email" name="correo" id="editCorreo" class="form-control" required>
+            <input type="email" name="correo" class="form-control" maxlength="100" value="<%=u.getCorreo()%>" required>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Rol</label>
-            <select name="idRol" id="editRol" class="form-select" required>
+            <select name="idRol" class="form-select" required>
               <% for (Rol r : listaRoles) { %>
-                <option value="<%=r.getIdRoles()%>"><%=r.getRol()%></option>
+                <option value="<%=r.getIdRoles()%>" <%=r.getIdRoles() == u.getIdRol() ? "selected" : ""%>><%=r.getRol()%></option>
               <% } %>
             </select>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Estado</label>
-            <select name="estado" id="editEstado" class="form-select" required>
-              <option value="Activo">Activo</option>
-              <option value="Inactivo">Inactivo</option>
+            <select name="estado" class="form-select" required>
+              <option value="Activo" <%="Activo".equals(u.getEstado()) ? "selected" : ""%>>Activo</option>
+              <option value="Inactivo" <%="Inactivo".equals(u.getEstado()) ? "selected" : ""%>>Inactivo</option>
             </select>
           </div>
 
@@ -178,34 +186,35 @@
           </div>
         </div>
 
-        <div class="modal-footer border-top-0 d-flex justify-content-between pt-0 px-4 pb-4">
-          <a id="btnEliminarModal" href="#" class="btn btn-outline-danger px-3"
-             onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
-            Eliminar
-          </a>
-          <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-primary px-3">Guardar cambios</button>
-          </div>
+        <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
+          <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary px-3">Guardar cambios</button>
         </div>
       </form>
 
     </div>
   </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-function abrirEditar(id, nombre, correo, idRol, estado) {
-  document.getElementById('editId').value = id;
-  document.getElementById('editNombre').value = nombre;
-  document.getElementById('editCorreo').value = correo;
-  document.getElementById('editRol').value = idRol;
-  document.getElementById('editEstado').value = estado;
-  document.getElementById('btnEliminarModal').href = '<%=request.getContextPath()%>/UsuarioServlet?action=borrar&id=' + id;
 
-  let modal = new bootstrap.Modal(document.getElementById('modalEditarUsuario'));
-  modal.show();
-}
-</script>
+<div class="modal fade" id="borrar<%=u.getIdUsuario()%>" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-bottom py-3 px-4">
+        <h5 class="modal-title fw-bold m-0">Eliminar usuario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body p-4">
+        ¿Estás seguro de que deseas eliminar a <b><%=u.getNombre()%></b>?
+      </div>
+      <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
+        <button type="button" class="btn btn-primary px-3" data-bs-dismiss="modal">Cancelar</button>
+        <a href="<%=request.getContextPath()%>/UsuarioServlet?action=borrar&id=<%=u.getIdUsuario()%>" class="btn btn-outline-danger px-3">Sí, eliminar</a>
+      </div>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

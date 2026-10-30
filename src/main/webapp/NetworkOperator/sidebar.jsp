@@ -14,12 +14,15 @@
   <div class="sidebar-section-label text-uppercase mb-2 px-2">Network Operator</div>
   <nav class="nav flex-column mb-auto">
     <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/IncidenciaServlet">
-      Incidencias
+      Incidencias activas
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/NetworkOperator/restauracion.jsp">
-      Restauración
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/IncidenciaServlet?action=estadoRed">
+      Estado de la red
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/NetworkOperator/historial.jsp">
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/IncidenciaServlet?action=restauraciones">
+      Restauraciones
+    </a>
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/IncidenciaServlet?action=historial">
       Historial de incidencias
     </a>
   </nav>

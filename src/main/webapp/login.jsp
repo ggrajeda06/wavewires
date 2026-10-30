@@ -32,8 +32,7 @@
                 <h1 class="display-4 font-weight-normal mb-1">Bienvenido<br>a bordo!</h1>
                 <p class="text-white-50 small mb-4">Tu red, bajo control.</p>
 
-                <form action="${pageContext.request.contextPath}/Administrador/admin_resumen.jsp" method="post">
-
+                    <form action="${pageContext.request.contextPath}/ResumenServlet" method="post">
                     <!-- Campo Usuario -->
                     <div class="mb-3">
                         <label for="username" class="form-label small fw-semibold">Usuario</label>

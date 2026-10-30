@@ -1,43 +1,65 @@
 package com.oceanlink.daos;
 
 import com.oceanlink.beans.Incidencia;
+import com.oceanlink.beans.ServicioAfectado;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class IncidenciaDao extends DaoBase {
 
-    public ArrayList<Incidencia> listarIncidencias() throws SQLException {
+    // lista con filtros: si un filtro llega vacio (o 0) no se aplica
+    public ArrayList<Incidencia> listarIncidencias(boolean soloActivas, String estado, String severidad,
+                                                   int idSegmento, String desde, String hasta) {
         ArrayList<Incidencia> lista = new ArrayList<>();
-        String sqlInc = "SELECT * FROM incidencia ORDER BY fechaRegistro DESC";
-        String sqlServ = "SELECT idServicio FROM incidencia_has_servicio WHERE idIncidencia = ?";
+        String sql = "SELECT * FROM incidencia "
+                + "WHERE (? = 0 OR estado <> 'Cerrada') "
+                + "AND (? = '' OR estado = ?) "
+                + "AND (? = '' OR severidad = ?) "
+                + "AND (? = 0 OR idIncidencia IN (SELECT idIncidencia FROM incidencia_has_segmento WHERE idSegmento = ?)) "
+                + "AND DATE(fechaRegistro) BETWEEN ? AND ? "
+                + "ORDER BY fechaRegistro DESC";
 
         try (Connection conn = this.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sqlInc);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, soloActivas ? 1 : 0);
+            pstmt.setString(2, estado);
+            pstmt.setString(3, estado);
+            pstmt.setString(4, severidad);
+            pstmt.setString(5, severidad);
+            pstmt.setInt(6, idSegmento);
+            pstmt.setInt(7, idSegmento);
+            pstmt.setString(8, desde);
+            pstmt.setString(9, hasta);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Incidencia i = mapearIncidencia(rs);
+                    i.setIdsSegmentos(listarIds(conn, "SELECT idSegmento FROM incidencia_has_segmento WHERE idIncidencia = ?", i.getIdIncidencia()));
+                    i.setIdsServicios(listarIds(conn, "SELECT idServicio FROM incidencia_has_servicio WHERE idIncidencia = ?", i.getIdIncidencia()));
+                    lista.add(i);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    // incidencias que todavia pueden recibir un mantenimiento correctivo
+    public ArrayList<Incidencia> listarIncidenciasAbiertas() {
+        ArrayList<Incidencia> lista = new ArrayList<>();
+        String sql = "SELECT * FROM incidencia WHERE estado NOT IN ('Servicio restaurado', 'Cerrada') ORDER BY fechaRegistro DESC";
+
+        try (Connection conn = this.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                Incidencia i = new Incidencia();
-                i.setIdIncidencia(rs.getInt("idIncidencia"));
-                i.setIdentificador(rs.getString("identificador"));
-                i.setSeveridad(rs.getString("severidad"));
-                i.setEstado(rs.getString("estado"));
-                i.setObservaciones(rs.getString("observaciones"));
-                i.setFechaRegistro(rs.getDate("fechaRegistro"));
-                i.setIdLandingStation(rs.getInt("idLandingStation"));
-
-                ArrayList<Integer> idsServicios = new ArrayList<>();
-                try (PreparedStatement pstmtServ = conn.prepareStatement(sqlServ)) {
-                    pstmtServ.setInt(1, i.getIdIncidencia());
-                    try (ResultSet rsServ = pstmtServ.executeQuery()) {
-                        while (rsServ.next()) {
-                            idsServicios.add(rsServ.getInt("idServicio"));
-                        }
-                    }
-                }
-                i.setIdsServicios(idsServicios);
-                // ---------------------------------------------
-
+                Incidencia i = mapearIncidencia(rs);
+                i.setIdsSegmentos(listarIds(conn, "SELECT idSegmento FROM incidencia_has_segmento WHERE idIncidencia = ?", i.getIdIncidencia()));
                 lista.add(i);
             }
         } catch (SQLException e) {
@@ -46,38 +68,19 @@ public class IncidenciaDao extends DaoBase {
         return lista;
     }
 
-    public Incidencia obtenerIncidencia(int idIncidencia) throws SQLException {
+    public Incidencia obtenerIncidencia(int idIncidencia) {
         Incidencia i = null;
-        String sqlInc = "SELECT * FROM incidencia WHERE idIncidencia = ?";
-        String sqlServ = "SELECT idServicio FROM incidencia_has_servicio WHERE idIncidencia = ?";
+        String sql = "SELECT * FROM incidencia WHERE idIncidencia = ?";
 
         try (Connection conn = this.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sqlInc)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, idIncidencia);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    i = new Incidencia();
-                    i.setIdIncidencia(rs.getInt("idIncidencia"));
-                    i.setIdentificador(rs.getString("identificador"));
-                    i.setSeveridad(rs.getString("severidad"));
-                    i.setEstado(rs.getString("estado"));
-                    i.setObservaciones(rs.getString("observaciones"));
-                    i.setFechaRegistro(rs.getDate("fechaRegistro"));
-                    i.setIdLandingStation(rs.getInt("idLandingStation"));
-
-                    // --- CARGAR LOS IDS DE SERVICIOS PARA LA EDICIÓN ---
-                    ArrayList<Integer> idsServicios = new ArrayList<>();
-                    try (PreparedStatement pstmtServ = conn.prepareStatement(sqlServ)) {
-                        pstmtServ.setInt(1, idIncidencia);
-                        try (ResultSet rsServ = pstmtServ.executeQuery()) {
-                            while (rsServ.next()) {
-                                idsServicios.add(rsServ.getInt("idServicio"));
-                            }
-                        }
-                    }
-                    i.setIdsServicios(idsServicios);
-                    // --------------------------------------------------
+                    i = mapearIncidencia(rs);
+                    i.setIdsSegmentos(listarIds(conn, "SELECT idSegmento FROM incidencia_has_segmento WHERE idIncidencia = ?", idIncidencia));
+                    i.setIdsServicios(listarIds(conn, "SELECT idServicio FROM incidencia_has_servicio WHERE idIncidencia = ?", idIncidencia));
                 }
             }
         } catch (SQLException e) {
@@ -86,38 +89,102 @@ public class IncidenciaDao extends DaoBase {
         return i;
     }
 
-    // Ahora recibe el objeto Incidencia completo, aprovechando su List<Integer>
-    public void crearIncidencia(Incidencia incidencia) throws SQLException {
-        String sqlInc = "INSERT INTO incidencia (identificador, severidad, estado, observaciones, idLandingStation) VALUES (?,?,?,?,?)";
-        String sqlHas = "INSERT INTO incidencia_has_servicio (idIncidencia, idServicio) VALUES (?,?)";
+    // crea la incidencia en estado Detectada, le pone su identificador y guarda sus segmentos y servicios
+    // la primera observacion se guarda despues con agregarObservacion
+    public int crearIncidencia(Incidencia incidencia) {
+        String sqlInc = "INSERT INTO incidencia (severidad, estado) VALUES (?, 'Detectada')";
+        String sqlId = "UPDATE incidencia SET identificador = CONCAT('INC-', YEAR(fechaRegistro), '-', LPAD(idIncidencia, 3, '0')) WHERE idIncidencia = ?";
+        String sqlSeg = "INSERT INTO incidencia_has_segmento (idIncidencia, idSegmento) VALUES (?, ?)";
+        String sqlServ = "INSERT INTO incidencia_has_servicio (idIncidencia, idServicio) VALUES (?, ?)";
+        int idIncidencia = 0;
 
         try (Connection conn = this.getConnection()) {
             conn.setAutoCommit(false);
             try (PreparedStatement p1 = conn.prepareStatement(sqlInc, Statement.RETURN_GENERATED_KEYS);
-                 PreparedStatement p2 = conn.prepareStatement(sqlHas)) {
+                 PreparedStatement p2 = conn.prepareStatement(sqlId);
+                 PreparedStatement p3 = conn.prepareStatement(sqlSeg);
+                 PreparedStatement p4 = conn.prepareStatement(sqlServ)) {
 
-                p1.setString(1, incidencia.getIdentificador());
-                p1.setString(2, incidencia.getSeveridad());
-                p1.setString(3, incidencia.getEstado());
-                p1.setString(4, incidencia.getObservaciones());
-                p1.setInt(5, incidencia.getIdLandingStation());
+                p1.setString(1, incidencia.getSeveridad());
                 p1.executeUpdate();
 
-                int idIncidencia;
                 try (ResultSet rs = p1.getGeneratedKeys()) {
                     rs.next();
                     idIncidencia = rs.getInt(1);
                 }
 
-                // Recorremos la lista de enteros del Bean directamente
-                if (incidencia.getIdsServicios() != null) {
-                    for (Integer idServicio : incidencia.getIdsServicios()) {
-                        p2.setInt(1, idIncidencia);
-                        p2.setInt(2, idServicio);
-                        p2.addBatch();
-                    }
-                    p2.executeBatch();
+                p2.setInt(1, idIncidencia);
+                p2.executeUpdate();
+
+                for (Integer idSegmento : incidencia.getIdsSegmentos()) {
+                    p3.setInt(1, idIncidencia);
+                    p3.setInt(2, idSegmento);
+                    p3.executeUpdate();
                 }
+
+                for (Integer idServicio : incidencia.getIdsServicios()) {
+                    p4.setInt(1, idIncidencia);
+                    p4.setInt(2, idServicio);
+                    p4.executeUpdate();
+                }
+
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                idIncidencia = 0;
+                throw e;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return idIncidencia;
+    }
+
+    public void actualizarSeveridad(int idIncidencia, String severidad) {
+        String sql = "UPDATE incidencia SET severidad = ? WHERE idIncidencia = ?";
+
+        try (Connection conn = this.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, severidad);
+            pstmt.setInt(2, idIncidencia);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // cambia los segmentos y vuelve a guardar los servicios afectados (solo antes de la reparacion)
+    public void cambiarSegmentos(int idIncidencia, List<Integer> idsSegmentos, List<Integer> idsServicios) {
+        String sqlDelSeg = "DELETE FROM incidencia_has_segmento WHERE idIncidencia = ?";
+        String sqlDelServ = "DELETE FROM incidencia_has_servicio WHERE idIncidencia = ?";
+        String sqlSeg = "INSERT INTO incidencia_has_segmento (idIncidencia, idSegmento) VALUES (?, ?)";
+        String sqlServ = "INSERT INTO incidencia_has_servicio (idIncidencia, idServicio) VALUES (?, ?)";
+
+        try (Connection conn = this.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement p1 = conn.prepareStatement(sqlDelSeg);
+                 PreparedStatement p2 = conn.prepareStatement(sqlDelServ);
+                 PreparedStatement p3 = conn.prepareStatement(sqlSeg);
+                 PreparedStatement p4 = conn.prepareStatement(sqlServ)) {
+
+                p1.setInt(1, idIncidencia);
+                p1.executeUpdate();
+                p2.setInt(1, idIncidencia);
+                p2.executeUpdate();
+
+                for (Integer idSegmento : idsSegmentos) {
+                    p3.setInt(1, idIncidencia);
+                    p3.setInt(2, idSegmento);
+                    p3.executeUpdate();
+                }
+
+                for (Integer idServicio : idsServicios) {
+                    p4.setInt(1, idIncidencia);
+                    p4.setInt(2, idServicio);
+                    p4.executeUpdate();
+                }
+
                 conn.commit();
             } catch (SQLException e) {
                 conn.rollback();
@@ -128,47 +195,75 @@ public class IncidenciaDao extends DaoBase {
         }
     }
 
-    public void editarIncidencia(Incidencia incidencia) throws SQLException {
-        String sqlUpdateInc = "UPDATE incidencia SET identificador = ?, severidad = ?, estado = ?, observaciones = ?, idLandingStation = ? WHERE idIncidencia = ?";
-        String sqlDeleteHas = "DELETE FROM incidencia_has_servicio WHERE idIncidencia = ?";
-        String sqlInsertHas = "INSERT INTO incidencia_has_servicio (idIncidencia, idServicio) VALUES (?, ?)";
+    // agrega una observacion nueva al final, con la fecha, sin borrar las anteriores
+    public void agregarObservacion(int idIncidencia, String observacion) {
+        String sql = "UPDATE incidencia SET observaciones = CONCAT_WS('\\n', observaciones, CONCAT('[', DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i'), '] ', ?)) "
+                + "WHERE idIncidencia = ?";
+
+        try (Connection conn = this.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, observacion);
+            pstmt.setInt(2, idIncidencia);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void cambiarEstado(int idIncidencia, String estado) {
+        String sql = "UPDATE incidencia SET estado = ? WHERE idIncidencia = ?";
+        if (estado.equals("Cerrada")) {
+            sql = "UPDATE incidencia SET estado = ?, fechaCierre = NOW() WHERE idIncidencia = ?";
+        }
+
+        try (Connection conn = this.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, estado);
+            pstmt.setInt(2, idIncidencia);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // marca como restaurados los servicios que aun no tenian fecha de restauracion
+    public void restaurarServicios(int idIncidencia) {
+        String sql = "UPDATE incidencia_has_servicio SET fechaRestauracion = NOW() "
+                + "WHERE idIncidencia = ? AND fechaRestauracion IS NULL";
+
+        try (Connection conn = this.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, idIncidencia);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void eliminarIncidencia(int idIncidencia) {
+        String sqlDelSeg = "DELETE FROM incidencia_has_segmento WHERE idIncidencia = ?";
+        String sqlDelServ = "DELETE FROM incidencia_has_servicio WHERE idIncidencia = ?";
+        String sqlDelInc = "DELETE FROM incidencia WHERE idIncidencia = ?";
 
         try (Connection conn = this.getConnection()) {
-            conn.setAutoCommit(false); // Iniciamos transacción por seguridad
+            conn.setAutoCommit(false);
+            try (PreparedStatement p1 = conn.prepareStatement(sqlDelSeg);
+                 PreparedStatement p2 = conn.prepareStatement(sqlDelServ);
+                 PreparedStatement p3 = conn.prepareStatement(sqlDelInc)) {
 
-            try {
-                // 1. Actualizar los datos principales de la incidencia
-                try (PreparedStatement pstmtUpd = conn.prepareStatement(sqlUpdateInc)) {
-                    pstmtUpd.setString(1, incidencia.getIdentificador());
-                    pstmtUpd.setString(2, incidencia.getSeveridad());
-                    pstmtUpd.setString(3, incidencia.getEstado());
-                    pstmtUpd.setString(4, incidencia.getObservaciones());
-                    pstmtUpd.setInt(5, incidencia.getIdLandingStation());
-                    pstmtUpd.setInt(6, incidencia.getIdIncidencia());
-                    pstmtUpd.executeUpdate();
-                }
+                p1.setInt(1, idIncidencia);
+                p1.executeUpdate();
+                p2.setInt(1, idIncidencia);
+                p2.executeUpdate();
+                p3.setInt(1, idIncidencia);
+                p3.executeUpdate();
 
-                // 2. Borrar los servicios anteriores de la tabla intermedia
-                try (PreparedStatement pstmtDel = conn.prepareStatement(sqlDeleteHas)) {
-                    pstmtDel.setInt(1, incidencia.getIdIncidencia());
-                    pstmtDel.executeUpdate();
-                }
-
-                // 3. Insertar los nuevos servicios seleccionados (si hay alguno)
-                if (incidencia.getIdsServicios() != null && !incidencia.getIdsServicios().isEmpty()) {
-                    try (PreparedStatement pstmtIns = conn.prepareStatement(sqlInsertHas)) {
-                        for (Integer idServicio : incidencia.getIdsServicios()) {
-                            pstmtIns.setInt(1, incidencia.getIdIncidencia());
-                            pstmtIns.setInt(2, idServicio);
-                            pstmtIns.addBatch();
-                        }
-                        pstmtIns.executeBatch();
-                    }
-                }
-
-                conn.commit(); // Si todo sale bien, guardamos cambios permanentemente
+                conn.commit();
             } catch (SQLException e) {
-                conn.rollback(); // Si algo falla, deshacemos todo
+                conn.rollback();
                 throw e;
             }
         } catch (SQLException e) {
@@ -176,33 +271,95 @@ public class IncidenciaDao extends DaoBase {
         }
     }
 
-    public void eliminarIncidencia(int idIncidencia) throws SQLException {
-        String sqlDeleteHas = "DELETE FROM incidencia_has_servicio WHERE idIncidencia = ?";
-        String sqlDeleteInc = "DELETE FROM incidencia WHERE idIncidencia = ?";
+    // servicios afectados por una incidencia, con su cliente y su fecha de restauracion
+    public ArrayList<ServicioAfectado> listarServiciosAfectados(int idIncidencia) {
+        ArrayList<ServicioAfectado> lista = new ArrayList<>();
+        String sql = "SELECT ihs.idIncidencia, i.identificador AS identificadorIncidencia, sv.idServicio, "
+                + "sv.identificador AS identificadorServicio, sv.capacidad, sv.idSegmento, c.razonSocial, ihs.fechaRestauracion "
+                + "FROM incidencia_has_servicio ihs "
+                + "JOIN incidencia i ON i.idIncidencia = ihs.idIncidencia "
+                + "JOIN servicio sv ON sv.idServicio = ihs.idServicio "
+                + "JOIN solicitudcapacidad sc ON sc.idSolicitudCapacidad = sv.idSolicitudCapacidad "
+                + "JOIN cliente c ON c.idCliente = sc.idCliente "
+                + "WHERE ihs.idIncidencia = ? "
+                + "ORDER BY sv.idServicio";
 
-        try (Connection conn = this.getConnection()) {
-            conn.setAutoCommit(false); // Iniciamos transacción
+        try (Connection conn = this.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            try {
-                // 1. Primero eliminamos los enlaces en la tabla intermedia
-                try (PreparedStatement pstmtHas = conn.prepareStatement(sqlDeleteHas)) {
-                    pstmtHas.setInt(1, idIncidencia);
-                    pstmtHas.executeUpdate();
+            pstmt.setInt(1, idIncidencia);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearAfectado(rs));
                 }
-
-                // 2. Luego eliminamos la incidencia principal
-                try (PreparedStatement pstmtInc = conn.prepareStatement(sqlDeleteInc)) {
-                    pstmtInc.setInt(1, idIncidencia);
-                    pstmtInc.executeUpdate();
-                }
-
-                conn.commit(); // Si todo sale bien, confirmamos los cambios
-            } catch (SQLException e) {
-                conn.rollback(); // Si algo falla, revertimos todo
-                throw e;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return lista;
+    }
+
+    // todos los servicios que ya fueron restaurados
+    public ArrayList<ServicioAfectado> listarRestauraciones() {
+        ArrayList<ServicioAfectado> lista = new ArrayList<>();
+        String sql = "SELECT ihs.idIncidencia, i.identificador AS identificadorIncidencia, sv.idServicio, "
+                + "sv.identificador AS identificadorServicio, sv.capacidad, sv.idSegmento, c.razonSocial, ihs.fechaRestauracion "
+                + "FROM incidencia_has_servicio ihs "
+                + "JOIN incidencia i ON i.idIncidencia = ihs.idIncidencia "
+                + "JOIN servicio sv ON sv.idServicio = ihs.idServicio "
+                + "JOIN solicitudcapacidad sc ON sc.idSolicitudCapacidad = sv.idSolicitudCapacidad "
+                + "JOIN cliente c ON c.idCliente = sc.idCliente "
+                + "WHERE ihs.fechaRestauracion IS NOT NULL "
+                + "ORDER BY ihs.fechaRestauracion DESC";
+
+        try (Connection conn = this.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                lista.add(mapearAfectado(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    private ServicioAfectado mapearAfectado(ResultSet rs) throws SQLException {
+        ServicioAfectado sa = new ServicioAfectado();
+        sa.setIdIncidencia(rs.getInt("idIncidencia"));
+        sa.setIdentificadorIncidencia(rs.getString("identificadorIncidencia"));
+        sa.setIdServicio(rs.getInt("idServicio"));
+        sa.setIdentificadorServicio(rs.getString("identificadorServicio"));
+        sa.setCapacidad(rs.getBigDecimal("capacidad"));
+        sa.setIdSegmento(rs.getInt("idSegmento"));
+        sa.setRazonSocial(rs.getString("razonSocial"));
+        sa.setFechaRestauracion(rs.getDate("fechaRestauracion"));
+        return sa;
+    }
+
+    private Incidencia mapearIncidencia(ResultSet rs) throws SQLException {
+        Incidencia i = new Incidencia();
+        i.setIdIncidencia(rs.getInt("idIncidencia"));
+        i.setIdentificador(rs.getString("identificador"));
+        i.setSeveridad(rs.getString("severidad"));
+        i.setEstado(rs.getString("estado"));
+        i.setObservaciones(rs.getString("observaciones"));
+        i.setFechaRegistro(rs.getDate("fechaRegistro"));
+        i.setFechaCierre(rs.getDate("fechaCierre"));
+        return i;
+    }
+
+    private ArrayList<Integer> listarIds(Connection conn, String sql, int id) throws SQLException {
+        ArrayList<Integer> ids = new ArrayList<>();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    ids.add(rs.getInt(1));
+                }
+            }
+        }
+        return ids;
     }
 }

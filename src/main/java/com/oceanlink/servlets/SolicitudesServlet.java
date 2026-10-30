@@ -40,7 +40,6 @@ public class SolicitudesServlet extends HttpServlet {
                     lista = solicitudesDao.listarSolicitudes();
                 }
 
-                // Guardamos en el request las solicitudes y clientes para los comboboxes
                 request.setAttribute("listaSolicitudes", lista);
                 request.setAttribute("listaClientes", clienteDao.listarClientes());
                 request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
@@ -75,7 +74,6 @@ public class SolicitudesServlet extends HttpServlet {
                 int duracionMeses = Integer.parseInt(request.getParameter("duracionMeses"));
                 String observaciones = request.getParameter("observaciones");
 
-                // Estado inicial 'Registrado' según la regla 1 del flujo de Miro
                 solicitudesDao.crearSolicitud(capacidad, origen, destino, "Registrado", observaciones, duracionMeses, idCliente);
                 response.sendRedirect(request.getContextPath() + "/SolicitudesServlet");
                 break;
@@ -94,6 +92,15 @@ public class SolicitudesServlet extends HttpServlet {
                 Integer idSegmentoEdit = null;
                 if (strSegmento != null && !strSegmento.equals("0") && !strSegmento.trim().isEmpty()) {
                     idSegmentoEdit = Integer.parseInt(strSegmento);
+                }
+
+                // regla 3: no se activa un servicio sobre un segmento Fuera de servicio
+                if ("Activo".equalsIgnoreCase(estadoEdit) && idSegmentoEdit != null && idSegmentoEdit != 0) {
+                    Segmento segActivo = new SegmentoDao().obtenerSegmento(idSegmentoEdit);
+                    if (segActivo != null && "Fuera de servicio".equals(segActivo.getEstado())) {
+                        response.sendRedirect(request.getContextPath() + "/SolicitudesServlet?error=fueraServicio");
+                        break;
+                    }
                 }
 
                 if ("Provisionado".equalsIgnoreCase(estadoEdit) && idSegmentoEdit != null && idSegmentoEdit != 0) {

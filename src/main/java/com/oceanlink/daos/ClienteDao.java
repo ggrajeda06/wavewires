@@ -10,10 +10,11 @@ public class ClienteDao extends DaoBase {
     // Listar todos los clientes
     public ArrayList<Cliente> listarClientes() {
         ArrayList<Cliente> lista = new ArrayList<>();
+        // Verificamos si tiene servicios vinculados mediante un LEFT JOIN
         String sql = "SELECT c.*, COUNT(sv.idServicio) AS totalServicios "
                 + "FROM cliente c "
                 + "LEFT JOIN solicitudcapacidad sc ON c.idCliente = sc.idCliente "
-                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.fechaCaducidad >= CURDATE() "
+                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.estado = 'Activo' "
                 + "GROUP BY c.idCliente "
                 + "ORDER BY c.idCliente ASC";
 
@@ -27,7 +28,10 @@ public class ClienteDao extends DaoBase {
                 c.setIdentificador(rs.getString("identificador"));
                 c.setFechaRegistro(rs.getDate("fechaRegistro"));
                 c.setRazonSocial(rs.getString("razonSocial"));
+                c.setRuc(rs.getString("ruc"));
+                c.setCorreo(rs.getString("correo"));
 
+                // Si tiene al menos una solicitud/servicio es Activo, sino Inactivo
                 int total = rs.getInt("totalServicios");
                 c.setEstado(total > 0 ? "Activo" : "Inactivo");
 
@@ -39,15 +43,15 @@ public class ClienteDao extends DaoBase {
         return lista;
     }
 
-    // Buscar por cliente o razon social
+    // Buscar por cliente o razón social
     public ArrayList<Cliente> buscarClientes(String texto) {
         ArrayList<Cliente> lista = new ArrayList<>();
         String sql = "SELECT c.*, COUNT(sv.idServicio) AS totalServicios "
                 + "FROM cliente c "
                 + "LEFT JOIN solicitudcapacidad sc ON c.idCliente = sc.idCliente "
-                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.fechaCaducidad >= CURDATE() "
+                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.estado = 'Activo' "
                 + "GROUP BY c.idCliente, c.identificador, c.razonSocial "
-                + "HAVING c.identificador LIKE ? OR c.razonSocial LIKE ? "
+                + "HAVING c.identificador LIKE ? OR c.razonSocial LIKE ? OR c.ruc LIKE ? "
                 + "   OR (IF(COUNT(sv.idServicio) > 0, 'Activo', 'Inactivo')) LIKE ? "
                 + "ORDER BY c.idCliente ASC";
 
@@ -58,6 +62,7 @@ public class ClienteDao extends DaoBase {
             pstmt.setString(1, comodin);
             pstmt.setString(2, comodin);
             pstmt.setString(3, comodin);
+            pstmt.setString(4, comodin);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -66,6 +71,8 @@ public class ClienteDao extends DaoBase {
                     c.setIdentificador(rs.getString("identificador"));
                     c.setFechaRegistro(rs.getDate("fechaRegistro"));
                     c.setRazonSocial(rs.getString("razonSocial"));
+                    c.setRuc(rs.getString("ruc"));
+                    c.setCorreo(rs.getString("correo"));
 
                     int total = rs.getInt("totalServicios");
                     c.setEstado(total > 0 ? "Activo" : "Inactivo");
@@ -79,13 +86,13 @@ public class ClienteDao extends DaoBase {
         return lista;
     }
 
-    // Obtener cliente por id
+    // Obtener cliente por su ID
     public Cliente obtenerCliente(int idCliente) {
         Cliente c = null;
         String sql = "SELECT c.*, COUNT(sv.idServicio) AS totalServicios "
                 + "FROM cliente c "
                 + "LEFT JOIN solicitudcapacidad sc ON c.idCliente = sc.idCliente "
-                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.fechaCaducidad >= CURDATE() "
+                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.estado = 'Activo' "
                 + "WHERE c.idCliente = ? "
                 + "GROUP BY c.idCliente";
 
@@ -101,6 +108,8 @@ public class ClienteDao extends DaoBase {
                     c.setIdentificador(rs.getString("identificador"));
                     c.setFechaRegistro(rs.getDate("fechaRegistro"));
                     c.setRazonSocial(rs.getString("razonSocial"));
+                    c.setRuc(rs.getString("ruc"));
+                    c.setCorreo(rs.getString("correo"));
 
                     int total = rs.getInt("totalServicios");
                     c.setEstado(total > 0 ? "Activo" : "Inactivo");
@@ -112,11 +121,12 @@ public class ClienteDao extends DaoBase {
         return c;
     }
 
-    // Registrar cliente
-    public void registrarCliente(String razonSocial) {
+    // Registrar cliente (Para el modal "Registrar Cliente")
+    public void registrarCliente(String razonSocial, String ruc, String correo) {
         String sqlIdentificador = "SELECT COALESCE(MAX(idCliente), 0) + 1 AS siguiente FROM cliente";
-        String sqlInsert = "INSERT INTO cliente (identificador, fechaRegistro, razonSocial, estado) "
-                + "VALUES (?, CURDATE(), ?, 'Inactivo')";
+        // nace como Inactivo porque recien se crea y no tiene servicios
+        String sqlInsert = "INSERT INTO cliente (identificador, fechaRegistro, razonSocial, estado, ruc, correo) "
+                + "VALUES (?, CURDATE(), ?, 'Inactivo', ?, ?)";
 
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
@@ -132,6 +142,8 @@ public class ClienteDao extends DaoBase {
             try (PreparedStatement pstmt = conn.prepareStatement(sqlInsert)) {
                 pstmt.setString(1, identificador);
                 pstmt.setString(2, razonSocial);
+                pstmt.setString(3, ruc);
+                pstmt.setString(4, correo);
                 pstmt.executeUpdate();
             }
 
@@ -140,28 +152,58 @@ public class ClienteDao extends DaoBase {
         }
     }
 
-    // Eliminar cliente
-    public void borrarCliente(int idCliente) {
-        String sqlServicios = "DELETE FROM servicio WHERE idSolicitudCapacidad IN "
-                + "(SELECT idSolicitudCapacidad FROM solicitudcapacidad WHERE idCliente = ?)";
-        String sqlSolicitudes = "DELETE FROM solicitudcapacidad WHERE idCliente = ?";
-        String sqlCliente = "DELETE FROM cliente WHERE idCliente = ?";
+    public void actualizarCliente(int idCliente, String razonSocial, String ruc, String correo) {
+        String sql = "UPDATE cliente SET razonSocial = ?, ruc = ?, correo = ? WHERE idCliente = ?";
 
-        try (Connection conn = getConnection()) {
-            try (PreparedStatement pstmt1 = conn.prepareStatement(sqlServicios)) {
-                pstmt1.setInt(1, idCliente);
-                pstmt1.executeUpdate();
-            }
-            try (PreparedStatement pstmt2 = conn.prepareStatement(sqlSolicitudes)) {
-                pstmt2.setInt(1, idCliente);
-                pstmt2.executeUpdate();
-            }
-            try (PreparedStatement pstmt3 = conn.prepareStatement(sqlCliente)) {
-                pstmt3.setInt(1, idCliente);
-                pstmt3.executeUpdate();
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, razonSocial);
+            pstmt.setString(2, ruc);
+            pstmt.setString(3, correo);
+            pstmt.setInt(4, idCliente);
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // true si otro cliente ya tiene ese RUC (idExcluir = el que se esta editando, 0 al crear)
+    public boolean existeRuc(String ruc, int idExcluir) {
+        boolean existe = false;
+        String sql = "SELECT COUNT(*) FROM cliente WHERE ruc = ? AND idCliente <> ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, ruc);
+            pstmt.setInt(2, idExcluir);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    existe = rs.getInt(1) > 0;
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return existe;
+    }
+
+    // si el cliente tiene solicitudes la llave foranea no deja borrarlo y devuelve false
+    public boolean borrarCliente(int idCliente) {
+        boolean borrado = false;
+        String sql = "DELETE FROM cliente WHERE idCliente = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, idCliente);
+            borrado = pstmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return borrado;
     }
 }

@@ -104,4 +104,31 @@ public class LandingStationDao extends DaoBase {
 
         return borrado;
     }
+
+    // con un mantenimiento activo la landing pasa a En mantenimiento; al terminar vuelve a Operativa
+    public void recalcularEstado(int idLandingStation) {
+        String sqlContar = "SELECT COUNT(*) FROM mantenimiento WHERE idLandingStation = ? AND estado = 'Activo'";
+        String sqlMantenimiento = "UPDATE landingstation SET estado = 'En mantenimiento' WHERE idLandingStation = ?";
+        String sqlOperativa = "UPDATE landingstation SET estado = 'Operativa' WHERE idLandingStation = ? AND estado = 'En mantenimiento'";
+
+        try (Connection conn = this.getConnection();
+             PreparedStatement pstmtContar = conn.prepareStatement(sqlContar)) {
+
+            pstmtContar.setInt(1, idLandingStation);
+            int activos = 0;
+            try (ResultSet rs = pstmtContar.executeQuery()) {
+                if (rs.next()) {
+                    activos = rs.getInt(1);
+                }
+            }
+
+            String sql = activos > 0 ? sqlMantenimiento : sqlOperativa;
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, idLandingStation);
+                pstmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

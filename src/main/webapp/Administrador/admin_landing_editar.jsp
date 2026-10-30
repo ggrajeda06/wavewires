@@ -15,6 +15,14 @@
       <a href="<%=request.getContextPath()%>/LandingStationServlet" class="btn btn-sm btn-outline-secondary">×</a>
     </div>
 
+    <% if ("vacio".equals(request.getParameter("error"))) { %>
+    <div class="alert alert-danger w-50">Completa el nombre, el país y la ciudad.</div>
+    <% } else if ("largo".equals(request.getParameter("error"))) { %>
+    <div class="alert alert-danger w-50">Cada campo puede tener como máximo 100 caracteres.</div>
+    <% } else if ("estado".equals(request.getParameter("error"))) { %>
+    <div class="alert alert-danger w-50">Elige un estado válido.</div>
+    <% } %>
+
     <form class="card p-4 w-50" method="POST" action="<%=request.getContextPath()%>/LandingStationServlet?action=actualizar">
       <input type="hidden" name="id" value="<%=landing.getIdLandingStation()%>">
       <h6 class="mb-3">Datos</h6>
@@ -35,7 +43,7 @@
       <select class="form-select mb-4" id="estado" name="estado" required>
         <option value="Operativa" <%="Operativa".equals(landing.getEstado()) ? "selected" : ""%>>Operativa</option>
         <option value="Degradada" <%="Degradada".equals(landing.getEstado()) ? "selected" : ""%>>Degradada</option>
-        <option value="Mantenimiento" <%="Mantenimiento".equals(landing.getEstado()) ? "selected" : ""%>>Mantenimiento</option>
+        <option value="En mantenimiento" <%="En mantenimiento".equals(landing.getEstado()) ? "selected" : ""%>>En mantenimiento</option>
         <option value="Fuera de servicio" <%="Fuera de servicio".equals(landing.getEstado()) ? "selected" : ""%>>Fuera de servicio</option>
       </select>
 

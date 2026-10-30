@@ -37,7 +37,7 @@ public class LandingStationServlet extends HttpServlet {
                 view.forward(request, response);
                 break;
             case "editar":
-                int idLanding = Integer.parseInt(request.getParameter("id"));
+                int idLanding = numero(request.getParameter("id"));
                 LandingStation landing = landingStationDao.obtenerLandingStation(idLanding);
                 if (landing == null) {
                     response.sendRedirect(request.getContextPath() + "/LandingStationServlet");
@@ -48,7 +48,7 @@ public class LandingStationServlet extends HttpServlet {
                 }
                 break;
             case "verSegmentos":
-                int idVer = Integer.parseInt(request.getParameter("id"));
+                int idVer = numero(request.getParameter("id"));
                 LandingStation landingVer = landingStationDao.obtenerLandingStation(idVer);
                 if (landingVer == null) {
                     response.sendRedirect(request.getContextPath() + "/LandingStationServlet");
@@ -61,7 +61,7 @@ public class LandingStationServlet extends HttpServlet {
                 }
                 break;
             case "borrar":
-                int idBorrar = Integer.parseInt(request.getParameter("id"));
+                int idBorrar = numero(request.getParameter("id"));
                 if (landingStationDao.obtenerLandingStation(idBorrar) == null) {
                     response.sendRedirect(request.getContextPath() + "/LandingStationServlet");
                 } else if (landingStationDao.borrarLandingStation(idBorrar)) {
@@ -69,6 +69,9 @@ public class LandingStationServlet extends HttpServlet {
                 } else {
                     response.sendRedirect(request.getContextPath() + "/LandingStationServlet?error=noBorrado");
                 }
+                break;
+            default:
+                response.sendRedirect(request.getContextPath() + "/LandingStationServlet");
                 break;
         }
     }
@@ -82,24 +85,58 @@ public class LandingStationServlet extends HttpServlet {
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         LandingStationDao landingStationDao = new LandingStationDao();
 
+        String nombre = texto(request.getParameter("nombre"));
+        String pais = texto(request.getParameter("pais"));
+        String ciudad = texto(request.getParameter("ciudad"));
+        String estado = texto(request.getParameter("estado"));
+
+        String error = null;
+        if (nombre.isEmpty() || pais.isEmpty() || ciudad.isEmpty()) {
+            error = "vacio";
+        } else if (nombre.length() > 100 || pais.length() > 100 || ciudad.length() > 100) {
+            error = "largo";
+        } else if (!estado.equals("Operativa") && !estado.equals("Degradada")
+                && !estado.equals("En mantenimiento") && !estado.equals("Fuera de servicio")) {
+            error = "estado";
+        }
+
         switch (action) {
             case "crear":
-                String nombre = request.getParameter("nombre");
-                String pais = request.getParameter("pais");
-                String ciudad = request.getParameter("ciudad");
-                String estado = request.getParameter("estado");
+                if (error != null) {
+                    response.sendRedirect(request.getContextPath() + "/LandingStationServlet?action=formCrear&error=" + error);
+                    break;
+                }
                 landingStationDao.crearLandingStation(nombre, pais, ciudad, estado);
                 response.sendRedirect(request.getContextPath() + "/LandingStationServlet");
                 break;
             case "actualizar":
-                int idLanding = Integer.parseInt(request.getParameter("id"));
-                String nombreEditado = request.getParameter("nombre");
-                String paisEditado = request.getParameter("pais");
-                String ciudadEditada = request.getParameter("ciudad");
-                String estadoEditado = request.getParameter("estado");
-                landingStationDao.actualizarLandingStation(idLanding, nombreEditado, paisEditado, ciudadEditada, estadoEditado);
+                int idLanding = numero(request.getParameter("id"));
+                if (landingStationDao.obtenerLandingStation(idLanding) == null) {
+                    response.sendRedirect(request.getContextPath() + "/LandingStationServlet");
+                    break;
+                }
+                if (error != null) {
+                    response.sendRedirect(request.getContextPath() + "/LandingStationServlet?action=editar&id=" + idLanding + "&error=" + error);
+                    break;
+                }
+                landingStationDao.actualizarLandingStation(idLanding, nombre, pais, ciudad, estado);
                 response.sendRedirect(request.getContextPath() + "/LandingStationServlet");
                 break;
+            default:
+                response.sendRedirect(request.getContextPath() + "/LandingStationServlet");
+                break;
+        }
+    }
+
+    private String texto(String valor) {
+        return valor == null ? "" : valor.trim();
+    }
+
+    private int numero(String valor) {
+        try {
+            return Integer.parseInt(valor);
+        } catch (NumberFormatException e) {
+            return 0;
         }
     }
 }

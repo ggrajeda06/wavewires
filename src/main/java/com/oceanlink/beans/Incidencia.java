@@ -10,7 +10,8 @@ public class Incidencia {
     private String estado;
     private String observaciones;
     private Date fechaRegistro;
-    private int idLandingStation;
+    private Date fechaCierre;
+    private List<Integer> idsSegmentos;
     private List<Integer> idsServicios;
 
     public int getIdIncidencia() {
@@ -61,12 +62,20 @@ public class Incidencia {
         this.fechaRegistro = fechaRegistro;
     }
 
-    public int getIdLandingStation() {
-        return idLandingStation;
+    public Date getFechaCierre() {
+        return fechaCierre;
     }
 
-    public void setIdLandingStation(int idLandingStation) {
-        this.idLandingStation = idLandingStation;
+    public void setFechaCierre(Date fechaCierre) {
+        this.fechaCierre = fechaCierre;
+    }
+
+    public List<Integer> getIdsSegmentos() {
+        return idsSegmentos;
+    }
+
+    public void setIdsSegmentos(List<Integer> idsSegmentos) {
+        this.idsSegmentos = idsSegmentos;
     }
 
     public List<Integer> getIdsServicios() {

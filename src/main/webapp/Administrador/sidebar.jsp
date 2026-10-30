@@ -12,7 +12,7 @@
 
   <div class="sidebar-section-label text-uppercase mb-2 px-2">Administrator</div>
   <nav class="nav flex-column mb-auto">
-    <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/Administrador/admin_resumen.jsp">
+    <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/ResumenServlet">
       Resumen
     </a>
     <a class="nav-link sidebar-link mb-1 d-flex align-items-center" href="<%=request.getContextPath()%>/UsuarioServlet">
