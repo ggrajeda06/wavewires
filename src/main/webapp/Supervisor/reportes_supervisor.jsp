@@ -13,14 +13,17 @@
     <jsp:include page="sidebarSupervisor.jsp"/>
     <main class="flex-grow-1 p-3 p-lg-4 w-100">
         <a class="btn btn-outline-secondary btn-sm mb-3"
-           href="${pageContext.request.contextPath}/Supervisor/supervisor_home.jsp">&larr; Volver al inicio</a>
+           href="${pageContext.request.contextPath}/SupervisorServlet">&larr; Volver al inicio</a>
         <h1 class="h3 fw-bold mb-1">Reportes</h1>
-        <p class="text-secondary mb-4">Marca las columnas que quieres reportar y genera un archivo CSV.</p>
+        <p class="text-secondary mb-4">Marca las columnas que quieres reportar y genera un archivo PDF.</p>
+        <% if ("columnas".equals(request.getParameter("error"))) { %>
+          <div class="alert alert-danger">Marca al menos una columna para generar el reporte.</div>
+        <% } %>
 
         <!-- Mantenimientos -->
         <section class="card shadow-sm mb-4">
             <div class="card-body p-3 p-lg-4">
-                <form method="post" action="#">
+                <form method="post" action="<%=request.getContextPath()%>/SupervisorServlet?action=pdf">
                     <input type="hidden" name="tipo" value="mantenimientos">
                     <h2 class="h5 mb-3">Mantenimientos</h2>
                     <div class="row g-2 mb-3">
@@ -46,7 +49,7 @@
                             </select>
                         </div>
                         <div class="col-12 col-md-3 ms-md-auto d-grid">
-                            <button type="submit" class="btn btn-primary">Generar CSV</button>
+                            <button type="submit" class="btn btn-primary">Generar PDF</button>
                         </div>
                     </div>
                 </form>
@@ -56,12 +59,12 @@
         <!-- Incidencias -->
         <section class="card shadow-sm mb-4">
             <div class="card-body p-3 p-lg-4">
-                <form method="post" action="#">
+                <form method="post" action="<%=request.getContextPath()%>/SupervisorServlet?action=pdf">
                     <input type="hidden" name="tipo" value="incidencias">
                     <h2 class="h5 mb-3">Incidencias</h2>
                     <div class="row g-2 mb-3">
                         <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Incidencia" id="inc1" checked><label class="form-check-label" for="inc1">Incidencia</label></div></div>
-                        <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Landing afectada" id="inc2" checked><label class="form-check-label" for="inc2">Landing afectada</label></div></div>
+                        <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Landings afectadas" id="inc2" checked><label class="form-check-label" for="inc2">Landings afectadas</label></div></div>
                         <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Observaciones" id="inc3" checked><label class="form-check-label" for="inc3">Observaciones</label></div></div>
                         <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Segmentos afectados" id="inc4" checked><label class="form-check-label" for="inc4">Segmentos afectados</label></div></div>
                         <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Estado" id="inc5" checked><label class="form-check-label" for="inc5">Estado</label></div></div>
@@ -74,13 +77,16 @@
                             <label class="form-label" for="estadoInc">Estado</label>
                             <select class="form-select" id="estadoInc" name="estado">
                                 <option value="" selected>Todos</option>
-                                <option>Abierta</option>
-                                <option>En proceso</option>
-                                <option>Resuelta</option>
+                                <option>Detectada</option>
+                                <option>En análisis</option>
+                                <option>Reparación programada</option>
+                                <option>En reparación</option>
+                                <option>Servicio restaurado</option>
+                                <option>Cerrada</option>
                             </select>
                         </div>
                         <div class="col-12 col-md-3 ms-md-auto d-grid">
-                            <button type="submit" class="btn btn-primary">Generar CSV</button>
+                            <button type="submit" class="btn btn-primary">Generar PDF</button>
                         </div>
                     </div>
                 </form>
@@ -90,7 +96,7 @@
         <!-- Segmentos -->
         <section class="card shadow-sm mb-4">
             <div class="card-body p-3 p-lg-4">
-                <form method="post" action="#">
+                <form method="post" action="<%=request.getContextPath()%>/SupervisorServlet?action=pdf">
                     <input type="hidden" name="tipo" value="segmentos">
                     <h2 class="h5 mb-3">Segmentos</h2>
                     <div class="row g-2 mb-3">
@@ -112,12 +118,12 @@
                                 <option value="" selected>Todos</option>
                                 <option>Operativo</option>
                                 <option>Degradado</option>
-                                <option>Mantenimiento</option>
+                                <option>En mantenimiento</option>
                                 <option>Fuera de servicio</option>
                             </select>
                         </div>
                         <div class="col-12 col-md-3 ms-md-auto d-grid">
-                            <button type="submit" class="btn btn-primary">Generar CSV</button>
+                            <button type="submit" class="btn btn-primary">Generar PDF</button>
                         </div>
                     </div>
                 </form>
@@ -127,7 +133,7 @@
         <!-- Landing Stations -->
         <section class="card shadow-sm mb-4">
             <div class="card-body p-3 p-lg-4">
-                <form method="post" action="#">
+                <form method="post" action="<%=request.getContextPath()%>/SupervisorServlet?action=pdf">
                     <input type="hidden" name="tipo" value="landings">
                     <h2 class="h5 mb-3">Landing Stations</h2>
                     <div class="row g-2 mb-3">
@@ -146,12 +152,12 @@
                                 <option value="" selected>Todos</option>
                                 <option>Operativa</option>
                                 <option>Degradada</option>
-                                <option>Mantenimiento</option>
+                                <option>En mantenimiento</option>
                                 <option>Fuera de servicio</option>
                             </select>
                         </div>
                         <div class="col-12 col-md-3 ms-md-auto d-grid">
-                            <button type="submit" class="btn btn-primary">Generar CSV</button>
+                            <button type="submit" class="btn btn-primary">Generar PDF</button>
                         </div>
                     </div>
                 </form>
@@ -161,7 +167,7 @@
         <!-- Servicios -->
         <section class="card shadow-sm mb-4">
             <div class="card-body p-3 p-lg-4">
-                <form method="post" action="#">
+                <form method="post" action="<%=request.getContextPath()%>/SupervisorServlet?action=pdf">
                     <input type="hidden" name="tipo" value="servicios">
                     <h2 class="h5 mb-3">Servicios</h2>
                     <div class="row g-2 mb-3">
@@ -183,7 +189,7 @@
                             </select>
                         </div>
                         <div class="col-12 col-md-3 ms-md-auto d-grid">
-                            <button type="submit" class="btn btn-primary">Generar CSV</button>
+                            <button type="submit" class="btn btn-primary">Generar PDF</button>
                         </div>
                     </div>
                 </form>
@@ -193,7 +199,7 @@
         <!-- Clientes -->
         <section class="card shadow-sm mb-4">
             <div class="card-body p-3 p-lg-4">
-                <form method="post" action="#">
+                <form method="post" action="<%=request.getContextPath()%>/SupervisorServlet?action=pdf">
                     <input type="hidden" name="tipo" value="clientes">
                     <h2 class="h5 mb-3">Clientes</h2>
                     <div class="row g-2 mb-3">
@@ -214,7 +220,7 @@
                             </select>
                         </div>
                         <div class="col-12 col-md-3 ms-md-auto d-grid">
-                            <button type="submit" class="btn btn-primary">Generar CSV</button>
+                            <button type="submit" class="btn btn-primary">Generar PDF</button>
                         </div>
                     </div>
                 </form>
