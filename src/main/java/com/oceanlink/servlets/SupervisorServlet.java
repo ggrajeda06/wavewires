@@ -115,7 +115,7 @@ public class SupervisorServlet extends HttpServlet {
 
             case "incidencias":
                 ArrayList<Segmento> segmentosInc = new SegmentoDao().listarSegmentos();
-                filas = filasIncidencias(new IncidenciaDao().listarIncidencias(false, "", "", 0, "1900-01-01", "2999-12-31"),
+                filas = filasIncidencias(new IncidenciaDao().listarIncidencias(false),
                         mapaSegmentos(segmentosInc), mapaServicios(new ServicioDao().listarServicios()));
                 titulo = "Incidencias";
                 break;
@@ -204,7 +204,7 @@ public class SupervisorServlet extends HttpServlet {
 
     private ArrayList<Incidencia> incidenciasActivas() {
         ArrayList<Incidencia> activas = new ArrayList<>();
-        for (Incidencia i : new IncidenciaDao().listarIncidencias(true, "", "", 0, "1900-01-01", "2999-12-31")) {
+        for (Incidencia i : new IncidenciaDao().listarIncidencias(true)) {
             if (!"Servicio restaurado".equals(i.getEstado()) && !"Cerrada".equals(i.getEstado())) {
                 activas.add(i);
             }
