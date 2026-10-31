@@ -45,8 +45,8 @@
         <option>Fuera de servicio</option>
       </select>
 
-      <a href="admin_segmentos.jsp" class="btn btn-secondary">Cancelar</a>
-      <a href="admin_segmentos.jsp" class="btn btn-primary">Guardar</a>
+      <a href="<%=request.getContextPath()%>/SegmentoServlet" class="btn btn-secondary">Cancelar</a>
+      <a href="<%=request.getContextPath()%>/SegmentoServlet" class="btn btn-primary">Guardar</a>
     </div>
   </main>
 </div>
