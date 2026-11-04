@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.oceanlink.beans.Servicio" %>
+<%@ page import="com.oceanlink.util.Html" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <jsp:useBean id="listaServicios" type="java.util.ArrayList<com.oceanlink.beans.Servicio>" scope="request" />
 <!DOCTYPE html>
@@ -22,13 +23,17 @@
       <small class="text-muted">Monitoreo de enlaces y capacidad en producción</small>
     </div>
 
+    <% if ("enUso".equals(request.getParameter("error"))) { %>
+    <div class="alert alert-danger">No se puede eliminar el servicio porque está registrado en una incidencia.</div>
+    <% } %>
+
     <div class="card shadow-sm border-0 p-3">
 
       <!-- Buscador de servicios -->
       <form method="GET" action="<%=request.getContextPath()%>/ServicioServlet" class="row mb-3">
         <div class="col-md-4">
           <input type="text" name="buscar" class="form-control" placeholder="Buscar servicio, cliente o segmento..."
-                 value="<%=request.getParameter("buscar") != null ? request.getParameter("buscar") : ""%>">
+                 value="<%=Html.esc(request.getParameter("buscar"))%>">
         </div>
       </form>
 
@@ -81,10 +86,7 @@
       </div>
 
       <!-- Paginacion -->
-      <div class="d-flex justify-content-end gap-2">
-        <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Anterior</button>
-        <button type="button" class="btn btn-outline-secondary btn-sm">Siguiente</button>
-      </div>
+      <jsp:include page="paginacion.jsp"><jsp:param name="servlet" value="ServicioServlet"/></jsp:include>
 
     </div>
   </main>

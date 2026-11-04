@@ -130,7 +130,7 @@ public class IncidenciaServlet extends HttpServlet {
                 String observacion = texto(request.getParameter("observaciones"));
                 String[] segmentosMarcados = request.getParameterValues("idSegmento");
 
-                if (severidad.isEmpty()) {
+                if (!severidadValida(severidad)) {
                     response.sendRedirect(request.getContextPath() + "/IncidenciaServlet?action=formCrear&error=severidad");
                 } else if (segmentosMarcados == null || convertirIds(segmentosMarcados).isEmpty()) {
                     response.sendRedirect(request.getContextPath() + "/IncidenciaServlet?action=formCrear&error=segmentos");
@@ -177,7 +177,7 @@ public class IncidenciaServlet extends HttpServlet {
                 boolean cambiaSegmentos = puedeCambiarSegmentos(actual);
                 String volver = request.getContextPath() + "/IncidenciaServlet?action=editar&id=" + idIncidencia;
 
-                if (severidadEdit.isEmpty()) {
+                if (!severidadValida(severidadEdit)) {
                     response.sendRedirect(volver + "&error=severidad");
                 } else if (cambiaSegmentos && (segmentosEdit == null || convertirIds(segmentosEdit).isEmpty())) {
                     response.sendRedirect(volver + "&error=segmentos");
@@ -222,6 +222,11 @@ public class IncidenciaServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/IncidenciaServlet");
                 break;
         }
+    }
+
+    private boolean severidadValida(String severidad) {
+        return severidad.equals("Baja") || severidad.equals("Media")
+                || severidad.equals("Alta") || severidad.equals("Crítica");
     }
 
     // estados que el Network Operator puede poner a mano; los demas los pone el mantenimiento correctivo

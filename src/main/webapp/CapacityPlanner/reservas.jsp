@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.oceanlink.beans.Segmento" %>
+<%@ page import="com.oceanlink.util.Html" %>
 <jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
 <!DOCTYPE html>
 <html lang="es">
@@ -35,7 +36,7 @@
         <form method="GET" action="<%=request.getContextPath()%>/ReservaServlet" class="row mb-4">
           <div class="col-md-5">
             <input type="text" name="buscar" class="form-control" placeholder="Buscar por segmento o ruta..."
-                   value="<%=request.getParameter("buscar") != null ? request.getParameter("buscar") : ""%>">
+                   value="<%=Html.esc(request.getParameter("buscar"))%>">
           </div>
         </form>
 
@@ -57,8 +58,8 @@
             </tr>
             <% } else { %>
               <% for (Segmento s : listaSegmentos) {
-                   int total = s.getCapacidadTotal() != null ? s.getCapacidadTotal().intValue() : 0;
-                   int reservada = s.getCapacidadReservada() != null ? s.getCapacidadReservada().intValue() : 0;
+                   String total = s.getCapacidadTotal().stripTrailingZeros().toPlainString();
+                   String reservada = s.getCapacidadReservada().stripTrailingZeros().toPlainString();
                    String ruta = s.getNombreOrigen() + " - " + s.getNombreDestino();
               %>
               <tr>
@@ -79,9 +80,8 @@
         </div>
 
         <!-- Paginación -->
-        <div class="d-flex justify-content-end gap-2 pt-2 border-top">
-          <button type="button" class="btn btn-outline-secondary btn-sm px-3" disabled>Anterior</button>
-          <button type="button" class="btn btn-outline-secondary btn-sm px-3">Siguiente</button>
+        <div class="pt-2 border-top">
+          <jsp:include page="paginacion.jsp"><jsp:param name="servlet" value="ReservaServlet"/></jsp:include>
         </div>
 
       </div>
@@ -112,7 +112,7 @@
             <label class="form-label small fw-semibold mb-1">Capacidad reservada (Gbps)</label>
             <div class="input-group input-group-sm">
               <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidad(-10)"><i class="bi bi-dash-lg"></i></button>
-              <input type="number" name="capacidadReservada" id="modificarCantidad" class="form-control text-center fw-bold" min="0" required>
+              <input type="number" name="capacidadReservada" id="modificarCantidad" class="form-control text-center fw-bold" min="0" step="0.01" required>
               <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidad(10)"><i class="bi bi-plus-lg"></i></button>
             </div>
           </div>
@@ -141,7 +141,7 @@ function abrirModalModificar(id, limite, actual) {
 
 function cambiarCantidad(delta) {
   let input = document.getElementById('modificarCantidad');
-  let val = parseInt(input.value) || 0;
+  let val = parseFloat(input.value) || 0;
   val = Math.max(0, val + delta);
   input.value = val;
 }

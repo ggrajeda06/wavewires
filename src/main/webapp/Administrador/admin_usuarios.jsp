@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="com.oceanlink.beans.Usuario" %>
 <%@ page import="com.oceanlink.beans.Rol" %>
+<%@ page import="com.oceanlink.util.Html" %>
 <jsp:useBean id="lista" type="java.util.ArrayList<com.oceanlink.beans.Usuario>" scope="request" />
 <jsp:useBean id="listaRoles" type="java.util.ArrayList<com.oceanlink.beans.Rol>" scope="request" />
 <%
@@ -150,12 +151,12 @@
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Nombre</label>
-            <input type="text" name="nombre" class="form-control" maxlength="100" value="<%=u.getNombre()%>" required>
+            <input type="text" name="nombre" class="form-control" maxlength="100" value="<%=Html.esc(u.getNombre())%>" required>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Correo</label>
-            <input type="email" name="correo" class="form-control" maxlength="100" value="<%=u.getCorreo()%>" required>
+            <input type="email" name="correo" class="form-control" maxlength="100" value="<%=Html.esc(u.getCorreo())%>" required>
           </div>
 
           <div class="mb-3">

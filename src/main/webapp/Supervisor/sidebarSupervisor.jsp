@@ -19,8 +19,8 @@
     <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="${pageContext.request.contextPath}/SupervisorServlet?action=reportes">
       Reportes
     </a>
-    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="${pageContext.request.contextPath}/Supervisor/historial_reportes.jsp">
-      Historial de reportes
+    <a class="nav-link sidebar-link  mb-1 d-flex align-items-center" href="${pageContext.request.contextPath}/SupervisorServlet?action=indicadores">
+      Indicadores históricos
     </a>
   </nav>
 

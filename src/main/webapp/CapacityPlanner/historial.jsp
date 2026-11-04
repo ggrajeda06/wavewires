@@ -2,6 +2,7 @@
 <%@ page import="com.oceanlink.beans.Segmento" %>
 <%@ page import="com.oceanlink.beans.Servicio" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="com.oceanlink.util.Html" %>
 <jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
 <jsp:useBean id="listaServiciosCaducados" type="java.util.ArrayList<com.oceanlink.beans.Servicio>" scope="request" />
 <!DOCTYPE html>
@@ -27,13 +28,17 @@
       </div>
     </div>
 
+    <% if ("enUso".equals(request.getParameter("error"))) { %>
+    <div class="alert alert-danger">No se puede eliminar el servicio porque está registrado en una incidencia.</div>
+    <% } %>
+
     <div class="card shadow-sm border-0 p-3">
 
       <!-- Buscador -->
       <form method="GET" action="<%=request.getContextPath()%>/HistorialServlet" class="row mb-3">
         <div class="col-md-4">
           <input type="text" name="buscar" class="form-control" placeholder="Buscar segmento o ruta..."
-                 value="<%=request.getParameter("buscar") != null ? request.getParameter("buscar") : ""%>">
+                 value="<%=Html.esc(request.getParameter("buscar"))%>">
         </div>
       </form>
 
@@ -81,10 +86,7 @@
       </div>
 
       <!-- Paginacion -->
-      <div class="d-flex justify-content-end gap-2">
-        <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Anterior</button>
-        <button type="button" class="btn btn-outline-secondary btn-sm">Siguiente</button>
-      </div>
+      <jsp:include page="paginacion.jsp"><jsp:param name="servlet" value="HistorialServlet"/></jsp:include>
 
     </div>
   </main>

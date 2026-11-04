@@ -1,7 +1,9 @@
 package com.oceanlink.servlets;
 
+import com.oceanlink.beans.Cliente;
 import com.oceanlink.daos.ClienteDao;
 import com.oceanlink.daos.ServicioDao;
+import com.oceanlink.util.Listas;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -10,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 @WebServlet(name = "ClienteServlet", value = "/ClienteServlet")
 public class ClienteServlet extends HttpServlet {
@@ -25,7 +28,14 @@ public class ClienteServlet extends HttpServlet {
 
         switch (action) {
             case "lista":
-                request.setAttribute("listaClientes", clienteDao.listarClientes());
+                String buscar = request.getParameter("buscar");
+                ArrayList<Cliente> clientes = new ArrayList<>();
+                for (Cliente c : clienteDao.listarClientes()) {
+                    if (Listas.coincide(buscar, c.getIdentificador(), c.getRazonSocial(), c.getRuc(), c.getCorreo())) {
+                        clientes.add(c);
+                    }
+                }
+                request.setAttribute("listaClientes", clientes);
                 request.setAttribute("listaServicios", servicioDao.listarServicios());
                 view = request.getRequestDispatcher("CapacityPlanner/clientes.jsp");
                 view.forward(request, response);

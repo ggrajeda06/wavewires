@@ -2,6 +2,7 @@
 <%@ page import="com.oceanlink.beans.LandingStation" %>
 <%@ page import="com.oceanlink.beans.Segmento" %>
 <%@ page import="com.oceanlink.beans.Incidencia" %>
+<%@ page import="com.oceanlink.util.Html" %>
 <jsp:useBean id="mantenimiento" type="com.oceanlink.beans.Mantenimiento" scope="request" />
 <jsp:useBean id="estadosPermitidos" type="java.util.ArrayList<java.lang.String>" scope="request" />
 <jsp:useBean id="listaLandings" type="java.util.ArrayList<com.oceanlink.beans.LandingStation>" scope="request" />
@@ -53,18 +54,18 @@
           <div class="col-md-6">
             <div class="mb-3">
               <label for="nombreId" class="form-label fw-semibold">Name(ID)</label>
-              <input type="text" class="form-control" id="nombreId" name="nombreId" maxlength="45" value="<%=nombreVal%>" required>
+              <input type="text" class="form-control" id="nombreId" name="nombreId" maxlength="45" value="<%=Html.esc(nombreVal)%>" required>
             </div>
 
             <div class="mb-3">
               <label for="descripcion" class="form-label fw-semibold">Descripción</label>
-              <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required><%=descripcionVal%></textarea>
+              <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required><%=Html.esc(descripcionVal)%></textarea>
             </div>
 
             <div class="mb-3">
               <label for="fecha" class="form-label fw-semibold">Fecha programada</label>
               <% if (pendiente) { %>
-              <input type="date" class="form-control" id="fecha" name="fecha" value="<%=fechaVal%>" required>
+              <input type="date" class="form-control" id="fecha" name="fecha" value="<%=Html.esc(fechaVal)%>" required>
               <% } else { %>
               <div class="form-control bg-light"><%=mantenimiento.getFechaRegistrada()%></div>
               <% } %>
@@ -73,7 +74,7 @@
             <div class="mb-3">
               <label for="duracion" class="form-label fw-semibold">Duración estimada (horas)</label>
               <% if (pendiente) { %>
-              <input type="number" class="form-control" id="duracion" name="duracion" min="1" value="<%=duracionVal%>" required>
+              <input type="number" class="form-control" id="duracion" name="duracion" min="1" value="<%=Html.esc(duracionVal)%>" required>
               <% } else { %>
               <div class="form-control bg-light"><%=mantenimiento.getDuracionHoras()%> horas</div>
               <% } %>
@@ -164,7 +165,7 @@
           <div class="col-12">
             <div class="mb-3">
               <label for="actividades" class="form-label fw-semibold">Actividades realizadas (resultado)</label>
-              <textarea class="form-control" id="actividades" name="actividades" rows="4" placeholder="Describa las actividades realizadas durante el mantenimiento..."><%=actividadesVal%></textarea>
+              <textarea class="form-control" id="actividades" name="actividades" rows="4" placeholder="Describa las actividades realizadas durante el mantenimiento..."><%=Html.esc(actividadesVal)%></textarea>
             </div>
           </div>
 
