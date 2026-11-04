@@ -9,6 +9,7 @@ public class Servicio {
     private String identificador;
     private BigDecimal capacidad;
     private String estado;
+    private Date fechaActivacion;
     private Date fechaCaducidad;
     private int idSegmento;
     private int idSolicitudCapacidad;
@@ -45,6 +46,14 @@ public class Servicio {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public Date getFechaActivacion() {
+        return fechaActivacion;
+    }
+
+    public void setFechaActivacion(Date fechaActivacion) {
+        this.fechaActivacion = fechaActivacion;
     }
 
     public Date getFechaCaducidad() {

@@ -2,6 +2,7 @@ package com.oceanlink.servlets;
 
 import com.oceanlink.beans.Segmento;
 import com.oceanlink.daos.SegmentoDao;
+import com.oceanlink.util.Listas;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 @WebServlet(name = "ReservaServlet", value = "/ReservaServlet")
 public class ReservaServlet extends HttpServlet {
@@ -20,7 +22,14 @@ public class ReservaServlet extends HttpServlet {
             throws ServletException, IOException {
 
         SegmentoDao segmentoDao = new SegmentoDao();
-        request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
+        String buscar = request.getParameter("buscar");
+        ArrayList<Segmento> segmentos = new ArrayList<>();
+        for (Segmento s : segmentoDao.listarSegmentos()) {
+            if (Listas.coincide(buscar, "Segmento " + s.getIdSegmento(), s.getNombreOrigen(), s.getNombreDestino())) {
+                segmentos.add(s);
+            }
+        }
+        request.setAttribute("listaSegmentos", Listas.paginar(request, segmentos));
         RequestDispatcher view = request.getRequestDispatcher("CapacityPlanner/reservas.jsp");
         view.forward(request, response);
     }

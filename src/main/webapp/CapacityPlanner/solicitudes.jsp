@@ -2,6 +2,8 @@
 <%@ page import="com.oceanlink.beans.Solicitudes" %>
 <%@ page import="com.oceanlink.beans.Cliente" %>
 <%@ page import="com.oceanlink.beans.Segmento" %>
+<%@ page import="com.oceanlink.util.Html" %>
+<%@ page import="java.math.BigDecimal" %>
 <jsp:useBean id="listaSolicitudes" type="java.util.ArrayList<com.oceanlink.beans.Solicitudes>" scope="request" />
 <jsp:useBean id="listaClientes" type="java.util.ArrayList<com.oceanlink.beans.Cliente>" scope="request" />
 <jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
@@ -31,6 +33,42 @@
       </button>
     </div>
 
+    <% if ("datos".equals(request.getParameter("error"))) { %>
+      <div class="alert alert-danger mb-3" role="alert">
+        Revisa los datos: cliente, capacidad mayor que 0, origen y destino (máximo 100 caracteres), duración de 1 a 120 meses y observaciones (máximo 255 caracteres).
+      </div>
+    <% } %>
+
+    <% if ("estado".equals(request.getParameter("error"))) { %>
+      <div class="alert alert-danger mb-3" role="alert">
+        Ese cambio de estado no está permitido desde el estado actual de la solicitud.
+      </div>
+    <% } %>
+
+    <% if ("segmento".equals(request.getParameter("error"))) { %>
+      <div class="alert alert-danger mb-3" role="alert">
+        Asigna un segmento para poder aprobar, provisionar o activar la solicitud.
+      </div>
+    <% } %>
+
+    <% if ("capacidad".equals(request.getParameter("error"))) { %>
+      <div class="alert alert-danger mb-3" role="alert">
+        No se puede activar: la capacidad usada superaría la capacidad total del segmento.
+      </div>
+    <% } %>
+
+    <% if ("enUso".equals(request.getParameter("error"))) { %>
+      <div class="alert alert-danger mb-3" role="alert">
+        No se puede eliminar la solicitud porque ya tiene un servicio asociado.
+      </div>
+    <% } %>
+
+    <% if ("noGuardado".equals(request.getParameter("error"))) { %>
+      <div class="alert alert-danger mb-3" role="alert">
+        No se pudo guardar la solicitud. Si ya tiene un servicio asociado, no se puede volver a activar.
+      </div>
+    <% } %>
+
     <% if ("sinReserva".equals(request.getParameter("error"))) { %>
       <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
         No espacio reservado disponible
@@ -49,7 +87,7 @@
       <form method="GET" action="<%=request.getContextPath()%>/SolicitudesServlet" class="row mb-3">
         <div class="col-md-4">
           <input type="text" name="buscar" class="form-control" placeholder="Buscar solicitud o cliente..."
-                 value="<%=request.getParameter("buscar") != null ? request.getParameter("buscar") : ""%>">
+                 value="<%=Html.esc(request.getParameter("buscar"))%>">
         </div>
       </form>
 
@@ -110,9 +148,7 @@
                          break;
                      }
                  }
-                 String obsLimpias = s.getObservaciones() == null ? "" : s.getObservaciones().replace("'", "\\'");
-                 String origenLimpio = s.getOrigen() == null ? "" : s.getOrigen().replace("'", "\\'");
-                 String destinoLimpio = s.getDestino() == null ? "" : s.getDestino().replace("'", "\\'");
+                 String capacidadTexto = BigDecimal.valueOf(s.getCapacidad()).stripTrailingZeros().toPlainString();
             %>
             <tr>
               <td class="fw-medium">Solicitud <%=s.getIdSolicitudCapacidad()%></td>
@@ -123,12 +159,16 @@
               <td class="<%= (s.getIdSegmento() == null || s.getIdSegmento() == 0) ? "text-muted" : "" %>">
                 <%=textoSegmento%>
               </td>
-              <td><%= (int) s.getCapacidad() %> Gbps</td>
+              <td><%=capacidadTexto%> Gbps</td>
               <td><%=ruta%></td>
               <td><%=s.getDuracionMeses()%> meses</td>
               <td class="text-center">
                 <button type="button" class="btn btn-outline-dark btn-sm px-3"
-                        onclick="abrirEditar('<%=s.getIdSolicitudCapacidad()%>', '<%=s.getIdCliente()%>', '<%= (int) s.getCapacidad() %>', '<%=origenLimpio%>', '<%=destinoLimpio%>', '<%=s.getEstado()%>', '<%=s.getIdSegmento() == null ? 0 : s.getIdSegmento()%>', '<%=s.getDuracionMeses()%>', '<%=obsLimpias%>')">
+                        data-id="<%=s.getIdSolicitudCapacidad()%>" data-cliente="<%=s.getIdCliente()%>" data-capacidad="<%=capacidadTexto%>"
+                        data-origen="<%=Html.esc(s.getOrigen())%>" data-destino="<%=Html.esc(s.getDestino())%>" data-estado="<%=s.getEstado()%>"
+                        data-segmento="<%=s.getIdSegmento() == null ? 0 : s.getIdSegmento()%>" data-duracion="<%=s.getDuracionMeses()%>"
+                        data-observaciones="<%=Html.esc(s.getObservaciones())%>"
+                        onclick="abrirEditar(this.dataset)">
                   Editar
                 </button>
               </td>
@@ -165,28 +205,28 @@
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Capacidad solicitada (Gbps)</label>
-            <input type="number" name="capacidad" class="form-control" placeholder="Ejm: 120" min="1" required>
+            <input type="number" name="capacidad" class="form-control" placeholder="Ejm: 120" min="1" step="0.01" required>
           </div>
 
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="form-label small fw-semibold">Origen</label>
-              <input type="text" name="origen" class="form-control" placeholder="Ejm: España" required>
+              <input type="text" name="origen" class="form-control" maxlength="100" placeholder="Ejm: España" required>
             </div>
             <div class="col-6">
               <label class="form-label small fw-semibold">Destino</label>
-              <input type="text" name="destino" class="form-control" placeholder="Ejm: Perú" required>
+              <input type="text" name="destino" class="form-control" maxlength="100" placeholder="Ejm: Perú" required>
             </div>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Duración (meses)</label>
-            <input type="number" name="duracionMeses" class="form-control" placeholder="Ejm: 5" min="1" required>
+            <input type="number" name="duracionMeses" class="form-control" placeholder="Ejm: 5" min="1" max="120" required>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Observaciones</label>
-            <textarea name="observaciones" class="form-control" rows="2" placeholder="(Opcional)"></textarea>
+            <textarea name="observaciones" class="form-control" rows="2" maxlength="255" placeholder="(Opcional)"></textarea>
           </div>
         </div>
 
@@ -224,17 +264,17 @@
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Capacidad solicitada (Gbps)</label>
-            <input type="number" name="capacidad" id="editCapacidad" class="form-control" min="1" required>
+            <input type="number" name="capacidad" id="editCapacidad" class="form-control" min="1" step="0.01" required>
           </div>
 
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="form-label small fw-semibold">Origen</label>
-              <input type="text" name="origen" id="editOrigen" class="form-control" placeholder="Ejm: España" required>
+              <input type="text" name="origen" id="editOrigen" class="form-control" maxlength="100" placeholder="Ejm: España" required>
             </div>
             <div class="col-6">
               <label class="form-label small fw-semibold">Destino</label>
-              <input type="text" name="destino" id="editDestino" class="form-control" placeholder="Ejm: Perú" required>
+              <input type="text" name="destino" id="editDestino" class="form-control" maxlength="100" placeholder="Ejm: Perú" required>
             </div>
           </div>
 
@@ -257,12 +297,12 @@
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Duración (meses)</label>
-            <input type="number" name="duracionMeses" id="editDuracion" class="form-control" min="1" required>
+            <input type="number" name="duracionMeses" id="editDuracion" class="form-control" min="1" max="120" required>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Observaciones</label>
-            <textarea name="observaciones" id="editObservaciones" class="form-control" rows="2"></textarea>
+            <textarea name="observaciones" id="editObservaciones" class="form-control" rows="2" maxlength="255"></textarea>
           </div>
         </div>
 
@@ -284,14 +324,18 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-function abrirEditar(id, idCliente, capacidad, origen, destino, estado, idSegmento, duracion, observaciones) {
+// los datos vienen de los atributos data-* del boton, asi las comillas y saltos de linea no rompen nada
+function abrirEditar(datos) {
+  let id = datos.id;
+  let estado = datos.estado;
+  let idSegmento = datos.segmento;
   document.getElementById('editId').value = id;
-  document.getElementById('editCliente').value = idCliente;
-  document.getElementById('editCapacidad').value = capacidad;
-  document.getElementById('editOrigen').value = origen;
-  document.getElementById('editDestino').value = destino;
-  document.getElementById('editDuracion').value = duracion;
-  document.getElementById('editObservaciones').value = observaciones;
+  document.getElementById('editCliente').value = datos.cliente;
+  document.getElementById('editCapacidad').value = datos.capacidad;
+  document.getElementById('editOrigen').value = datos.origen;
+  document.getElementById('editDestino').value = datos.destino;
+  document.getElementById('editDuracion').value = datos.duracion;
+  document.getElementById('editObservaciones').value = datos.observaciones;
 
   let selectEstado = document.getElementById('editEstado');
   let selectSegmento = document.getElementById('editSegmento');
