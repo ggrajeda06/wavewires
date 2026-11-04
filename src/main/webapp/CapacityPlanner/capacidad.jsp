@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.oceanlink.beans.Segmento" %>
+<%@ page import="com.oceanlink.util.Html" %>
 <jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
 <!DOCTYPE html>
 <html lang="es">
@@ -70,7 +71,7 @@
       <form method="GET" action="<%=request.getContextPath()%>/CapacidadServlet" class="row mb-3">
         <div class="col-md-4">
           <input type="text" name="buscar" class="form-control" placeholder="Buscar segmento, ruta o estado..."
-                 value="<%=request.getParameter("buscar") != null ? request.getParameter("buscar") : ""%>">
+                 value="<%=Html.esc(request.getParameter("buscar"))%>">
         </div>
       </form>
 

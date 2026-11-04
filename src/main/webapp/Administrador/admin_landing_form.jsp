@@ -20,6 +20,8 @@
     <div class="alert alert-danger w-50">Cada campo puede tener como máximo 100 caracteres.</div>
     <% } else if ("estado".equals(request.getParameter("error"))) { %>
     <div class="alert alert-danger w-50">Elige un estado válido.</div>
+    <% } else if ("nombreRepetido".equals(request.getParameter("error"))) { %>
+    <div class="alert alert-danger w-50">Ya existe una landing station con ese nombre.</div>
     <% } %>
 
     <form class="card p-4 w-50" method="POST" action="<%=request.getContextPath()%>/LandingStationServlet?action=crear">

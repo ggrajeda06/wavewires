@@ -12,8 +12,12 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.List;
+import java.util.function.Function;
 
 @WebServlet(name = "SupervisorServlet", value = "/SupervisorServlet")
 public class SupervisorServlet extends HttpServlet {
@@ -33,7 +37,14 @@ public class SupervisorServlet extends HttpServlet {
                 break;
 
             case "reportes":
+                cargarFiltros(request);
                 view = request.getRequestDispatcher("Supervisor/reportes_supervisor.jsp");
+                view.forward(request, response);
+                break;
+
+            case "indicadores":
+                cargarIndicadores(request);
+                view = request.getRequestDispatcher("Supervisor/indicadores_historicos.jsp");
                 view.forward(request, response);
                 break;
 
@@ -89,6 +100,84 @@ public class SupervisorServlet extends HttpServlet {
         request.setAttribute("filasSegmentos", filasSegmentos);
         request.setAttribute("filasIncidencias", filasIncidencias(incidencias, mapaSegmentos(segmentos), mapaServicios(servicios)));
         request.setAttribute("filasMantenimientos", filasMantenimientos(mantenimientos, landings, segmentos, servicios));
+
+        int operativos = 0;
+        for (Segmento s : segmentos) {
+            if ("Operativo".equals(s.getEstado())) {
+                operativos++;
+            }
+        }
+
+        int altaUtilizacion = 0;
+        for (LinkedHashMap<String, String> f : filasSegmentos) {
+            if (!"Normal".equals(f.get("Nivel"))) {
+                altaUtilizacion++;
+            }
+        }
+
+        HashMap<Integer, Servicio> mapaServicios = mapaServicios(servicios);
+        HashSet<Integer> serviciosAfectados = new HashSet<>();
+        HashSet<Integer> clientesAfectados = new HashSet<>();
+        for (Incidencia i : incidencias) {
+            for (Integer idServicio : ids(i.getIdsServicios())) {
+                Servicio sv = mapaServicios.get(idServicio);
+                if (sv != null) {
+                    serviciosAfectados.add(idServicio);
+                    clientesAfectados.add(sv.getIdCliente());
+                }
+            }
+        }
+
+        int programados = 0;
+        for (Mantenimiento m : mantenimientos) {
+            if ("Pendiente".equals(m.getEstado())) {
+                programados++;
+            }
+        }
+
+        ArrayList<LinkedHashMap<String, String>> filasClientes = filasClientes(new ClienteDao().listarClientes(), servicios);
+        filasClientes.sort(Comparator.comparingDouble(
+                (LinkedHashMap<String, String> f) -> Double.parseDouble(f.get("CapacidadValor"))).reversed());
+
+        request.setAttribute("utilizacionRed", porcentaje(usada, total));
+        request.setAttribute("segmentosOperativos", operativos);
+        request.setAttribute("segmentosNoOperativos", segmentos.size() - operativos);
+        request.setAttribute("segmentosAltaUtilizacion", altaUtilizacion);
+        request.setAttribute("incidenciasActivas", incidencias.size());
+        request.setAttribute("serviciosAfectados", serviciosAfectados.size());
+        request.setAttribute("clientesAfectados", clientesAfectados.size());
+        request.setAttribute("mantenimientosProgramados", programados);
+        request.setAttribute("filasCapacidadClientes", filasClientes);
+    }
+
+    // RF38: opciones de los desplegables de filtros
+    private void cargarFiltros(HttpServletRequest request) {
+        TreeSet<String> paises = new TreeSet<>();
+        for (LandingStation l : new LandingStationDao().listarLandingStations()) {
+            paises.add(l.getPais());
+        }
+        request.setAttribute("segmentos", new SegmentoDao().listarSegmentos());
+        request.setAttribute("clientes", new ClienteDao().listarClientes());
+        request.setAttribute("paises", paises);
+    }
+
+    // RF39: indicadores historicos por mes del anio elegido
+    private void cargarIndicadores(HttpServletRequest request) {
+        IndicadorDao indicadorDao = new IndicadorDao();
+        ArrayList<Integer> anios = indicadorDao.listarAnios();
+
+        int anio = LocalDate.now().getYear();
+        if (!anios.isEmpty() && !anios.contains(anio)) {
+            anio = anios.get(0);
+        }
+        int elegido = entero(request.getParameter("anio"));
+        if (anios.contains(elegido)) {
+            anio = elegido;
+        }
+
+        request.setAttribute("anios", anios);
+        request.setAttribute("anio", anio);
+        request.setAttribute("indicadores", indicadorDao.listarPorMes(anio));
     }
 
     private void generarPdf(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -101,12 +190,50 @@ public class SupervisorServlet extends HttpServlet {
             return;
         }
 
+        LocalDate desde;
+        LocalDate hasta;
+        try {
+            desde = fechaFiltro(request.getParameter("desde"));
+            hasta = fechaFiltro(request.getParameter("hasta"));
+        } catch (DateTimeParseException e) {
+            response.sendRedirect(request.getContextPath() + "/SupervisorServlet?action=reportes&error=fechas");
+            return;
+        }
+        if (desde != null && hasta != null && desde.isAfter(hasta)) {
+            response.sendRedirect(request.getContextPath() + "/SupervisorServlet?action=reportes&error=fechas");
+            return;
+        }
+
+        ArrayList<String> filtros = new ArrayList<>();
+        if (!estado.isEmpty()) {
+            filtros.add("Estado: " + estado);
+        }
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        if (desde != null) {
+            filtros.add("Desde: " + desde.format(formato));
+        }
+        if (hasta != null) {
+            filtros.add("Hasta: " + hasta.format(formato));
+        }
+
+        int idSegmento = entero(request.getParameter("idSegmento"));
+        if (idSegmento != 0) {
+            filtros.add("Segmento: " + codigoSegmento(idSegmento));
+        }
+
         ArrayList<LinkedHashMap<String, String>> filas;
         String titulo;
 
         switch (tipo) {
             case "mantenimientos":
-                filas = filasMantenimientos(new MantenimientoDao().listarMantenimientos(),
+                ArrayList<Mantenimiento> mantenimientos = new MantenimientoDao().listarMantenimientos();
+                String tipoMantenimiento = texto(request.getParameter("tipoMantenimiento"));
+                if (!tipoMantenimiento.isEmpty()) {
+                    mantenimientos.removeIf(m -> !tipoMantenimiento.equals(m.getTipo()));
+                    filtros.add("Tipo: " + tipoMantenimiento);
+                }
+                filtrarPorFecha(mantenimientos, Mantenimiento::getFechaRegistrada, desde, hasta);
+                filas = filasMantenimientos(mantenimientos,
                         new LandingStationDao().listarLandingStations(),
                         new SegmentoDao().listarSegmentos(),
                         new ServicioDao().listarServicios());
@@ -115,18 +242,39 @@ public class SupervisorServlet extends HttpServlet {
 
             case "incidencias":
                 ArrayList<Segmento> segmentosInc = new SegmentoDao().listarSegmentos();
-                filas = filasIncidencias(new IncidenciaDao().listarIncidencias(false),
+                ArrayList<Incidencia> incidencias = new IncidenciaDao().listarIncidencias(false);
+                String severidad = texto(request.getParameter("severidad"));
+                if (!severidad.isEmpty()) {
+                    incidencias.removeIf(i -> !severidad.equals(i.getSeveridad()));
+                    filtros.add("Severidad: " + severidad);
+                }
+                if (idSegmento != 0) {
+                    incidencias.removeIf(i -> !ids(i.getIdsSegmentos()).contains(idSegmento));
+                }
+                filtrarPorFecha(incidencias, Incidencia::getFechaRegistro, desde, hasta);
+                filas = filasIncidencias(incidencias,
                         mapaSegmentos(segmentosInc), mapaServicios(new ServicioDao().listarServicios()));
                 titulo = "Incidencias";
                 break;
 
             case "segmentos":
                 filas = filasSegmentos(new SegmentoDao().listarSegmentos());
+                String nivel = texto(request.getParameter("nivel"));
+                if (!nivel.isEmpty()) {
+                    filas.removeIf(f -> !nivel.equals(f.get("Nivel")));
+                    filtros.add("Nivel: " + nivel);
+                }
                 titulo = "Segmentos";
                 break;
 
             case "landings":
-                filas = filasLandings(new LandingStationDao().listarLandingStations(),
+                ArrayList<LandingStation> landings = new LandingStationDao().listarLandingStations();
+                String pais = texto(request.getParameter("pais"));
+                if (!pais.isEmpty()) {
+                    landings.removeIf(l -> !pais.equals(l.getPais()));
+                    filtros.add("País: " + pais);
+                }
+                filas = filasLandings(landings,
                         new SegmentoDao().listarSegmentos(),
                         incidenciasActivas(),
                         new MantenimientoDao().listarMantenimientos());
@@ -134,12 +282,24 @@ public class SupervisorServlet extends HttpServlet {
                 break;
 
             case "servicios":
-                filas = filasServicios(new ServicioDao().listarServicios());
+                ArrayList<Servicio> servicios = new ServicioDao().listarServicios();
+                int idCliente = entero(request.getParameter("idCliente"));
+                if (idCliente != 0) {
+                    servicios.removeIf(sv -> sv.getIdCliente() != idCliente);
+                    filtros.add("Cliente: " + nombreCliente(idCliente));
+                }
+                if (idSegmento != 0) {
+                    servicios.removeIf(sv -> sv.getIdSegmento() != idSegmento);
+                }
+                filtrarPorFecha(servicios, Servicio::getFechaActivacion, desde, hasta);
+                filas = filasServicios(servicios);
                 titulo = "Servicios";
                 break;
 
             case "clientes":
-                filas = filasClientes(new ClienteDao().listarClientes(), new ServicioDao().listarServicios());
+                ArrayList<Cliente> clientes = new ClienteDao().listarClientes();
+                filtrarPorFecha(clientes, Cliente::getFechaRegistro, desde, hasta);
+                filas = filasClientes(clientes, new ServicioDao().listarServicios());
                 titulo = "Clientes";
                 break;
 
@@ -162,8 +322,9 @@ public class SupervisorServlet extends HttpServlet {
 
             documento.add(new Paragraph("Reporte de " + titulo, new Font(Font.HELVETICA, 16, Font.BOLD)));
             documento.add(new Paragraph("Generado el " + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date())
-                    + "   |   Estado: " + (estado.isEmpty() ? "Todos" : estado)
                     + "   |   Registros: " + filas.size(), new Font(Font.HELVETICA, 10)));
+            documento.add(new Paragraph("Filtros: " + (filtros.isEmpty() ? "Ninguno" : String.join("   |   ", filtros)),
+                    new Font(Font.HELVETICA, 10)));
             documento.add(new Paragraph(" "));
 
             Font fuenteCabecera = new Font(Font.HELVETICA, 9, Font.BOLD);
@@ -202,6 +363,58 @@ public class SupervisorServlet extends HttpServlet {
         }
     }
 
+    private <T> void filtrarPorFecha(ArrayList<T> lista, Function<T, Date> fecha, LocalDate desde, LocalDate hasta) {
+        if (desde == null && hasta == null) {
+            return;
+        }
+        lista.removeIf(elemento -> {
+            Date valor = fecha.apply(elemento);
+            if (valor == null) {
+                return true;
+            }
+            LocalDate dia = new java.sql.Date(valor.getTime()).toLocalDate();
+            return (desde != null && dia.isBefore(desde)) || (hasta != null && dia.isAfter(hasta));
+        });
+    }
+
+    private LocalDate fechaFiltro(String valor) {
+        return texto(valor).isEmpty() ? null : LocalDate.parse(valor.trim());
+    }
+
+    private int entero(String valor) {
+        try {
+            return Integer.parseInt(texto(valor));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private String nombreCliente(int idCliente) {
+        for (Cliente c : new ClienteDao().listarClientes()) {
+            if (c.getIdCliente() == idCliente) {
+                return valor(c.getRazonSocial());
+            }
+        }
+        return String.valueOf(idCliente);
+    }
+
+    // Niveles de alerta del documento: menor a 80 normal, de 80 a 95 alta, mayor a 95 critica
+    private String nivelUtilizacion(double utilizacion) {
+        if (utilizacion > 95) {
+            return "Utilización crítica";
+        } else if (utilizacion >= 80) {
+            return "Alta utilización";
+        }
+        return "Normal";
+    }
+
+    private String porcentaje(BigDecimal parte, BigDecimal total) {
+        double valor = total.signum() > 0
+                ? parte.multiply(BigDecimal.valueOf(100)).divide(total, 1, RoundingMode.HALF_UP).doubleValue()
+                : 0;
+        return String.format(Locale.US, "%.1f %%", valor);
+    }
+
     private ArrayList<Incidencia> incidenciasActivas() {
         ArrayList<Incidencia> activas = new ArrayList<>();
         for (Incidencia i : new IncidenciaDao().listarIncidencias(true)) {
@@ -233,6 +446,7 @@ public class SupervisorServlet extends HttpServlet {
             f.put("Disponible", gbps(total.subtract(usada).subtract(reservada)));
             f.put("Utilización", String.format(Locale.US, "%.1f %%", utilizacion));
             f.put("UtilizacionValor", String.format(Locale.US, "%.1f", utilizacion));
+            f.put("Nivel", nivelUtilizacion(utilizacion));
             f.put("Estado", valor(s.getEstado()));
             filas.add(f);
         }
@@ -256,10 +470,12 @@ public class SupervisorServlet extends HttpServlet {
             }
 
             TreeSet<String> clientes = new TreeSet<>();
+            ArrayList<String> serviciosAfectados = new ArrayList<>();
             for (Integer idServicio : ids(i.getIdsServicios())) {
                 Servicio sv = servicios.get(idServicio);
                 if (sv != null) {
                     clientes.add(valor(sv.getRazonSocial()));
+                    serviciosAfectados.add(valor(sv.getIdentificador()));
                 }
             }
 
@@ -270,6 +486,7 @@ public class SupervisorServlet extends HttpServlet {
             f.put("Segmentos afectados", unir(codigos));
             f.put("Estado", valor(i.getEstado()));
             f.put("Severidad", valor(i.getSeveridad()));
+            f.put("Servicios afectados", unir(serviciosAfectados));
             f.put("Clientes afectados", unir(clientes));
             f.put("Detectado", fecha(i.getFechaRegistro()));
             filas.add(f);
@@ -385,6 +602,7 @@ public class SupervisorServlet extends HttpServlet {
             f.put("Cliente", valor(sv.getRazonSocial()));
             f.put("Segmento", codigoSegmento(sv.getIdSegmento()));
             f.put("Capacidad", gbps(sv.getCapacidad()));
+            f.put("Activación", fecha(sv.getFechaActivacion()));
             f.put("Caducidad del Servicio", fecha(sv.getFechaCaducidad()));
             f.put("Estado", valor(sv.getEstado()));
             filas.add(f);
@@ -396,9 +614,15 @@ public class SupervisorServlet extends HttpServlet {
         ArrayList<LinkedHashMap<String, String>> filas = new ArrayList<>();
         for (Cliente c : clientes) {
             ArrayList<String> contratados = new ArrayList<>();
+            int vigentes = 0;
+            BigDecimal capacidad = BigDecimal.ZERO;
             for (Servicio sv : servicios) {
                 if (sv.getIdCliente() == c.getIdCliente()) {
                     contratados.add(valor(sv.getIdentificador()));
+                    if (ServicioDao.esVigente(sv)) {
+                        vigentes++;
+                        capacidad = capacidad.add(numero(sv.getCapacidad()));
+                    }
                 }
             }
 
@@ -406,6 +630,9 @@ public class SupervisorServlet extends HttpServlet {
             f.put("Identificador", valor(c.getIdentificador()));
             f.put("Razón Social", valor(c.getRazonSocial()));
             f.put("Servicios Contratados", unir(contratados));
+            f.put("Servicios vigentes", String.valueOf(vigentes));
+            f.put("Capacidad contratada", gbps(capacidad));
+            f.put("CapacidadValor", capacidad.toPlainString());
             f.put("Fecha de cliente registrado", fecha(c.getFechaRegistro()));
             f.put("Estado", valor(c.getEstado()));
             filas.add(f);
