@@ -2,6 +2,8 @@
 <%@ page import="com.oceanlink.beans.Mantenimiento" %>
 <%@ page import="com.oceanlink.beans.LandingStation" %>
 <%@ page import="com.oceanlink.beans.Segmento" %>
+<%@ page import="com.oceanlink.beans.Incidencia" %>
+<jsp:useBean id="listaPendientes" type="java.util.ArrayList<com.oceanlink.beans.Incidencia>" scope="request" />
 <jsp:useBean id="lista" type="java.util.ArrayList<com.oceanlink.beans.Mantenimiento>" scope="request" />
 <jsp:useBean id="listaLandings" type="java.util.ArrayList<com.oceanlink.beans.LandingStation>" scope="request" />
 <jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
@@ -16,7 +18,7 @@
   <jsp:include page="sidebarMantenimiento.jsp"/>
   <main class="col p-4 bg-light">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3 class="fw-bold m-0">Historial de Mantenimiento</h3>
+      <h3 class="fw-bold m-0">Mantenimiento</h3>
       <a class="btn btn-outline-secondary" href="<%=request.getContextPath()%>/MantenimientoServlet?action=formCrear">Registrar mantenimiento</a>
     </div>
 
@@ -24,6 +26,59 @@
     <div class="alert alert-danger">Solo se puede eliminar un mantenimiento en estado Pendiente.</div>
     <% } %>
 
+    <h5 class="fw-bold mb-2">Incidencias pendientes de programar</h5>
+    <div class="card shadow-sm mb-4">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light border-bottom">
+              <tr>
+                <th scope="col" class="ps-4">Incidencia</th>
+                <th scope="col">Severidad</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Segmentos</th>
+                <th scope="col">Detectada</th>
+                <th scope="col" class="text-end pe-4">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (listaPendientes.isEmpty()) { %>
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">No hay incidencias esperando un correctivo.</td>
+              </tr>
+              <% } %>
+              <% for (Incidencia inc : listaPendientes) {
+                   String segmentosTexto = "";
+                   for (Integer idSeg : inc.getIdsSegmentos()) {
+                       if (!segmentosTexto.isEmpty()) {
+                           segmentosTexto = segmentosTexto + ", ";
+                       }
+                       segmentosTexto = segmentosTexto + "SEG-" + String.format("%03d", idSeg);
+                   }
+                   // el correctivo se abre ya ligado a la incidencia y sobre su primer segmento
+                   int primerSegmento = inc.getIdsSegmentos().isEmpty() ? 0 : inc.getIdsSegmentos().get(0);
+              %>
+              <tr>
+                <td class="ps-4">
+                  <a href="<%=request.getContextPath()%>/IncidenciaServlet?action=ver&id=<%=inc.getIdIncidencia()%>" class="text-decoration-none fw-bold"><%=inc.getIdentificador()%></a>
+                </td>
+                <td><%=inc.getSeveridad()%></td>
+                <td><span class="badge <%=inc.getEstado().equals("Detectada") ? "bg-danger" : "bg-warning text-dark"%>"><%=inc.getEstado()%></span></td>
+                <td><%=segmentosTexto%></td>
+                <td><%=inc.getFechaRegistro()%></td>
+                <td class="text-end pe-4">
+                  <a class="btn btn-sm btn-outline-primary"
+                     href="<%=request.getContextPath()%>/MantenimientoServlet?action=formCrear&tipoMantenimiento=Correctivo&idIncidencia=<%=inc.getIdIncidencia()%>&idSegmento=<%=primerSegmento%>">Programar correctivo</a>
+                </td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <h5 class="fw-bold mb-2">Historial de mantenimientos</h5>
     <div class="card shadow-sm">
       <div class="card-body p-0">
         <div class="table-responsive">

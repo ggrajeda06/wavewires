@@ -39,7 +39,7 @@ public class ServicioDao extends DaoBase {
         return lista;
     }
 
-    // Listar servicios por landing
+    // servicios vigentes que pasan por alguno de los segmentos de una landing
     public ArrayList<Servicio> listarServiciosPorLanding(int idLandingStation) {
         ArrayList<Servicio> lista = new ArrayList<>();
         String sql = "SELECT sv.*, sc.idCliente, c.razonSocial "
@@ -48,7 +48,6 @@ public class ServicioDao extends DaoBase {
                 + "JOIN solicitudcapacidad sc ON sc.idSolicitudCapacidad = sv.idSolicitudCapacidad "
                 + "JOIN cliente c ON c.idCliente = sc.idCliente "
                 + "WHERE (s.idOrigen = ? OR s.idDestino = ?) "
-                + "AND sv.estado = 'Activo' "
                 + "AND sv.fechaCaducidad >= CURDATE() "
                 + "ORDER BY sv.idServicio";
         try (Connection conn = this.getConnection();
@@ -129,7 +128,7 @@ public class ServicioDao extends DaoBase {
         }
     }
 
-    // servicios activos que usan un segmento
+    // servicios vigentes (todavia no caducan) que usan un segmento, esten Funcionando o Caídos
     public ArrayList<Servicio> listarServiciosPorSegmento(int idSegmento) {
         ArrayList<Servicio> lista = new ArrayList<>();
         String sql = "SELECT sv.*, sc.idCliente, c.razonSocial "
@@ -137,7 +136,6 @@ public class ServicioDao extends DaoBase {
                 + "JOIN solicitudcapacidad sc ON sc.idSolicitudCapacidad = sv.idSolicitudCapacidad "
                 + "JOIN cliente c ON c.idCliente = sc.idCliente "
                 + "WHERE sv.idSegmento = ? "
-                + "AND sv.estado = 'Activo' "
                 + "AND sv.fechaCaducidad >= CURDATE() "
                 + "ORDER BY sv.idServicio";
         try (Connection conn = this.getConnection();
@@ -166,14 +164,14 @@ public class ServicioDao extends DaoBase {
         return lista;
     }
 
-    // servicios vencidos: su fecha de caducidad ya paso o estan Finalizado (historial de segmentos)
+    // servicios vencidos: su fecha de caducidad ya paso (historial de segmentos)
     public ArrayList<Servicio> listarServiciosCaducados() {
         ArrayList<Servicio> lista = new ArrayList<>();
         String sql = "SELECT sv.*, sc.idCliente, c.razonSocial "
                 + "FROM servicio sv "
                 + "JOIN solicitudcapacidad sc ON sc.idSolicitudCapacidad = sv.idSolicitudCapacidad "
                 + "JOIN cliente c ON c.idCliente = sc.idCliente "
-                + "WHERE sv.fechaCaducidad < CURDATE() OR sv.estado = 'Finalizado' "
+                + "WHERE sv.fechaCaducidad < CURDATE() "
                 + "ORDER BY sv.fechaCaducidad DESC";
         try (Connection conn = this.getConnection();
              Statement stmt = conn.createStatement();
@@ -197,11 +195,5 @@ public class ServicioDao extends DaoBase {
         }
 
         return lista;
-    }
-
-    // borrar un servicio vencido desde el historial: hace lo mismo que eliminarServicio
-    // (borra el servicio y su solicitud y devuelve la capacidad al segmento)
-    public boolean eliminarServicioPermanente(int idServicio) {
-        return eliminarServicio(idServicio);
     }
 }

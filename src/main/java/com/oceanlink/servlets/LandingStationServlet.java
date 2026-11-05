@@ -88,16 +88,12 @@ public class LandingStationServlet extends HttpServlet {
         String nombre = texto(request.getParameter("nombre"));
         String pais = texto(request.getParameter("pais"));
         String ciudad = texto(request.getParameter("ciudad"));
-        String estado = texto(request.getParameter("estado"));
 
         String error = null;
         if (nombre.isEmpty() || pais.isEmpty() || ciudad.isEmpty()) {
             error = "vacio";
         } else if (nombre.length() > 100 || pais.length() > 100 || ciudad.length() > 100) {
             error = "largo";
-        } else if (!estado.equals("Operativa") && !estado.equals("Degradada")
-                && !estado.equals("En mantenimiento") && !estado.equals("Fuera de servicio")) {
-            error = "estado";
         }
 
         switch (action) {
@@ -106,7 +102,7 @@ public class LandingStationServlet extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/LandingStationServlet?action=formCrear&error=" + error);
                     break;
                 }
-                landingStationDao.crearLandingStation(nombre, pais, ciudad, estado);
+                landingStationDao.crearLandingStation(nombre, pais, ciudad);
                 response.sendRedirect(request.getContextPath() + "/LandingStationServlet");
                 break;
             case "actualizar":
@@ -119,7 +115,7 @@ public class LandingStationServlet extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/LandingStationServlet?action=editar&id=" + idLanding + "&error=" + error);
                     break;
                 }
-                landingStationDao.actualizarLandingStation(idLanding, nombre, pais, ciudad, estado);
+                landingStationDao.actualizarLandingStation(idLanding, nombre, pais, ciudad);
                 response.sendRedirect(request.getContextPath() + "/LandingStationServlet");
                 break;
             default:

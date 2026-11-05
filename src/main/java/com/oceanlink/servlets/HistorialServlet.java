@@ -14,7 +14,7 @@ import java.io.IOException;
 @WebServlet(name = "HistorialServlet", value = "/HistorialServlet")
 public class HistorialServlet extends HttpServlet {
 
-    // Listar historial de segmentos y caducados
+    // historial de segmentos con sus servicios caducados (solo consulta)
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -33,14 +33,6 @@ public class HistorialServlet extends HttpServlet {
                 view.forward(request, response);
                 break;
 
-            case "borrar":
-                if (servicioDao.eliminarServicioPermanente(numero(request.getParameter("id")))) {
-                    response.sendRedirect(request.getContextPath() + "/HistorialServlet");
-                } else {
-                    response.sendRedirect(request.getContextPath() + "/HistorialServlet?error=enUso");
-                }
-                break;
-
             default:
                 response.sendRedirect(request.getContextPath() + "/HistorialServlet");
                 break;
@@ -53,13 +45,5 @@ public class HistorialServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         doGet(request, response);
-    }
-
-    private int numero(String valor) {
-        try {
-            return Integer.parseInt(valor);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
     }
 }

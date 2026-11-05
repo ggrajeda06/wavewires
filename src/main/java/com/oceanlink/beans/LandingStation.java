@@ -5,7 +5,6 @@ public class LandingStation {
     private String nombre;
     private String pais;
     private String ciudad;
-    private String estado;
 
     public int getIdLandingStation() {
         return idLandingStation;
@@ -37,13 +36,5 @@ public class LandingStation {
 
     public void setCiudad(String ciudad) {
         this.ciudad = ciudad;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
     }
 }

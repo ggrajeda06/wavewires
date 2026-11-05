@@ -2,6 +2,7 @@ package com.oceanlink.beans;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDate;
 
 public class Servicio {
 
@@ -85,5 +86,10 @@ public class Servicio {
 
     public void setRazonSocial(String razonSocial) {
         this.razonSocial = razonSocial;
+    }
+
+    // vigente = su fecha de caducidad todavia no paso (no se guarda en la BD, se calcula)
+    public boolean isVigente() {
+        return fechaCaducidad != null && !fechaCaducidad.toLocalDate().isBefore(LocalDate.now());
     }
 }

@@ -7,7 +7,29 @@ import java.util.ArrayList;
 
 public class SegmentoDao extends DaoBase {
 
+    public void recalcularEstados() {
+        String sql = "UPDATE segmento s SET s.estado = CASE "
+                + "WHEN EXISTS (SELECT 1 FROM mantenimiento m WHERE m.estado = 'Activo' "
+                + "  AND (m.idSegmento = s.idSegmento OR m.idLandingStation IN (s.idOrigen, s.idDestino))) "
+                + "  THEN 'En mantenimiento' "
+                + "WHEN (SELECT COUNT(*) FROM servicio sv WHERE sv.idSegmento = s.idSegmento "
+                + "  AND sv.fechaCaducidad >= CURDATE() AND sv.estado = 'Caído') = 0 "
+                + "  THEN 'Operativo' "
+                + "WHEN (SELECT COUNT(*) FROM servicio sv WHERE sv.idSegmento = s.idSegmento "
+                + "  AND sv.fechaCaducidad >= CURDATE() AND sv.estado = 'Funcionando') = 0 "
+                + "  THEN 'Fuera de servicio' "
+                + "ELSE 'Degradado' END";
+
+        try (Connection conn = this.getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public ArrayList<Segmento> listarSegmentosPorLanding(int idLandingStation) {
+        recalcularEstados();
 
         ArrayList<Segmento> lista = new ArrayList<>();
         String sql = "SELECT * FROM segmento WHERE idOrigen = ? OR idDestino = ? ORDER BY idSegmento";
@@ -37,6 +59,8 @@ public class SegmentoDao extends DaoBase {
     }
 
     public ArrayList<Segmento> listarSegmentos() {
+        recalcularEstados();
+
         ArrayList<Segmento> lista = new ArrayList<>();
         String sql = "SELECT s.*, o.nombre AS nombreOrigen, d.nombre AS nombreDestino "
                 + "FROM segmento s "
@@ -67,9 +91,9 @@ public class SegmentoDao extends DaoBase {
         return lista;
     }
 
-    public void registrarSegmento(int idOrigen, int idDestino, double capacidadTotal, String estado) {
-        String sql = "INSERT INTO segmento (idOrigen, idDestino, capacidadTotal, estado) "
-                + "VALUES (?, ?, ?, ?)";
+    // el segmento nace Operativo (valor por defecto en la BD); despues su estado se calcula solo
+    public void registrarSegmento(int idOrigen, int idDestino, double capacidadTotal) {
+        String sql = "INSERT INTO segmento (idOrigen, idDestino, capacidadTotal) VALUES (?, ?, ?)";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -77,7 +101,6 @@ public class SegmentoDao extends DaoBase {
             pstmt.setInt(1, idOrigen);
             pstmt.setInt(2, idDestino);
             pstmt.setDouble(3, capacidadTotal);
-            pstmt.setString(4, estado);
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -85,9 +108,8 @@ public class SegmentoDao extends DaoBase {
         }
     }
 
-    public void actualizarSegmento(int idSegmento, int idOrigen, int idDestino, double capacidadTotal, String estado) {
-        String sql = "UPDATE segmento SET idOrigen = ?, idDestino = ?, capacidadTotal = ?, estado = ? "
-                + "WHERE idSegmento = ?";
+    public void actualizarSegmento(int idSegmento, int idOrigen, int idDestino, double capacidadTotal) {
+        String sql = "UPDATE segmento SET idOrigen = ?, idDestino = ?, capacidadTotal = ? WHERE idSegmento = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -95,8 +117,7 @@ public class SegmentoDao extends DaoBase {
             pstmt.setInt(1, idOrigen);
             pstmt.setInt(2, idDestino);
             pstmt.setDouble(3, capacidadTotal);
-            pstmt.setString(4, estado);
-            pstmt.setInt(5, idSegmento);
+            pstmt.setInt(4, idSegmento);
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -121,6 +142,8 @@ public class SegmentoDao extends DaoBase {
 
     // Obtener segmento por id
     public Segmento obtenerSegmento(int idSegmento) {
+        recalcularEstados();
+
         Segmento s = null;
         String sql = "SELECT s.*, o.nombre AS nombreOrigen, d.nombre AS nombreDestino "
                 + "FROM segmento s "
@@ -172,6 +195,8 @@ public class SegmentoDao extends DaoBase {
 
     // segmentos asociados a una incidencia, con el nombre de sus landings
     public ArrayList<Segmento> listarSegmentosPorIncidencia(int idIncidencia) {
+        recalcularEstados();
+
         ArrayList<Segmento> lista = new ArrayList<>();
         String sql = "SELECT s.*, o.nombre AS nombreOrigen, d.nombre AS nombreDestino "
                 + "FROM incidencia_has_segmento ihs "
@@ -204,48 +229,5 @@ public class SegmentoDao extends DaoBase {
             e.printStackTrace();
         }
         return lista;
-    }
-
-    // el estado del segmento sale de lo que tiene encima, en este orden:
-    // incidencia critica abierta -> Fuera de servicio, mantenimiento activo -> En mantenimiento,
-    // otra incidencia abierta -> Degradado, nada -> Operativo
-    public void recalcularEstado(int idSegmento) {
-        String sqlMantenimiento = "SELECT COUNT(*) FROM mantenimiento WHERE idSegmento = ? AND estado = 'Activo'";
-        String sqlCriticas = "SELECT COUNT(*) FROM incidencia i "
-                + "JOIN incidencia_has_segmento ihs ON ihs.idIncidencia = i.idIncidencia "
-                + "WHERE ihs.idSegmento = ? AND i.estado NOT IN ('Servicio restaurado', 'Cerrada') AND i.severidad = 'Crítica'";
-        String sqlAbiertas = "SELECT COUNT(*) FROM incidencia i "
-                + "JOIN incidencia_has_segmento ihs ON ihs.idIncidencia = i.idIncidencia "
-                + "WHERE ihs.idSegmento = ? AND i.estado NOT IN ('Servicio restaurado', 'Cerrada')";
-        String sqlUpdate = "UPDATE segmento SET estado = ? WHERE idSegmento = ?";
-
-        try (Connection conn = getConnection()) {
-            String estado = "Operativo";
-            if (contar(conn, sqlCriticas, idSegmento) > 0) {
-                estado = "Fuera de servicio";
-            } else if (contar(conn, sqlMantenimiento, idSegmento) > 0) {
-                estado = "En mantenimiento";
-            } else if (contar(conn, sqlAbiertas, idSegmento) > 0) {
-                estado = "Degradado";
-            }
-
-            try (PreparedStatement pstmt = conn.prepareStatement(sqlUpdate)) {
-                pstmt.setString(1, estado);
-                pstmt.setInt(2, idSegmento);
-                pstmt.executeUpdate();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private int contar(Connection conn, String sql, int id) throws SQLException {
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                rs.next();
-                return rs.getInt(1);
-            }
-        }
     }
 }

@@ -28,8 +28,8 @@
       </div>
       <div class="col-md-4">
         <div class="card shadow-sm border-0 p-3">
-          <small class="text-muted">Landing Stations operativas</small>
-          <div class="fs-3 fw-semibold"><%= request.getAttribute("landingsOperativas") %> de <%= request.getAttribute("totalLandings") %></div>
+          <small class="text-muted">Landing Stations registradas</small>
+          <div class="fs-3 fw-semibold"><%= request.getAttribute("totalLandings") %></div>
           <a href="<%=request.getContextPath()%>/LandingStationServlet" class="btn btn-sm btn-outline-secondary mt-2">Ver landings</a>
         </div>
       </div>

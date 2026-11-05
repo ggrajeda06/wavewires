@@ -1,6 +1,5 @@
 package com.oceanlink.servlets;
 
-import com.oceanlink.beans.LandingStation;
 import com.oceanlink.beans.Segmento;
 import com.oceanlink.beans.Usuario;
 import com.oceanlink.daos.LandingStationDao;
@@ -25,20 +24,13 @@ public class ResumenServlet extends HttpServlet {
             throws ServletException, IOException {
 
         ArrayList<Usuario> usuarios = new UsuarioDao().listarUsuarios();
-        ArrayList<LandingStation> landings = new LandingStationDao().listarLandingStations();
+        int totalLandings = new LandingStationDao().listarLandingStations().size();
         ArrayList<Segmento> segmentos = new SegmentoDao().listarSegmentos();
 
         int usuariosActivos = 0;
         for (Usuario u : usuarios) {
             if (u.getEstado().equals("Activo")) {
                 usuariosActivos++;
-            }
-        }
-
-        int landingsOperativas = 0;
-        for (LandingStation ls : landings) {
-            if (ls.getEstado().equals("Operativa")) {
-                landingsOperativas++;
             }
         }
 
@@ -51,8 +43,7 @@ public class ResumenServlet extends HttpServlet {
 
         request.setAttribute("totalUsuarios", usuarios.size());
         request.setAttribute("usuariosActivos", usuariosActivos);
-        request.setAttribute("totalLandings", landings.size());
-        request.setAttribute("landingsOperativas", landingsOperativas);
+        request.setAttribute("totalLandings", totalLandings);
         request.setAttribute("totalSegmentos", segmentos.size());
         request.setAttribute("segmentosOperativos", segmentosOperativos);
 

@@ -14,7 +14,7 @@ public class ClienteDao extends DaoBase {
         String sql = "SELECT c.*, COUNT(sv.idServicio) AS totalServicios "
                 + "FROM cliente c "
                 + "LEFT JOIN solicitudcapacidad sc ON c.idCliente = sc.idCliente "
-                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.estado = 'Activo' "
+                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.fechaCaducidad >= CURDATE() "
                 + "GROUP BY c.idCliente "
                 + "ORDER BY c.idCliente ASC";
 
@@ -49,7 +49,7 @@ public class ClienteDao extends DaoBase {
         String sql = "SELECT c.*, COUNT(sv.idServicio) AS totalServicios "
                 + "FROM cliente c "
                 + "LEFT JOIN solicitudcapacidad sc ON c.idCliente = sc.idCliente "
-                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.estado = 'Activo' "
+                + "LEFT JOIN servicio sv ON sv.idSolicitudCapacidad = sc.idSolicitudCapacidad AND sv.fechaCaducidad >= CURDATE() "
                 + "WHERE c.idCliente = ? "
                 + "GROUP BY c.idCliente";
 

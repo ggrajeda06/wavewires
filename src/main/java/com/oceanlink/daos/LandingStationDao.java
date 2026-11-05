@@ -21,7 +21,6 @@ public class LandingStationDao extends DaoBase {
                 ls.setNombre(rs.getString("nombre"));
                 ls.setPais(rs.getString("pais"));
                 ls.setCiudad(rs.getString("ciudad"));
-                ls.setEstado(rs.getString("estado"));
                 lista.add(ls);
             }
         } catch (SQLException e) {
@@ -46,7 +45,6 @@ public class LandingStationDao extends DaoBase {
                     ls.setNombre(rs.getString("nombre"));
                     ls.setPais(rs.getString("pais"));
                     ls.setCiudad(rs.getString("ciudad"));
-                    ls.setEstado(rs.getString("estado"));
                 }
             }
         } catch (SQLException e) {
@@ -56,33 +54,31 @@ public class LandingStationDao extends DaoBase {
         return ls;
     }
 
-    public void crearLandingStation(String nombre, String pais, String ciudad, String estado) {
+    public void crearLandingStation(String nombre, String pais, String ciudad) {
 
-        String sql = "INSERT INTO landingstation (nombre, pais, ciudad, estado) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO landingstation (nombre, pais, ciudad) VALUES (?, ?, ?)";
         try (Connection conn = this.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, nombre);
             pstmt.setString(2, pais);
             pstmt.setString(3, ciudad);
-            pstmt.setString(4, estado);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void actualizarLandingStation(int idLandingStation, String nombre, String pais, String ciudad, String estado) {
+    public void actualizarLandingStation(int idLandingStation, String nombre, String pais, String ciudad) {
 
-        String sql = "UPDATE landingstation SET nombre = ?, pais = ?, ciudad = ?, estado = ? WHERE idLandingStation = ?";
+        String sql = "UPDATE landingstation SET nombre = ?, pais = ?, ciudad = ? WHERE idLandingStation = ?";
         try (Connection conn = this.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, nombre);
             pstmt.setString(2, pais);
             pstmt.setString(3, ciudad);
-            pstmt.setString(4, estado);
-            pstmt.setInt(5, idLandingStation);
+            pstmt.setInt(4, idLandingStation);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -103,32 +99,5 @@ public class LandingStationDao extends DaoBase {
         }
 
         return borrado;
-    }
-
-    // con un mantenimiento activo la landing pasa a En mantenimiento; al terminar vuelve a Operativa
-    public void recalcularEstado(int idLandingStation) {
-        String sqlContar = "SELECT COUNT(*) FROM mantenimiento WHERE idLandingStation = ? AND estado = 'Activo'";
-        String sqlMantenimiento = "UPDATE landingstation SET estado = 'En mantenimiento' WHERE idLandingStation = ?";
-        String sqlOperativa = "UPDATE landingstation SET estado = 'Operativa' WHERE idLandingStation = ? AND estado = 'En mantenimiento'";
-
-        try (Connection conn = this.getConnection();
-             PreparedStatement pstmtContar = conn.prepareStatement(sqlContar)) {
-
-            pstmtContar.setInt(1, idLandingStation);
-            int activos = 0;
-            try (ResultSet rs = pstmtContar.executeQuery()) {
-                if (rs.next()) {
-                    activos = rs.getInt(1);
-                }
-            }
-
-            String sql = activos > 0 ? sqlMantenimiento : sqlOperativa;
-            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setInt(1, idLandingStation);
-                pstmt.executeUpdate();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 }

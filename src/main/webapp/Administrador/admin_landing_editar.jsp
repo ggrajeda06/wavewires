@@ -19,8 +19,6 @@
     <div class="alert alert-danger w-50">Completa el nombre, el país y la ciudad.</div>
     <% } else if ("largo".equals(request.getParameter("error"))) { %>
     <div class="alert alert-danger w-50">Cada campo puede tener como máximo 100 caracteres.</div>
-    <% } else if ("estado".equals(request.getParameter("error"))) { %>
-    <div class="alert alert-danger w-50">Elige un estado válido.</div>
     <% } %>
 
     <form class="card p-4 w-50" method="POST" action="<%=request.getContextPath()%>/LandingStationServlet?action=actualizar">
@@ -37,15 +35,7 @@
       <input class="form-control mb-3" id="pais" name="pais" maxlength="100" value="<%=landing.getPais()%>" required>
 
       <label class="form-label" for="ciudad">Ciudad / localidad</label>
-      <input class="form-control mb-3" id="ciudad" name="ciudad" maxlength="100" value="<%=landing.getCiudad()%>" required>
-
-      <label class="form-label" for="estado">Estado</label>
-      <select class="form-select mb-4" id="estado" name="estado" required>
-        <option value="Operativa" <%="Operativa".equals(landing.getEstado()) ? "selected" : ""%>>Operativa</option>
-        <option value="Degradada" <%="Degradada".equals(landing.getEstado()) ? "selected" : ""%>>Degradada</option>
-        <option value="En mantenimiento" <%="En mantenimiento".equals(landing.getEstado()) ? "selected" : ""%>>En mantenimiento</option>
-        <option value="Fuera de servicio" <%="Fuera de servicio".equals(landing.getEstado()) ? "selected" : ""%>>Fuera de servicio</option>
-      </select>
+      <input class="form-control mb-4" id="ciudad" name="ciudad" maxlength="100" value="<%=landing.getCiudad()%>" required>
 
       <div>
         <a href="<%=request.getContextPath()%>/LandingStationServlet" class="btn btn-secondary">Cancelar</a>

@@ -14,6 +14,14 @@
             clientesAfectados.add(sa.getRazonSocial());
         }
     }
+
+    // segmentos de la incidencia que ahora estan en mantenimiento (sus servicios se muestran En mantenimiento)
+    ArrayList<Integer> segmentosEnMantenimiento = new ArrayList<>();
+    for (Segmento s : listaSegmentos) {
+        if (s.getEstado().equals("En mantenimiento")) {
+            segmentosEnMantenimiento.add(s.getIdSegmento());
+        }
+    }
 %>
 <!DOCTYPE html>
 <html lang="es">
@@ -70,12 +78,21 @@
               </tr>
             </thead>
             <tbody>
-              <% for (Segmento s : listaSegmentos) { %>
+              <% for (Segmento s : listaSegmentos) {
+                   String colorSegmento = "bg-success";
+                   if (s.getEstado().equals("Degradado")) {
+                       colorSegmento = "bg-warning text-dark";
+                   } else if (s.getEstado().equals("Fuera de servicio")) {
+                       colorSegmento = "bg-danger";
+                   } else if (s.getEstado().equals("En mantenimiento")) {
+                       colorSegmento = "bg-info text-dark";
+                   }
+              %>
               <tr>
                 <td>SEG-<%= String.format("%03d", s.getIdSegmento()) %></td>
                 <td><%= s.getNombreOrigen() %></td>
                 <td><%= s.getNombreDestino() %></td>
-                <td><%= s.getEstado() %></td>
+                <td><span class="badge <%= colorSegmento %>"><%= s.getEstado() %></span></td>
               </tr>
               <% } %>
             </tbody>
@@ -101,7 +118,7 @@
     <div class="card shadow-sm border-0 p-3 mb-3">
       <h6 class="fw-bold">Servicios afectados</h6>
       <% if (listaAfectados.isEmpty()) { %>
-      <p class="text-muted mb-0">Ningún servicio activo pasa por estos segmentos.</p>
+      <p class="text-muted mb-0">Ningún servicio vigente pasaba por estos segmentos.</p>
       <% } else { %>
       <table class="table table-sm mb-0">
         <thead>
@@ -110,23 +127,30 @@
             <th>Segmento</th>
             <th>Capacidad</th>
             <th>Cliente</th>
+            <th>Estado</th>
             <th>Restauración</th>
           </tr>
         </thead>
         <tbody>
-          <% for (ServicioAfectado sa : listaAfectados) { %>
+          <% for (ServicioAfectado sa : listaAfectados) {
+               String estadoMostrar = sa.getEstadoServicio();
+               if (segmentosEnMantenimiento.contains(sa.getIdSegmento())) {
+                   estadoMostrar = "En mantenimiento";
+               }
+               String colorEstado = "bg-success";
+               if (estadoMostrar.equals("Caído")) {
+                   colorEstado = "bg-danger";
+               } else if (estadoMostrar.equals("En mantenimiento")) {
+                   colorEstado = "bg-info text-dark";
+               }
+          %>
           <tr>
             <td><%= sa.getIdentificadorServicio() %></td>
             <td>SEG-<%= String.format("%03d", sa.getIdSegmento()) %></td>
             <td><%= sa.getCapacidad().stripTrailingZeros().toPlainString() %> Gbps</td>
             <td><%= sa.getRazonSocial() %></td>
-            <td>
-              <% if (sa.getFechaRestauracion() == null) { %>
-              <span class="badge bg-danger">Afectado</span>
-              <% } else { %>
-              <span class="badge bg-success">Restaurado el <%= sa.getFechaRestauracion() %></span>
-              <% } %>
-            </td>
+            <td><span class="badge <%= colorEstado %>"><%= estadoMostrar %></span></td>
+            <td><%= sa.getFechaRestauracion() == null ? "-" : sa.getFechaRestauracion().toString() %></td>
           </tr>
           <% } %>
         </tbody>

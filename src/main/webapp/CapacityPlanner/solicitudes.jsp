@@ -33,25 +33,31 @@
 
     <% if ("sinReserva".equals(request.getParameter("error"))) { %>
       <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
-        No espacio reservado disponible
+        No hay suficiente capacidad reservada en el segmento para provisionar la solicitud.
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     <% } %>
 
+    <% if ("datos".equals(request.getParameter("error"))) { %>
+      <div class="alert alert-danger mb-3">Revisa los datos: cliente válido, origen y destino (máximo 100 caracteres), capacidad mayor que 0, duración de 1 a 120 meses y observaciones de máximo 255 caracteres.</div>
+    <% } %>
+    <% if ("estado".equals(request.getParameter("error"))) { %>
+      <div class="alert alert-danger mb-3">Ese cambio de estado no está permitido. El orden es Registrado, En evaluación, Aprobado, Provisionado y Activo.</div>
+    <% } %>
+    <% if ("segmento".equals(request.getParameter("error"))) { %>
+      <div class="alert alert-danger mb-3">Asigna un segmento válido para aprobar, provisionar o activar la solicitud.</div>
+    <% } %>
+    <% if ("capacidad".equals(request.getParameter("error"))) { %>
+      <div class="alert alert-danger mb-3">La capacidad de la solicitud supera la capacidad libre del segmento.</div>
+    <% } %>
+
     <% if ("fueraServicio".equals(request.getParameter("error"))) { %>
       <div class="alert alert-danger mb-3" role="alert">
-        No se puede activar: el segmento asignado está Fuera de servicio por una incidencia.
+        No se puede activar: el segmento asignado está Fuera de servicio (RN3).
       </div>
     <% } %>
 
     <div class="card shadow-sm border-0 p-3">
-
-      <form method="GET" action="<%=request.getContextPath()%>/SolicitudesServlet" class="row mb-3">
-        <div class="col-md-4">
-          <input type="text" name="buscar" class="form-control" placeholder="Buscar solicitud o cliente..."
-                 value="<%=request.getParameter("buscar") != null ? request.getParameter("buscar") : ""%>">
-        </div>
-      </form>
 
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-3">
@@ -110,9 +116,6 @@
                          break;
                      }
                  }
-                 String obsLimpias = s.getObservaciones() == null ? "" : s.getObservaciones().replace("'", "\\'");
-                 String origenLimpio = s.getOrigen() == null ? "" : s.getOrigen().replace("'", "\\'");
-                 String destinoLimpio = s.getDestino() == null ? "" : s.getDestino().replace("'", "\\'");
             %>
             <tr>
               <td class="fw-medium">Solicitud <%=s.getIdSolicitudCapacidad()%></td>
@@ -127,8 +130,7 @@
               <td><%=ruta%></td>
               <td><%=s.getDuracionMeses()%> meses</td>
               <td class="text-center">
-                <button type="button" class="btn btn-outline-dark btn-sm px-3"
-                        onclick="abrirEditar('<%=s.getIdSolicitudCapacidad()%>', '<%=s.getIdCliente()%>', '<%= (int) s.getCapacidad() %>', '<%=origenLimpio%>', '<%=destinoLimpio%>', '<%=s.getEstado()%>', '<%=s.getIdSegmento() == null ? 0 : s.getIdSegmento()%>', '<%=s.getDuracionMeses()%>', '<%=obsLimpias%>')">
+                <button type="button" class="btn btn-outline-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="#editar<%=s.getIdSolicitudCapacidad()%>">
                   Editar
                 </button>
               </td>
@@ -171,22 +173,22 @@
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="form-label small fw-semibold">Origen</label>
-              <input type="text" name="origen" class="form-control" placeholder="Ejm: España" required>
+              <input type="text" name="origen" class="form-control" maxlength="100" placeholder="Ejm: España" required>
             </div>
             <div class="col-6">
               <label class="form-label small fw-semibold">Destino</label>
-              <input type="text" name="destino" class="form-control" placeholder="Ejm: Perú" required>
+              <input type="text" name="destino" class="form-control" maxlength="100" placeholder="Ejm: Perú" required>
             </div>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Duración (meses)</label>
-            <input type="number" name="duracionMeses" class="form-control" placeholder="Ejm: 5" min="1" required>
+            <input type="number" name="duracionMeses" class="form-control" placeholder="Ejm: 5" min="1" max="120" required>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Observaciones</label>
-            <textarea name="observaciones" class="form-control" rows="2" placeholder="(Opcional)"></textarea>
+            <textarea name="observaciones" class="form-control" rows="2" maxlength="255" placeholder="(Opcional)"></textarea>
           </div>
         </div>
 
@@ -200,77 +202,106 @@
   </div>
 </div>
 
-<div class="modal fade" id="modalEditarSolicitud" tabindex="-1" aria-hidden="true">
+<!-- un modal de editar y uno de eliminar por solicitud, ya con sus datos (sin JavaScript) -->
+<% for (Solicitudes s : listaSolicitudes) {
+     String estado = s.getEstado();
+     int idSegmentoActual = s.getIdSegmento() == null ? 0 : s.getIdSegmento();
+
+     // estados a los que puede pasar (el mismo flujo que valida SolicitudesServlet, RN7)
+     String[] estadosSiguientes = {estado};
+     if (estado.equals("Registrado")) {
+         estadosSiguientes = new String[]{"Registrado", "En evaluación"};
+     } else if (estado.equals("En evaluación")) {
+         estadosSiguientes = new String[]{"En evaluación", "Aprobado", "Rechazado"};
+     } else if (estado.equals("Aprobado")) {
+         estadosSiguientes = new String[]{"Aprobado", "Provisionado", "Pendiente por Capacidad"};
+     } else if (estado.equals("Pendiente por Capacidad")) {
+         estadosSiguientes = new String[]{"Pendiente por Capacidad", "Provisionado", "Rechazado"};
+     } else if (estado.equals("Provisionado")) {
+         estadosSiguientes = new String[]{"Provisionado", "Activo"};
+     }
+
+     // el segmento se elige recien en evaluacion; Registrado y Rechazado lo dejan como esta
+     boolean eligeSegmento = !estado.equals("Registrado") && !estado.equals("Rechazado");
+%>
+<div class="modal fade" id="editar<%=s.getIdSolicitudCapacidad()%>" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow">
 
       <div class="modal-header border-bottom py-3 px-4">
-        <h5 class="modal-title fw-bold m-0">Editar Solicitud</h5>
+        <h5 class="modal-title fw-bold m-0">Editar Solicitud <%=s.getIdSolicitudCapacidad()%></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
-      <form method="POST" action="<%=request.getContextPath()%>/SolicitudesServlet?action=actualizar" onsubmit="return validarEdicion();">
-        <input type="hidden" name="idSolicitudCapacidad" id="editId">
+      <form method="POST" action="<%=request.getContextPath()%>/SolicitudesServlet?action=actualizar">
+        <input type="hidden" name="idSolicitudCapacidad" value="<%=s.getIdSolicitudCapacidad()%>">
 
         <div class="modal-body p-4">
           <div class="mb-3">
             <label class="form-label small fw-semibold">Cliente empresarial</label>
-            <select name="idCliente" id="editCliente" class="form-select" required>
+            <select name="idCliente" class="form-select" required>
               <% for (Cliente c : listaClientes) { %>
-                <option value="<%=c.getIdCliente()%>"><%=c.getRazonSocial()%></option>
+                <option value="<%=c.getIdCliente()%>" <%=c.getIdCliente() == s.getIdCliente() ? "selected" : ""%>><%=c.getRazonSocial()%></option>
               <% } %>
             </select>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Capacidad solicitada (Gbps)</label>
-            <input type="number" name="capacidad" id="editCapacidad" class="form-control" min="1" required>
+            <input type="number" name="capacidad" class="form-control" min="1" value="<%= (int) s.getCapacidad() %>" required>
           </div>
 
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="form-label small fw-semibold">Origen</label>
-              <input type="text" name="origen" id="editOrigen" class="form-control" placeholder="Ejm: España" required>
+              <input type="text" name="origen" class="form-control" maxlength="100" value="<%=s.getOrigen()%>" required>
             </div>
             <div class="col-6">
               <label class="form-label small fw-semibold">Destino</label>
-              <input type="text" name="destino" id="editDestino" class="form-control" placeholder="Ejm: Perú" required>
+              <input type="text" name="destino" class="form-control" maxlength="100" value="<%=s.getDestino()%>" required>
             </div>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Estado</label>
-            <select name="estado" id="editEstado" class="form-select">
+            <select name="estado" class="form-select">
+              <% for (String e : estadosSiguientes) { %>
+                <option value="<%=e%>" <%=e.equals(estado) ? "selected" : ""%>><%=e%></option>
+              <% } %>
             </select>
-            <small class="text-muted">Las reglas de transición se gestionarán en el Servlet.</small>
+            <small class="text-muted">Solo aparecen los estados a los que puede pasar.</small>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Segmento</label>
-            <select name="idSegmento" id="editSegmento" class="form-select">
-              <option value="0" data-reservada="0">No asignado</option>
+            <% if (eligeSegmento) { %>
+            <select name="idSegmento" class="form-select">
+              <option value="0">No asignado</option>
               <% for (Segmento seg : listaSegmentos) { %>
-                <option value="<%=seg.getIdSegmento()%>" data-reservada="<%=seg.getCapacidadReservada()%>">SEG-<%=String.format("%03d", seg.getIdSegmento())%> (<%=seg.getNombreOrigen()%> - <%=seg.getNombreDestino()%>)</option>
+                <option value="<%=seg.getIdSegmento()%>" <%=seg.getIdSegmento() == idSegmentoActual ? "selected" : ""%>>SEG-<%=String.format("%03d", seg.getIdSegmento())%> (<%=seg.getNombreOrigen()%> - <%=seg.getNombreDestino()%>)</option>
               <% } %>
             </select>
+            <% } else { %>
+            <input type="hidden" name="idSegmento" value="<%=idSegmentoActual%>">
+            <input type="text" class="form-control bg-light" value="<%=idSegmentoActual == 0 ? "No asignado" : "SEG-" + String.format("%03d", idSegmentoActual)%>" readonly>
+            <% } %>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Duración (meses)</label>
-            <input type="number" name="duracionMeses" id="editDuracion" class="form-control" min="1" required>
+            <input type="number" name="duracionMeses" class="form-control" min="1" max="120" value="<%=s.getDuracionMeses()%>" required>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Observaciones</label>
-            <textarea name="observaciones" id="editObservaciones" class="form-control" rows="2"></textarea>
+            <textarea name="observaciones" class="form-control" rows="2" maxlength="255"><%=s.getObservaciones() == null ? "" : s.getObservaciones()%></textarea>
           </div>
         </div>
 
         <div class="modal-footer border-top-0 d-flex justify-content-between pt-0 px-4 pb-4">
-          <a id="btnEliminarModal" href="#" class="btn btn-outline-danger px-3"
-             onclick="return confirm('¿Estás seguro de que deseas eliminar esta solicitud?');">
+          <button type="button" class="btn btn-outline-danger px-3" data-bs-toggle="modal" data-bs-target="#borrar<%=s.getIdSolicitudCapacidad()%>">
             <i class="bi bi-trash me-1"></i> Eliminar Solicitud
-          </a>
+          </button>
           <div class="d-flex gap-2">
             <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
             <button type="submit" class="btn btn-primary px-4">Guardar</button>
@@ -282,99 +313,25 @@
   </div>
 </div>
 
+<div class="modal fade" id="borrar<%=s.getIdSolicitudCapacidad()%>" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-bottom py-3 px-4">
+        <h5 class="modal-title fw-bold m-0">Eliminar solicitud</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body p-4">
+        ¿Estás seguro de que deseas eliminar la <b>Solicitud <%=s.getIdSolicitudCapacidad()%></b>?
+      </div>
+      <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
+        <button type="button" class="btn btn-primary px-3" data-bs-dismiss="modal">Cancelar</button>
+        <a href="<%=request.getContextPath()%>/SolicitudesServlet?action=borrar&id=<%=s.getIdSolicitudCapacidad()%>" class="btn btn-outline-danger px-3">Sí, eliminar</a>
+      </div>
+    </div>
+  </div>
+</div>
+<% } %>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-function abrirEditar(id, idCliente, capacidad, origen, destino, estado, idSegmento, duracion, observaciones) {
-  document.getElementById('editId').value = id;
-  document.getElementById('editCliente').value = idCliente;
-  document.getElementById('editCapacidad').value = capacidad;
-  document.getElementById('editOrigen').value = origen;
-  document.getElementById('editDestino').value = destino;
-  document.getElementById('editDuracion').value = duracion;
-  document.getElementById('editObservaciones').value = observaciones;
-
-  let selectEstado = document.getElementById('editEstado');
-  let selectSegmento = document.getElementById('editSegmento');
-  selectEstado.innerHTML = '';
-
-  if (estado === 'Registrado') {
-    selectEstado.innerHTML = '<option value="Registrado">Registrado</option>' +
-                             '<option value="En evaluación">En evaluación</option>';
-    selectSegmento.value = "0";
-    selectSegmento.disabled = true;
-  } else if (estado === 'En evaluación') {
-    selectEstado.innerHTML = '<option value="En evaluación">En evaluación</option>' +
-                             '<option value="Aprobado">Aprobado</option>' +
-                             '<option value="Rechazado">Rechazado</option>';
-    selectSegmento.disabled = false;
-    selectSegmento.value = (idSegmento && idSegmento !== 'null') ? idSegmento : "0";
-  } else if (estado === 'Aprobado') {
-    selectEstado.innerHTML = '<option value="Aprobado">Aprobado</option>' +
-                             '<option value="Provisionado">Provisionado</option>' +
-                             '<option value="Pendiente por Capacidad">Pendiente por Capacidad</option>';
-    selectSegmento.disabled = false;
-    selectSegmento.value = (idSegmento && idSegmento !== 'null') ? idSegmento : "0";
-  } else if (estado === 'Pendiente por Capacidad') {
-    selectEstado.innerHTML = '<option value="Pendiente por Capacidad">Pendiente por Capacidad</option>' +
-                             '<option value="Provisionado">Provisionado</option>' +
-                             '<option value="Rechazado">Rechazado</option>';
-    selectSegmento.disabled = false;
-    selectSegmento.value = (idSegmento && idSegmento !== 'null') ? idSegmento : "0";
-  } else if (estado === 'Provisionado') {
-    selectEstado.innerHTML = '<option value="Provisionado">Provisionado</option>' +
-                             '<option value="Activo">Activo</option>';
-    selectSegmento.disabled = false;
-    selectSegmento.value = (idSegmento && idSegmento !== 'null') ? idSegmento : "0";
-  } else if (estado === 'Rechazado') {
-    selectEstado.innerHTML = '<option value="Rechazado">Rechazado</option>';
-    selectSegmento.disabled = true;
-    selectSegmento.value = (idSegmento && idSegmento !== 'null') ? idSegmento : "0";
-  } else {
-    selectEstado.innerHTML = '<option value="' + estado + '">' + estado + '</option>';
-    selectSegmento.disabled = false;
-    selectSegmento.value = (idSegmento && idSegmento !== 'null') ? idSegmento : "0";
-  }
-  selectEstado.value = estado;
-
-  // Enlace dinamico para el boton de eliminar en el modal
-  document.getElementById('btnEliminarModal').href = '<%=request.getContextPath()%>/SolicitudesServlet?action=borrar&id=' + id;
-
-  let modal = new bootstrap.Modal(document.getElementById('modalEditarSolicitud'));
-  modal.show();
-}
-
-function validarEdicion() {
-  let selectSegmento = document.getElementById('editSegmento');
-  let estadoSeleccionado = document.getElementById('editEstado').value;
-  let segmentoSeleccionado = selectSegmento.value;
-  let capacidad = parseFloat(document.getElementById('editCapacidad').value) || 0;
-
-  if (estadoSeleccionado === 'Aprobado' && (segmentoSeleccionado === '0' || segmentoSeleccionado === '')) {
-    alert('Es obligatorio asignar un segmento para poder aprobar la solicitud.');
-    return false;
-  }
-
-  if (estadoSeleccionado === 'Provisionado') {
-    let opt = selectSegmento.options[selectSegmento.selectedIndex];
-    let reservada = opt ? (parseFloat(opt.getAttribute('data-reservada')) || 0) : 0;
-    if (capacidad > reservada) {
-      alert('No espacio reservado disponible');
-      return false;
-    }
-  }
-
-  selectSegmento.disabled = false;
-
-  if (estadoSeleccionado === 'Rechazado') {
-    return confirm('¿Estas seguro que quieres Rechazar la Solicitud?');
-  } else if (estadoSeleccionado === 'Aprobado') {
-    return confirm('¿Estas seguro que quieres Aprobar la Solicitud?');
-  } else if (estadoSeleccionado === 'Activo') {
-    return confirm('¿Estas seguro que quieres guardar, esta solicitud se convertirá en un servicio y desaparecerá de esta tabla?');
-  } else {
-    return confirm('¿Esta seguro de guardar cambios?');
-  }
-}
-</script>
 </body>
 </html>

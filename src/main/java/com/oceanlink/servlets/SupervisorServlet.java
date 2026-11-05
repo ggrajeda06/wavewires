@@ -368,7 +368,6 @@ public class SupervisorServlet extends HttpServlet {
             f.put("ID", "LS-" + String.format("%03d", l.getIdLandingStation()));
             f.put("Nombre", valor(l.getNombre()));
             f.put("Ubicación", valor(l.getCiudad()) + ", " + valor(l.getPais()));
-            f.put("Estado", valor(l.getEstado()));
             f.put("Segmentos", String.valueOf(segmentosLanding.size()));
             f.put("Incidencias activas", String.valueOf(incidencias));
             f.put("Mantenimientos", String.valueOf(cantidadMantenimientos));

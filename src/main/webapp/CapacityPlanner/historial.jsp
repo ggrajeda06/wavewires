@@ -29,14 +29,6 @@
 
     <div class="card shadow-sm border-0 p-3">
 
-      <!-- Buscador -->
-      <form method="GET" action="<%=request.getContextPath()%>/HistorialServlet" class="row mb-3">
-        <div class="col-md-4">
-          <input type="text" name="buscar" class="form-control" placeholder="Buscar segmento o ruta..."
-                 value="<%=request.getParameter("buscar") != null ? request.getParameter("buscar") : ""%>">
-        </div>
-      </form>
-
       <!-- Tabla de segmentos -->
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-3">
@@ -66,7 +58,7 @@
                  String targetModal = (cantCaducados > 0) ? "#modalCaducados" + s.getIdSegmento() : "#modalSinCaducados";
             %>
             <tr>
-              <td class="fw-medium">Segmento <%=s.getIdSegmento()%></td>
+              <td class="fw-medium">SEG-<%=String.format("%03d", s.getIdSegmento())%></td>
               <td><%=ruta%></td>
               <td class="text-center">
                 <button type="button" class="btn btn-outline-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="<%=targetModal%>">
@@ -78,12 +70,6 @@
           <% } %>
           </tbody>
         </table>
-      </div>
-
-      <!-- Paginacion -->
-      <div class="d-flex justify-content-end gap-2">
-        <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Anterior</button>
-        <button type="button" class="btn btn-outline-secondary btn-sm">Siguiente</button>
       </div>
 
     </div>
@@ -107,7 +93,7 @@
     <div class="modal-content border-0 shadow">
 
       <div class="modal-header border-bottom py-3 px-4">
-        <h5 class="modal-title fw-bold m-0 text-dark">Servicios Caducados - Segmento <%=s.getIdSegmento()%></h5>
+        <h5 class="modal-title fw-bold m-0 text-dark">Servicios caducados - SEG-<%=String.format("%03d", s.getIdSegmento())%></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
@@ -116,11 +102,10 @@
           <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
             <tr>
-              <th style="width: 20%;">Servicios</th>
-              <th style="width: 25%;">Cliente</th>
-              <th style="width: 20%;">Segmento</th>
-              <th style="width: 17%;">Capacidad</th>
-              <th style="width: 18%;" class="text-center">Acción</th>
+              <th style="width: 25%;">Servicio</th>
+              <th style="width: 35%;">Cliente</th>
+              <th style="width: 20%;">Capacidad</th>
+              <th style="width: 20%;">Caducó el</th>
             </tr>
             </thead>
             <tbody>
@@ -132,15 +117,8 @@
             <tr>
               <td class="fw-medium"><%=nombreServicio%></td>
               <td><%=sv.getRazonSocial() != null ? sv.getRazonSocial() : "-"%></td>
-              <td>Segmento <%=sv.getIdSegmento()%></td>
               <td class="text-secondary fw-semibold"><%=cap%> Gbps</td>
-              <td class="text-center">
-                <a href="<%=request.getContextPath()%>/HistorialServlet?action=borrar&id=<%=sv.getIdServicio()%>"
-                   class="btn btn-outline-danger btn-sm px-3 text-nowrap"
-                   onclick="return confirm('¿Estás seguro de que deseas eliminar este servicio del historial?');">
-                  <i class="bi bi-trash me-1"></i> Eliminar
-                </a>
-              </td>
+              <td><%=sv.getFechaCaducidad()%></td>
             </tr>
             <% } %>
             </tbody>
@@ -170,7 +148,7 @@
       <div class="modal-body">
         <i class="bi bi-check-circle text-success fs-1 mb-2 d-block"></i>
         <h6 class="fw-bold mb-2">Servicios Caducados</h6>
-        <p class="text-muted small mb-3">No existen servicios caducados ni de baja registrados en este segmento.</p>
+        <p class="text-muted small mb-3">No existen servicios caducados en este segmento.</p>
         <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>

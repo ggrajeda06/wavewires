@@ -103,7 +103,7 @@ public class SolicitudesDao extends DaoBase {
             // Registrar servicio y actualizar capacidades del segmento al activar
             if ("Activo".equalsIgnoreCase(estado)) {
                 String sqlServicio = "INSERT INTO servicio (identificador, capacidad, estado, fechaCaducidad, idSegmento, idSolicitudCapacidad) "
-                        + "VALUES (CONCAT('SRV-', ?), ?, 'Activo', DATE_ADD(CURDATE(), INTERVAL ? MONTH), ?, ?)";
+                        + "VALUES (CONCAT('SRV-', ?), ?, 'Funcionando', DATE_ADD(CURDATE(), INTERVAL ? MONTH), ?, ?)";
                 try (PreparedStatement pstmtServ = conn.prepareStatement(sqlServicio)) {
                     pstmtServ.setInt(1, idSolicitudCapacidad);
                     pstmtServ.setDouble(2, capacidad);

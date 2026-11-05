@@ -1,8 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="com.oceanlink.beans.Segmento" %>
 <%@ page import="com.oceanlink.beans.Incidencia" %>
+<%@ page import="com.oceanlink.beans.Servicio" %>
 <jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
 <jsp:useBean id="listaActivas" type="java.util.ArrayList<com.oceanlink.beans.Incidencia>" scope="request" />
+<jsp:useBean id="listaServicios" type="java.util.ArrayList<com.oceanlink.beans.Servicio>" scope="request" />
 <%
     int operativos = 0;
     int degradados = 0;
@@ -55,7 +57,7 @@
       <div class="col-md-3">
         <div class="card p-3 shadow-sm border-0">
           <small class="text-muted">En mantenimiento</small>
-          <div class="fs-4 fw-semibold text-primary"><%= enMantenimiento %></div>
+          <div class="fs-4 fw-semibold text-info"><%= enMantenimiento %></div>
         </div>
       </div>
     </div>
@@ -70,12 +72,11 @@
                 <th>Origen</th>
                 <th>Destino</th>
                 <th>Estado</th>
-                <th>Total</th>
-                <th>Usada</th>
-                <th>Reservada</th>
+                <th>Servicios caídos</th>
                 <th>Disponible</th>
                 <th>Ocupación</th>
                 <th>Incidencias activas</th>
+                <th class="text-end pe-4">Acción</th>
               </tr>
             </thead>
             <tbody>
@@ -102,7 +103,19 @@
                    } else if (s.getEstado().equals("Fuera de servicio")) {
                        colorEstado = "bg-danger";
                    } else if (s.getEstado().equals("En mantenimiento")) {
-                       colorEstado = "bg-primary";
+                       colorEstado = "bg-info text-dark";
+                   }
+
+                   // servicios vigentes del segmento y cuantos de ellos estan caidos
+                   int vigentes = 0;
+                   int caidos = 0;
+                   for (Servicio sv : listaServicios) {
+                       if (sv.getIdSegmento() == s.getIdSegmento() && sv.isVigente()) {
+                           vigentes++;
+                           if (sv.getEstado().equals("Caído")) {
+                               caidos++;
+                           }
+                       }
                    }
 
                    int incidenciasSegmento = 0;
@@ -117,12 +130,13 @@
                 <td><%= s.getNombreOrigen() %></td>
                 <td><%= s.getNombreDestino() %></td>
                 <td><span class="badge <%= colorEstado %>"><%= s.getEstado() %></span></td>
-                <td><%= Math.round(total) %> Gbps</td>
-                <td><%= Math.round(usada) %> Gbps</td>
-                <td><%= Math.round(reservada) %> Gbps</td>
+                <td class="<%= caidos > 0 ? "text-danger fw-semibold" : "" %>"><%= caidos %> de <%= vigentes %></td>
                 <td><%= Math.round(disponible) %> Gbps</td>
                 <td><span class="badge <%= colorNivel %>"><%= Math.round(porcentaje) %>% · <%= nivel %></span></td>
                 <td><%= incidenciasSegmento %></td>
+                <td class="text-end pe-4">
+                  <a href="<%=request.getContextPath()%>/IncidenciaServlet?action=serviciosSegmento&id=<%= s.getIdSegmento() %>" class="btn btn-sm btn-outline-secondary text-nowrap">Ver servicios</a>
+                </td>
               </tr>
               <% } %>
             </tbody>
