@@ -1,7 +1,9 @@
 package com.oceanlink.servlets;
 
+import com.oceanlink.beans.Servicio;
 import com.oceanlink.daos.SegmentoDao;
 import com.oceanlink.daos.ServicioDao;
+import com.oceanlink.util.Listas;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -10,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 @WebServlet(name = "ServicioServlet", value = "/ServicioServlet")
 public class ServicioServlet extends HttpServlet {
@@ -24,7 +27,14 @@ public class ServicioServlet extends HttpServlet {
 
         switch (action) {
             case "lista":
-                request.setAttribute("listaServicios", servicioDao.listarServicios());
+                String buscar = request.getParameter("buscar");
+                ArrayList<Servicio> servicios = new ArrayList<>();
+                for (Servicio sv : servicioDao.listarServiciosVigentes()) {
+                    if (Listas.coincide(buscar, sv.getIdentificador(), sv.getRazonSocial(), "Segmento " + sv.getIdSegmento())) {
+                        servicios.add(sv);
+                    }
+                }
+                request.setAttribute("listaServicios", Listas.paginar(request, servicios));
                 // con el estado de cada segmento el JSP muestra "En mantenimiento" en sus servicios
                 request.setAttribute("listaSegmentos", new SegmentoDao().listarSegmentos());
                 view = request.getRequestDispatcher("CapacityPlanner/servicios.jsp");

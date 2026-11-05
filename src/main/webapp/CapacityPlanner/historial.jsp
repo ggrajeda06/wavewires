@@ -2,6 +2,7 @@
 <%@ page import="com.oceanlink.beans.Segmento" %>
 <%@ page import="com.oceanlink.beans.Servicio" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="com.oceanlink.util.Html" %>
 <jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
 <jsp:useBean id="listaServiciosCaducados" type="java.util.ArrayList<com.oceanlink.beans.Servicio>" scope="request" />
 <!DOCTYPE html>
@@ -23,11 +24,23 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h2 class="h3 fw-bold text-dark m-0">Historial de segmentos</h2>
-        <small class="text-muted">Consulta de tramos y registro histórico de enlaces finalizados</small>
+        <small class="text-muted">Consulta de tramos y registro histórico de enlaces caducados</small>
       </div>
     </div>
 
+    <% if ("enUso".equals(request.getParameter("error"))) { %>
+    <div class="alert alert-danger">No se puede eliminar el servicio porque está registrado en una incidencia.</div>
+    <% } %>
+
     <div class="card shadow-sm border-0 p-3">
+
+      <!-- Buscador -->
+      <form method="GET" action="<%=request.getContextPath()%>/HistorialServlet" class="row mb-3">
+        <div class="col-md-4">
+          <input type="text" name="buscar" class="form-control" placeholder="Buscar segmento o ruta..."
+                 value="<%=Html.esc(request.getParameter("buscar"))%>">
+        </div>
+      </form>
 
       <!-- Tabla de segmentos -->
       <div class="table-responsive">
@@ -58,7 +71,7 @@
                  String targetModal = (cantCaducados > 0) ? "#modalCaducados" + s.getIdSegmento() : "#modalSinCaducados";
             %>
             <tr>
-              <td class="fw-medium">SEG-<%=String.format("%03d", s.getIdSegmento())%></td>
+              <td class="fw-medium">Segmento <%=s.getIdSegmento()%></td>
               <td><%=ruta%></td>
               <td class="text-center">
                 <button type="button" class="btn btn-outline-dark btn-sm px-3" data-bs-toggle="modal" data-bs-target="<%=targetModal%>">
@@ -71,6 +84,9 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Paginacion -->
+      <jsp:include page="paginacion.jsp"><jsp:param name="servlet" value="HistorialServlet"/></jsp:include>
 
     </div>
   </main>
@@ -93,7 +109,7 @@
     <div class="modal-content border-0 shadow">
 
       <div class="modal-header border-bottom py-3 px-4">
-        <h5 class="modal-title fw-bold m-0 text-dark">Servicios caducados - SEG-<%=String.format("%03d", s.getIdSegmento())%></h5>
+        <h5 class="modal-title fw-bold m-0 text-dark">Servicios Caducados - Segmento <%=s.getIdSegmento()%></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
@@ -102,23 +118,31 @@
           <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
             <tr>
-              <th style="width: 25%;">Servicio</th>
-              <th style="width: 35%;">Cliente</th>
-              <th style="width: 20%;">Capacidad</th>
-              <th style="width: 20%;">Caducó el</th>
+              <th style="width: 20%;">Servicios</th>
+              <th style="width: 25%;">Cliente</th>
+              <th style="width: 20%;">Segmento</th>
+              <th style="width: 17%;">Capacidad</th>
+              <th style="width: 18%;" class="text-center">Acción</th>
             </tr>
             </thead>
             <tbody>
             <% for (Servicio sv : caducadosDelSegmento) {
                  String nombreServicio = (sv.getIdentificador() != null && !sv.getIdentificador().trim().isEmpty())
                                          ? sv.getIdentificador() : "Servicio " + sv.getIdServicio();
-                 int cap = sv.getCapacidad() != null ? sv.getCapacidad().intValue() : 0;
+                 String cap = sv.getCapacidad() != null ? sv.getCapacidad().stripTrailingZeros().toPlainString() : "0";
             %>
             <tr>
               <td class="fw-medium"><%=nombreServicio%></td>
               <td><%=sv.getRazonSocial() != null ? sv.getRazonSocial() : "-"%></td>
+              <td>Segmento <%=sv.getIdSegmento()%></td>
               <td class="text-secondary fw-semibold"><%=cap%> Gbps</td>
-              <td><%=sv.getFechaCaducidad()%></td>
+              <td class="text-center">
+                <a href="<%=request.getContextPath()%>/HistorialServlet?action=borrar&id=<%=sv.getIdServicio()%>"
+                   class="btn btn-outline-danger btn-sm px-3 text-nowrap"
+                   onclick="return confirm('¿Estás seguro de que deseas eliminar este servicio del historial?');">
+                  <i class="bi bi-trash me-1"></i> Eliminar
+                </a>
+              </td>
             </tr>
             <% } %>
             </tbody>
@@ -148,7 +172,7 @@
       <div class="modal-body">
         <i class="bi bi-check-circle text-success fs-1 mb-2 d-block"></i>
         <h6 class="fw-bold mb-2">Servicios Caducados</h6>
-        <p class="text-muted small mb-3">No existen servicios caducados en este segmento.</p>
+        <p class="text-muted small mb-3">No existen servicios caducados registrados en este segmento.</p>
         <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>

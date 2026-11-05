@@ -25,6 +25,7 @@ public class ServicioDao extends DaoBase {
                 sv.setIdentificador(rs.getString("identificador"));
                 sv.setCapacidad(rs.getBigDecimal("capacidad"));
                 sv.setEstado(rs.getString("estado"));
+                sv.setFechaActivacion(rs.getDate("fechaActivacion"));
                 sv.setFechaCaducidad(rs.getDate("fechaCaducidad"));
                 sv.setIdSegmento(rs.getInt("idSegmento"));
                 sv.setIdSolicitudCapacidad(rs.getInt("idSolicitudCapacidad"));
@@ -36,6 +37,25 @@ public class ServicioDao extends DaoBase {
             e.printStackTrace();
         }
 
+        return lista;
+    }
+
+    // =====================================================================
+    // vigente = todavia no caduca (lo usan los reportes del Supervisor)
+    // es el mismo criterio que Servicio.isVigente(): solo depende de la fecha de caducidad
+    // =====================================================================
+    public static boolean esVigente(Servicio sv) {
+        return sv.isVigente();
+    }
+
+    // servicios en curso (Servicios del Capacity Planner): los que no aparecen en el historial de caducados
+    public ArrayList<Servicio> listarServiciosVigentes() {
+        ArrayList<Servicio> lista = new ArrayList<>();
+        for (Servicio sv : listarServicios()) {
+            if (esVigente(sv)) {
+                lista.add(sv);
+            }
+        }
         return lista;
     }
 
@@ -78,7 +98,7 @@ public class ServicioDao extends DaoBase {
     }
 
     // Eliminar servicio
-    // devuelve false si no se pudo borrar (por ejemplo, porque el servicio esta en una incidencia)
+    // devuelve false si no se pudo borrar (por ejemplo, porque el servicio esta en una incidencia) y no cambia nada
     public boolean eliminarServicio(int idServicio) {
         String sqlSelect = "SELECT capacidad, idSegmento, idSolicitudCapacidad FROM servicio WHERE idServicio = ?";
         String sqlDeleteServicio = "DELETE FROM servicio WHERE idServicio = ?";
@@ -86,42 +106,50 @@ public class ServicioDao extends DaoBase {
         String sqlUpdateSegmento = "UPDATE segmento SET capacidadUsada = GREATEST(0, capacidadUsada - ?) WHERE idSegmento = ?";
 
         try (Connection conn = this.getConnection()) {
+            conn.setAutoCommit(false);
             double capacidad = 0;
             int idSegmento = 0;
             int idSolicitud = 0;
 
-            try (PreparedStatement pstmtSel = conn.prepareStatement(sqlSelect)) {
-                pstmtSel.setInt(1, idServicio);
-                try (ResultSet rs = pstmtSel.executeQuery()) {
-                    if (rs.next()) {
-                        capacidad = rs.getDouble("capacidad");
-                        idSegmento = rs.getInt("idSegmento");
-                        idSolicitud = rs.getInt("idSolicitudCapacidad");
+            try {
+
+                try (PreparedStatement pstmtSel = conn.prepareStatement(sqlSelect)) {
+                    pstmtSel.setInt(1, idServicio);
+                    try (ResultSet rs = pstmtSel.executeQuery()) {
+                        if (rs.next()) {
+                            capacidad = rs.getDouble("capacidad");
+                            idSegmento = rs.getInt("idSegmento");
+                            idSolicitud = rs.getInt("idSolicitudCapacidad");
+                        }
                     }
                 }
-            }
 
-            try (PreparedStatement pstmtDelServ = conn.prepareStatement(sqlDeleteServicio)) {
-                pstmtDelServ.setInt(1, idServicio);
-                pstmtDelServ.executeUpdate();
-            }
-
-            if (idSolicitud > 0) {
-                try (PreparedStatement pstmtDelSol = conn.prepareStatement(sqlDeleteSolicitud)) {
-                    pstmtDelSol.setInt(1, idSolicitud);
-                    pstmtDelSol.executeUpdate();
+                try (PreparedStatement pstmtDelServ = conn.prepareStatement(sqlDeleteServicio)) {
+                    pstmtDelServ.setInt(1, idServicio);
+                    pstmtDelServ.executeUpdate();
                 }
-            }
 
-            if (idSegmento > 0 && capacidad > 0) {
-                try (PreparedStatement pstmtUpdSeg = conn.prepareStatement(sqlUpdateSegmento)) {
-                    pstmtUpdSeg.setDouble(1, capacidad);
-                    pstmtUpdSeg.setInt(2, idSegmento);
-                    pstmtUpdSeg.executeUpdate();
+                if (idSolicitud > 0) {
+                    try (PreparedStatement pstmtDelSol = conn.prepareStatement(sqlDeleteSolicitud)) {
+                        pstmtDelSol.setInt(1, idSolicitud);
+                        pstmtDelSol.executeUpdate();
+                    }
                 }
-            }
-            return true;
 
+                if (idSegmento > 0 && capacidad > 0) {
+                    try (PreparedStatement pstmtUpdSeg = conn.prepareStatement(sqlUpdateSegmento)) {
+                        pstmtUpdSeg.setDouble(1, capacidad);
+                        pstmtUpdSeg.setInt(2, idSegmento);
+                        pstmtUpdSeg.executeUpdate();
+                    }
+                }
+                conn.commit();
+                return true;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -195,5 +223,11 @@ public class ServicioDao extends DaoBase {
         }
 
         return lista;
+    }
+
+    // borrar un servicio vencido desde el historial: hace lo mismo que eliminarServicio
+    // (borra el servicio y su solicitud y devuelve la capacidad al segmento)
+    public boolean eliminarServicioPermanente(int idServicio) {
+        return eliminarServicio(idServicio);
     }
 }

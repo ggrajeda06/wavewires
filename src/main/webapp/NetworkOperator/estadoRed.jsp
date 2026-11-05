@@ -33,7 +33,11 @@
 <div class="row g-0">
   <jsp:include page="/NetworkOperator/sidebar.jsp"/>
   <main class="col p-4 bg-light">
-    <h3 class="fw-bold mb-4">Estado de la red</h3>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3 class="fw-bold m-0">Estado de la red</h3>
+          <!-- recarga la misma vista: al leer, SegmentoDao.recalcularEstados() toma las fallas que entraron por SQL -->
+          <a href="<%=request.getContextPath()%>/IncidenciaServlet?action=estadoRed" class="btn btn-outline-secondary">Actualizar</a>
+        </div>
 
     <div class="row g-2 mb-3">
       <div class="col-md-3">

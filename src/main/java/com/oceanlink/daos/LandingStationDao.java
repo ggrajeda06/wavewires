@@ -54,6 +54,28 @@ public class LandingStationDao extends DaoBase {
         return ls;
     }
 
+    // true si otra landing ya usa ese nombre (idExcluir = la que se esta editando, 0 al crear)
+    public boolean existeNombre(String nombre, int idExcluir) {
+
+        boolean existe = false;
+        String sql = "SELECT COUNT(*) FROM landingstation WHERE nombre = ? AND idLandingStation <> ?";
+        try (Connection conn = this.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, nombre);
+            pstmt.setInt(2, idExcluir);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    existe = rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return existe;
+    }
+
     public void crearLandingStation(String nombre, String pais, String ciudad) {
 
         String sql = "INSERT INTO landingstation (nombre, pais, ciudad) VALUES (?, ?, ?)";

@@ -71,80 +71,90 @@ public class SolicitudesDao extends DaoBase {
         }
     }
 
-    // Actualizar solicitud
-    public void actualizarSolicitud(int idSolicitudCapacidad, double capacidad, String origen,
-                                    String destino, String estado, String observaciones,
-                                    int duracionMeses, Integer idSegmento, int idCliente) {
+    // Actualizar solicitud; al activarla crea el servicio y mueve la capacidad en una sola transaccion
+    // devuelve false si no se pudo guardar y entonces no cambia nada
+    public boolean actualizarSolicitud(int idSolicitudCapacidad, double capacidad, String origen,
+                                       String destino, String estado, String observaciones,
+                                       int duracionMeses, Integer idSegmento, int idCliente) {
         String sql = "UPDATE solicitudcapacidad SET capacidad = ?, origen = ?, destino = ?, "
                 + "estado = ?, observaciones = ?, duracionMeses = ?, idSegmento = ?, idCliente = ? "
                 + "WHERE idSolicitudCapacidad = ?";
 
-        try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setDouble(1, capacidad);
-            pstmt.setString(2, origen);
-            pstmt.setString(3, destino);
-            pstmt.setString(4, estado);
-            pstmt.setString(5, observaciones);
-            pstmt.setInt(6, duracionMeses);
+                pstmt.setDouble(1, capacidad);
+                pstmt.setString(2, origen);
+                pstmt.setString(3, destino);
+                pstmt.setString(4, estado);
+                pstmt.setString(5, observaciones);
+                pstmt.setInt(6, duracionMeses);
 
-            if (idSegmento == null || idSegmento == 0) {
-                pstmt.setNull(7, Types.INTEGER);
-            } else {
-                pstmt.setInt(7, idSegmento);
-            }
-
-            pstmt.setInt(8, idCliente);
-            pstmt.setInt(9, idSolicitudCapacidad);
-
-            pstmt.executeUpdate();
-
-            // Registrar servicio y actualizar capacidades del segmento al activar
-            if ("Activo".equalsIgnoreCase(estado)) {
-                String sqlServicio = "INSERT INTO servicio (identificador, capacidad, estado, fechaCaducidad, idSegmento, idSolicitudCapacidad) "
-                        + "VALUES (CONCAT('SRV-', ?), ?, 'Funcionando', DATE_ADD(CURDATE(), INTERVAL ? MONTH), ?, ?)";
-                try (PreparedStatement pstmtServ = conn.prepareStatement(sqlServicio)) {
-                    pstmtServ.setInt(1, idSolicitudCapacidad);
-                    pstmtServ.setDouble(2, capacidad);
-                    pstmtServ.setInt(3, duracionMeses);
-                    if (idSegmento == null || idSegmento == 0) {
-                        pstmtServ.setNull(4, Types.INTEGER);
-                    } else {
-                        pstmtServ.setInt(4, idSegmento);
-                    }
-                    pstmtServ.setInt(5, idSolicitudCapacidad);
-                    pstmtServ.executeUpdate();
+                if (idSegmento == null || idSegmento == 0) {
+                    pstmt.setNull(7, Types.INTEGER);
+                } else {
+                    pstmt.setInt(7, idSegmento);
                 }
 
-                // Traspasar capacidad reservada a capacidad usada en el segmento
-                if (idSegmento != null && idSegmento > 0) {
-                    String sqlSeg = "UPDATE segmento SET capacidadReservada = GREATEST(0, capacidadReservada - ?), "
-                            + "capacidadUsada = capacidadUsada + ? WHERE idSegmento = ?";
-                    try (PreparedStatement pstmtSeg = conn.prepareStatement(sqlSeg)) {
-                        pstmtSeg.setDouble(1, capacidad);
-                        pstmtSeg.setDouble(2, capacidad);
-                        pstmtSeg.setInt(3, idSegmento);
-                        pstmtSeg.executeUpdate();
+                pstmt.setInt(8, idCliente);
+                pstmt.setInt(9, idSolicitudCapacidad);
+
+                pstmt.executeUpdate();
+
+                // Registrar servicio y actualizar capacidades del segmento al activar
+                if ("Activo".equalsIgnoreCase(estado)) {
+                    String sqlServicio = "INSERT INTO servicio (identificador, capacidad, estado, fechaCaducidad, idSegmento, idSolicitudCapacidad) "
+                            + "VALUES (CONCAT('SRV-', ?), ?, 'Funcionando', DATE_ADD(CURDATE(), INTERVAL ? MONTH), ?, ?)";
+                    try (PreparedStatement pstmtServ = conn.prepareStatement(sqlServicio)) {
+                        pstmtServ.setInt(1, idSolicitudCapacidad);
+                        pstmtServ.setDouble(2, capacidad);
+                        pstmtServ.setInt(3, duracionMeses);
+                        if (idSegmento == null || idSegmento == 0) {
+                            pstmtServ.setNull(4, Types.INTEGER);
+                        } else {
+                            pstmtServ.setInt(4, idSegmento);
+                        }
+                        pstmtServ.setInt(5, idSolicitudCapacidad);
+                        pstmtServ.executeUpdate();
+                    }
+
+                    // Traspasar capacidad reservada a capacidad usada en el segmento
+                    if (idSegmento != null && idSegmento > 0) {
+                        String sqlSeg = "UPDATE segmento SET capacidadReservada = GREATEST(0, capacidadReservada - ?), "
+                                + "capacidadUsada = capacidadUsada + ? WHERE idSegmento = ?";
+                        try (PreparedStatement pstmtSeg = conn.prepareStatement(sqlSeg)) {
+                            pstmtSeg.setDouble(1, capacidad);
+                            pstmtSeg.setDouble(2, capacidad);
+                            pstmtSeg.setInt(3, idSegmento);
+                            pstmtSeg.executeUpdate();
+                        }
                     }
                 }
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
-    // Eliminar solicitud
-    public void borrarSolicitud(int idSolicitudCapacidad) {
+    // Eliminar solicitud; si ya tiene un servicio la llave foranea no deja borrarla y devuelve false
+    public boolean borrarSolicitud(int idSolicitudCapacidad) {
         String sql = "DELETE FROM solicitudcapacidad WHERE idSolicitudCapacidad = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, idSolicitudCapacidad);
-            pstmt.executeUpdate();
+            return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
 

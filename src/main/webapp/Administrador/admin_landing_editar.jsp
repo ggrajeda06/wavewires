@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page import="com.oceanlink.util.Html" %>
 <jsp:useBean id="landing" type="com.oceanlink.beans.LandingStation" scope="request" />
 <!DOCTYPE html>
 <html lang="es">
@@ -19,6 +20,8 @@
     <div class="alert alert-danger w-50">Completa el nombre, el país y la ciudad.</div>
     <% } else if ("largo".equals(request.getParameter("error"))) { %>
     <div class="alert alert-danger w-50">Cada campo puede tener como máximo 100 caracteres.</div>
+    <% } else if ("nombreRepetido".equals(request.getParameter("error"))) { %>
+    <div class="alert alert-danger w-50">Ya existe una landing station con ese nombre.</div>
     <% } %>
 
     <form class="card p-4 w-50" method="POST" action="<%=request.getContextPath()%>/LandingStationServlet?action=actualizar">
@@ -29,13 +32,13 @@
       <input class="form-control mb-3 bg-light" value="<%=landing.getIdLandingStation()%>" readonly>
 
       <label class="form-label" for="nombre">Nombre</label>
-      <input class="form-control mb-3" id="nombre" name="nombre" maxlength="100" value="<%=landing.getNombre()%>" required>
+      <input class="form-control mb-3" id="nombre" name="nombre" maxlength="100" value="<%=Html.esc(landing.getNombre())%>" required>
 
       <label class="form-label" for="pais">País</label>
-      <input class="form-control mb-3" id="pais" name="pais" maxlength="100" value="<%=landing.getPais()%>" required>
+      <input class="form-control mb-3" id="pais" name="pais" maxlength="100" value="<%=Html.esc(landing.getPais())%>" required>
 
       <label class="form-label" for="ciudad">Ciudad / localidad</label>
-      <input class="form-control mb-4" id="ciudad" name="ciudad" maxlength="100" value="<%=landing.getCiudad()%>" required>
+      <input class="form-control mb-4" id="ciudad" name="ciudad" maxlength="100" value="<%=Html.esc(landing.getCiudad())%>" required>
 
       <div>
         <a href="<%=request.getContextPath()%>/LandingStationServlet" class="btn btn-secondary">Cancelar</a>

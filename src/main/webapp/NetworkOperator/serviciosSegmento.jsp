@@ -38,7 +38,11 @@
         <h3 class="fw-bold m-0">Servicios de SEG-<%= String.format("%03d", segmento.getIdSegmento()) %></h3>
         <span class="badge ms-3 <%= colorSegmento %>"><%= segmento.getEstado() %></span>
       </div>
-      <a href="<%=request.getContextPath()%>/IncidenciaServlet?action=formCrear&idSegmento=<%= segmento.getIdSegmento() %>" class="btn btn-primary shadow-sm">+ Registrar incidencia</a>
+            <div class="d-flex gap-2">
+              <!-- recarga la misma vista para ver las fallas nuevas -->
+              <a href="<%=request.getContextPath()%>/IncidenciaServlet?action=serviciosSegmento&id=<%= segmento.getIdSegmento() %>" class="btn btn-outline-secondary">Actualizar</a>
+              <a href="<%=request.getContextPath()%>/IncidenciaServlet?action=formCrear&idSegmento=<%= segmento.getIdSegmento() %>" class="btn btn-primary shadow-sm">+ Registrar incidencia</a>
+            </div>
     </div>
 
     <div class="row g-2 mb-3">
