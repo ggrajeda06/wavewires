@@ -3,6 +3,7 @@
 <jsp:useBean id="filasSegmentos" type="java.util.ArrayList<java.util.LinkedHashMap<java.lang.String, java.lang.String>>" scope="request" />
 <jsp:useBean id="filasIncidencias" type="java.util.ArrayList<java.util.LinkedHashMap<java.lang.String, java.lang.String>>" scope="request" />
 <jsp:useBean id="filasMantenimientos" type="java.util.ArrayList<java.util.LinkedHashMap<java.lang.String, java.lang.String>>" scope="request" />
+<jsp:useBean id="filasCapacidadClientes" type="java.util.ArrayList<java.util.LinkedHashMap<java.lang.String, java.lang.String>>" scope="request" />
 <%!
     private String esc(String texto) {
         if (texto == null) {
@@ -14,7 +15,7 @@
 
     private String colorBarra(String utilizacion) {
         double valor = Double.parseDouble(utilizacion);
-        if (valor >= 90) {
+        if (valor > 95) {
             return "bg-danger";
         } else if (valor >= 80) {
             return "bg-warning";
@@ -61,6 +62,19 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
             <h1 class="h3 fw-bold mb-0">Estado general de la red</h1>
         </div>
+        <section class="card shadow-sm mb-4" aria-labelledby="tituloIndicadores">
+            <div class="card-body p-3 p-lg-4">
+                <h2 class="h5 mb-3" id="tituloIndicadores">Indicadores de la red</h2>
+                <div class="row g-3">
+                    <div class="col-6 col-lg-4 col-xxl-2"><div class="border rounded p-3 h-100"><span class="text-secondary small">Utilización de la red</span><p class="fs-5 fw-semibold mb-0 mt-2"><%=request.getAttribute("utilizacionRed")%></p></div></div>
+                    <div class="col-6 col-lg-4 col-xxl-2"><div class="border rounded p-3 h-100"><span class="text-secondary small">Segmentos operativos</span><p class="fs-5 fw-semibold mb-0 mt-2"><%=request.getAttribute("segmentosOperativos")%></p></div></div>
+                    <div class="col-6 col-lg-4 col-xxl-2"><div class="border rounded p-3 h-100"><span class="text-secondary small">Segmentos no operativos</span><p class="fs-5 fw-semibold mb-0 mt-2"><%=request.getAttribute("segmentosNoOperativos")%></p><span class="text-secondary small">Degradados, en mantenimiento o fuera de servicio</span></div></div>
+                    <div class="col-6 col-lg-4 col-xxl-2"><div class="border rounded p-3 h-100"><span class="text-secondary small">Incidencias activas</span><p class="fs-5 fw-semibold mb-0 mt-2"><%=request.getAttribute("incidenciasActivas")%></p></div></div>
+                    <div class="col-6 col-lg-4 col-xxl-2"><div class="border rounded p-3 h-100"><span class="text-secondary small">Servicios afectados</span><p class="fs-5 fw-semibold mb-0 mt-2"><%=request.getAttribute("serviciosAfectados")%></p><span class="text-secondary small"><%=request.getAttribute("clientesAfectados")%> clientes afectados</span></div></div>
+                    <div class="col-6 col-lg-4 col-xxl-2"><div class="border rounded p-3 h-100"><span class="text-secondary small">Mantenimientos programados</span><p class="fs-5 fw-semibold mb-0 mt-2"><%=request.getAttribute("mantenimientosProgramados")%></p></div></div>
+                </div>
+            </div>
+        </section>
         <section class="card shadow-sm mb-4" aria-labelledby="tituloCapacidad">
             <div class="card-body p-3 p-lg-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
@@ -73,7 +87,10 @@
                     <div class="col-12 col-sm-6 col-xl-3"><div class="border rounded p-3 h-100"><span class="text-secondary small">Capacidad disponible</span><p class="fs-5 fw-semibold mb-0 mt-2"><%=request.getAttribute("capDisponible")%></p></div></div>
                 </div>
                 <div class="border rounded p-3">
-                    <h3 class="h6 mb-3">Más utilizados</h3>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h3 class="h6 mb-0">Más utilizados</h3>
+                        <span class="small text-secondary"><%=request.getAttribute("segmentosAltaUtilizacion")%> con utilización alta o crítica</span>
+                    </div>
                     <div class="row g-3">
                         <% for (int i = 0; i < filasSegmentos.size() && i < 6; i++) {
                                LinkedHashMap<String, String> s = filasSegmentos.get(i); %>
@@ -117,7 +134,7 @@
             <div class="col-12 col-xl-6">
                 <section class="card shadow-sm h-100" aria-labelledby="tituloMantenimientos">
                     <div class="card-body">
-                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><h2 class="h5 mb-0" id="tituloMantenimientos">Mantenimientos pendientes</h2><button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalMantenimientos">Más detalles</button></div>
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"><h2 class="h5 mb-0" id="tituloMantenimientos">Mantenimientos programados</h2><button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalMantenimientos">Más detalles</button></div>
                         <div class="table-responsive" tabindex="0" role="region" aria-label="Listado de mantenimientos">
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="table-light"><tr><th scope="col">ID de mantenimiento</th><th scope="col">Infraestructura</th><th scope="col">Tipo</th><th scope="col">Fecha</th></tr></thead>
@@ -136,7 +153,7 @@
                                 </tr>
                                 <% } %>
                                 <% if (pendientes == 0) { %>
-                                <tr><td colspan="4" class="text-secondary">No hay mantenimientos pendientes.</td></tr>
+                                <tr><td colspan="4" class="text-secondary">No hay mantenimientos programados.</td></tr>
                                 <% } %>
                                 </tbody>
                             </table>
@@ -145,6 +162,29 @@
                 </section>
             </div>
         </div>
+        <section class="card shadow-sm mt-4" aria-labelledby="tituloCapacidadClientes">
+            <div class="card-body">
+                <h2 class="h5 mb-3" id="tituloCapacidadClientes">Capacidad contratada por cliente</h2>
+                <p class="small text-secondary">Solo cuenta los servicios vigentes: no finalizados ni caducados.</p>
+                <div class="table-responsive" tabindex="0" role="region" aria-label="Capacidad contratada por cliente">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light"><tr><th scope="col">Cliente</th><th scope="col">Servicios vigentes</th><th scope="col">Capacidad contratada</th></tr></thead>
+                        <tbody>
+                        <% for (LinkedHashMap<String, String> c : filasCapacidadClientes) { %>
+                        <tr>
+                            <th scope="row" class="fw-normal"><%=esc(c.get("Razón Social"))%></th>
+                            <td><%=esc(c.get("Servicios vigentes"))%></td>
+                            <td><%=esc(c.get("Capacidad contratada"))%></td>
+                        </tr>
+                        <% } %>
+                        <% if (filasCapacidadClientes.isEmpty()) { %>
+                        <tr><td colspan="3" class="text-secondary">No hay clientes registrados.</td></tr>
+                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
     </main>
 </div>
 
@@ -191,7 +231,7 @@
             <div class="modal-body">
                 <div class="table-responsive" tabindex="0" role="region" aria-label="Listado de incidencias">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light"><tr><th scope="col">ID de incidencia</th><th scope="col">Landings afectadas</th><th scope="col">Observaciones</th><th scope="col">Segmentos afectados</th><th scope="col">Estado</th><th scope="col">Severidad</th><th scope="col">Clientes afectados</th><th scope="col">Detectado</th></tr></thead>
+                        <thead class="table-light"><tr><th scope="col">ID de incidencia</th><th scope="col">Landings afectadas</th><th scope="col">Observaciones</th><th scope="col">Segmentos afectados</th><th scope="col">Estado</th><th scope="col">Severidad</th><th scope="col">Servicios afectados</th><th scope="col">Clientes afectados</th><th scope="col">Detectado</th></tr></thead>
                         <tbody>
                         <% for (LinkedHashMap<String, String> inc : filasIncidencias) { %>
                         <tr>
@@ -201,12 +241,13 @@
                             <td><%=esc(inc.get("Segmentos afectados"))%></td>
                             <td><span class="badge text-bg-secondary"><%=esc(inc.get("Estado"))%></span></td>
                             <td><span class="badge <%=colorSeveridad(inc.get("Severidad"))%>"><%=esc(inc.get("Severidad"))%></span></td>
+                            <td><%=esc(inc.get("Servicios afectados"))%></td>
                             <td><details><summary class="text-decoration-underline">Clientes</summary><div class="bg-light border rounded p-2 mt-2"><%=esc(inc.get("Clientes afectados"))%></div></details></td>
                             <td><%=esc(inc.get("Detectado"))%></td>
                         </tr>
                         <% } %>
                         <% if (filasIncidencias.isEmpty()) { %>
-                        <tr><td colspan="8" class="text-secondary">No hay incidencias activas.</td></tr>
+                        <tr><td colspan="9" class="text-secondary">No hay incidencias activas.</td></tr>
                         <% } %>
                         </tbody>
                     </table>

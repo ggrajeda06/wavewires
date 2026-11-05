@@ -38,3 +38,9 @@
     background-color: rgb(236 4 28 / 0.85);
     color: #f8d7da !important;
 }
+/* en pantallas medianas el contenido se iba debajo del menu y la vista parecia vacia */
+@media (min-width: 768px) {
+    .sidebar-custom + main {
+        min-width: 0;
+    }
+}

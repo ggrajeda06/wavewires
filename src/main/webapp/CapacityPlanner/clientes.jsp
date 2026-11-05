@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.oceanlink.beans.Cliente" %>
 <%@ page import="com.oceanlink.beans.Servicio" %>
+<%@ page import="com.oceanlink.util.Html" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="java.util.ArrayList" %>
 <jsp:useBean id="listaClientes" type="java.util.ArrayList<com.oceanlink.beans.Cliente>" scope="request" />
@@ -55,7 +56,7 @@
       <form method="GET" action="<%=request.getContextPath()%>/ClienteServlet" class="row mb-3">
         <div class="col-md-4">
           <input type="text" name="buscar" class="form-control" placeholder="Buscar cliente, razón social o RUC..."
-                 value="<%=request.getParameter("buscar") != null ? request.getParameter("buscar") : ""%>">
+                 value="<%=Html.esc(request.getParameter("buscar"))%>">
         </div>
       </form>
 
@@ -183,17 +184,17 @@
         <div class="modal-body p-4">
           <div class="mb-3">
             <label class="form-label small fw-semibold">Razón social</label>
-            <input type="text" name="razonSocial" class="form-control" maxlength="100" value="<%=c.getRazonSocial()%>" required>
+            <input type="text" name="razonSocial" class="form-control" maxlength="100" value="<%=Html.esc(c.getRazonSocial())%>" required>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">RUC</label>
-            <input type="text" name="ruc" class="form-control" maxlength="11" value="<%=c.getRuc()%>" required>
+            <input type="text" name="ruc" class="form-control" maxlength="11" value="<%=Html.esc(c.getRuc())%>" required>
           </div>
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Correo de contacto</label>
-            <input type="email" name="correo" class="form-control" maxlength="100" value="<%=c.getCorreo()%>" required>
+            <input type="email" name="correo" class="form-control" maxlength="100" value="<%=Html.esc(c.getCorreo())%>" required>
           </div>
         </div>
 

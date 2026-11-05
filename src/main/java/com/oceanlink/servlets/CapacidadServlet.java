@@ -2,6 +2,7 @@ package com.oceanlink.servlets;
 
 import com.oceanlink.beans.Segmento;
 import com.oceanlink.daos.SegmentoDao;
+import com.oceanlink.util.Listas;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -44,7 +45,16 @@ public class CapacidadServlet extends HttpServlet {
         request.setAttribute("usadaRed", usadaRed);
         request.setAttribute("reservadaRed", reservadaRed);
         request.setAttribute("disponibleRed", disponibleRed);
-        request.setAttribute("listaSegmentos", todosSegmentos);
+
+        // las tarjetas siempre muestran toda la red; el buscador solo filtra la tabla
+        String buscar = request.getParameter("buscar");
+        ArrayList<Segmento> segmentos = new ArrayList<>();
+        for (Segmento s : todosSegmentos) {
+            if (Listas.coincide(buscar, "Segmento " + s.getIdSegmento(), s.getNombreOrigen(), s.getNombreDestino(), s.getEstado())) {
+                segmentos.add(s);
+            }
+        }
+        request.setAttribute("listaSegmentos", segmentos);
 
         RequestDispatcher view = request.getRequestDispatcher("CapacityPlanner/capacidad.jsp");
         view.forward(request, response);

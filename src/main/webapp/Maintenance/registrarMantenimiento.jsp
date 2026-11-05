@@ -3,6 +3,7 @@
 <%@ page import="com.oceanlink.beans.Segmento" %>
 <%@ page import="com.oceanlink.beans.Incidencia" %>
 <%@ page import="com.oceanlink.beans.Servicio" %>
+<%@ page import="com.oceanlink.util.Html" %>
 <jsp:useBean id="listaLandings" type="java.util.ArrayList<com.oceanlink.beans.LandingStation>" scope="request" />
 <jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
 <jsp:useBean id="listaIncidencias" type="java.util.ArrayList<com.oceanlink.beans.Incidencia>" scope="request" />
@@ -47,22 +48,22 @@
           <div class="col-md-6">
             <div class="mb-3">
               <label for="nombreId" class="form-label fw-semibold">Name(ID)</label>
-              <input type="text" class="form-control" id="nombreId" name="nombreId" maxlength="45" placeholder="Escribir nombre" value="<%=nombreVal%>" required>
+              <input type="text" class="form-control" id="nombreId" name="nombreId" maxlength="45" placeholder="Escribir nombre" value="<%=Html.esc(nombreVal)%>" required>
             </div>
 
             <div class="mb-3">
               <label for="descripcion" class="form-label fw-semibold">Descripción</label>
-              <textarea class="form-control" id="descripcion" name="descripcion" rows="4" placeholder="Describe el mantenimiento" required><%=descripcionVal%></textarea>
+              <textarea class="form-control" id="descripcion" name="descripcion" rows="4" placeholder="Describe el mantenimiento" required><%=Html.esc(descripcionVal)%></textarea>
             </div>
 
             <div class="mb-3">
               <label for="fecha" class="form-label fw-semibold">Fecha programada</label>
-              <input type="date" class="form-control" id="fecha" name="fecha" value="<%=fechaVal%>" required>
+              <input type="date" class="form-control" id="fecha" name="fecha" value="<%=Html.esc(fechaVal)%>" required>
             </div>
 
             <div class="mb-3">
               <label for="duracion" class="form-label fw-semibold">Duración estimada (horas)</label>
-              <input type="number" class="form-control" id="duracion" name="duracion" min="1" placeholder="Escribir duración en horas" value="<%=duracionVal%>" required>
+              <input type="number" class="form-control" id="duracion" name="duracion" min="1" placeholder="Escribir duración en horas" value="<%=Html.esc(duracionVal)%>" required>
             </div>
           </div>
 

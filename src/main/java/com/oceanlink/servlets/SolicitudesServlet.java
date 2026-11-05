@@ -1,10 +1,12 @@
 package com.oceanlink.servlets;
 
+import com.oceanlink.beans.Cliente;
 import com.oceanlink.beans.Segmento;
 import com.oceanlink.beans.Solicitudes;
 import com.oceanlink.daos.ClienteDao;
 import com.oceanlink.daos.SegmentoDao;
 import com.oceanlink.daos.SolicitudesDao;
+import com.oceanlink.util.Listas;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -30,8 +32,9 @@ public class SolicitudesServlet extends HttpServlet {
 
         switch (action) {
             case "lista":
-                request.setAttribute("listaSolicitudes", solicitudesDao.listarSolicitudes());
-                request.setAttribute("listaClientes", clienteDao.listarClientes());
+                ArrayList<Cliente> clientes = clienteDao.listarClientes();
+                request.setAttribute("listaSolicitudes", filtrar(solicitudesDao.listarSolicitudes(), clientes, request.getParameter("buscar")));
+                request.setAttribute("listaClientes", clientes);
                 request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
                 view = request.getRequestDispatcher("CapacityPlanner/solicitudes.jsp");
                 view.forward(request, response);
@@ -39,10 +42,11 @@ public class SolicitudesServlet extends HttpServlet {
 
             case "borrar":
                 Solicitudes solicitudBorrar = solicitudesDao.obtenerSolicitud(numero(request.getParameter("id")));
-                if (solicitudBorrar != null) {
-                    solicitudesDao.borrarSolicitud(solicitudBorrar.getIdSolicitudCapacidad());
+                if (solicitudBorrar != null && !solicitudesDao.borrarSolicitud(solicitudBorrar.getIdSolicitudCapacidad())) {
+                    response.sendRedirect(request.getContextPath() + "/SolicitudesServlet?error=enUso");
+                } else {
+                    response.sendRedirect(request.getContextPath() + "/SolicitudesServlet");
                 }
-                response.sendRedirect(request.getContextPath() + "/SolicitudesServlet");
                 break;
 
             default:
@@ -115,9 +119,12 @@ public class SolicitudesServlet extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/SolicitudesServlet?error=capacidad");
                 } else {
                     Integer idSegmento = segmento == null ? null : segmento.getIdSegmento();
-                    solicitudesDao.actualizarSolicitud(actual.getIdSolicitudCapacidad(), capacidad, origen, destino,
-                            estado, observaciones, duracionMeses, idSegmento, idCliente);
-                    response.sendRedirect(request.getContextPath() + "/SolicitudesServlet");
+                    if (solicitudesDao.actualizarSolicitud(actual.getIdSolicitudCapacidad(), capacidad, origen, destino,
+                            estado, observaciones, duracionMeses, idSegmento, idCliente)) {
+                        response.sendRedirect(request.getContextPath() + "/SolicitudesServlet");
+                    } else {
+                        response.sendRedirect(request.getContextPath() + "/SolicitudesServlet?error=noGuardado");
+                    }
                 }
                 break;
 
@@ -125,6 +132,24 @@ public class SolicitudesServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/SolicitudesServlet");
                 break;
         }
+    }
+
+    // solicitudes que coinciden con lo buscado: por numero, cliente, ruta o estado
+    private ArrayList<Solicitudes> filtrar(ArrayList<Solicitudes> solicitudes, ArrayList<Cliente> clientes, String buscar) {
+        ArrayList<Solicitudes> resultado = new ArrayList<>();
+        for (Solicitudes s : solicitudes) {
+            String nombreCliente = "";
+            for (Cliente c : clientes) {
+                if (c.getIdCliente() == s.getIdCliente()) {
+                    nombreCliente = c.getRazonSocial();
+                }
+            }
+            if (Listas.coincide(buscar, "Solicitud " + s.getIdSolicitudCapacidad(), nombreCliente,
+                    s.getOrigen(), s.getDestino(), s.getEstado())) {
+                resultado.add(s);
+            }
+        }
+        return resultado;
     }
 
     // estados a los que puede pasar una solicitud desde su estado actual (incluye quedarse igual)

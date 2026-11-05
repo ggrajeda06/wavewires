@@ -98,6 +98,9 @@ public class LandingStationServlet extends HttpServlet {
 
         switch (action) {
             case "crear":
+                if (error == null && landingStationDao.existeNombre(nombre, 0)) {
+                    error = "nombreRepetido";
+                }
                 if (error != null) {
                     response.sendRedirect(request.getContextPath() + "/LandingStationServlet?action=formCrear&error=" + error);
                     break;
@@ -110,6 +113,9 @@ public class LandingStationServlet extends HttpServlet {
                 if (landingStationDao.obtenerLandingStation(idLanding) == null) {
                     response.sendRedirect(request.getContextPath() + "/LandingStationServlet");
                     break;
+                }
+                if (error == null && landingStationDao.existeNombre(nombre, idLanding)) {
+                    error = "nombreRepetido";
                 }
                 if (error != null) {
                     response.sendRedirect(request.getContextPath() + "/LandingStationServlet?action=editar&id=" + idLanding + "&error=" + error);

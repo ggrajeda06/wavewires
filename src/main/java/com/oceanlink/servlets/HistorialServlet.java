@@ -1,7 +1,9 @@
 package com.oceanlink.servlets;
 
+import com.oceanlink.beans.Segmento;
 import com.oceanlink.daos.SegmentoDao;
 import com.oceanlink.daos.ServicioDao;
+import com.oceanlink.util.Listas;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -10,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 @WebServlet(name = "HistorialServlet", value = "/HistorialServlet")
 public class HistorialServlet extends HttpServlet {
@@ -26,7 +29,14 @@ public class HistorialServlet extends HttpServlet {
 
         switch (action) {
             case "lista":
-                request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
+                String buscar = request.getParameter("buscar");
+                ArrayList<Segmento> segmentos = new ArrayList<>();
+                for (Segmento s : segmentoDao.listarSegmentos()) {
+                    if (Listas.coincide(buscar, "Segmento " + s.getIdSegmento(), s.getNombreOrigen(), s.getNombreDestino())) {
+                        segmentos.add(s);
+                    }
+                }
+                request.setAttribute("listaSegmentos", Listas.paginar(request, segmentos));
                 request.setAttribute("listaServiciosCaducados", servicioDao.listarServiciosCaducados());
 
                 view = request.getRequestDispatcher("CapacityPlanner/historial.jsp");
