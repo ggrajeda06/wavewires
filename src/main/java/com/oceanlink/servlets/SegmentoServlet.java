@@ -61,7 +61,6 @@ public class SegmentoServlet extends HttpServlet {
         int idOrigen = numero(request.getParameter("idOrigen"));
         int idDestino = numero(request.getParameter("idDestino"));
         double capacidadTotal = decimal(request.getParameter("capacidadTotal"));
-        String estado = texto(request.getParameter("estado"));
 
         String error = null;
         if (landingStationDao.obtenerLandingStation(idOrigen) == null || landingStationDao.obtenerLandingStation(idDestino) == null) {
@@ -70,10 +69,8 @@ public class SegmentoServlet extends HttpServlet {
             error = "ruta";
         } else if (capacidadTotal <= 0 || capacidadTotal > 99999999) {
             error = "capacidad";
-        } else if (!estado.equals("Operativo") && !estado.equals("Degradado")
-                && !estado.equals("En mantenimiento") && !estado.equals("Fuera de servicio")) {
-            error = "estado";
         }
+        // el estado no se pide: el segmento nace Operativo y despues se calcula solo (SegmentoDao.recalcularEstados)
 
         switch (action) {
             case "crear":
@@ -81,7 +78,7 @@ public class SegmentoServlet extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/SegmentoServlet?error=" + error);
                     break;
                 }
-                segmentoDao.registrarSegmento(idOrigen, idDestino, capacidadTotal, estado);
+                segmentoDao.registrarSegmento(idOrigen, idDestino, capacidadTotal);
                 response.sendRedirect(request.getContextPath() + "/SegmentoServlet");
                 break;
 
@@ -100,7 +97,7 @@ public class SegmentoServlet extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/SegmentoServlet?error=" + error);
                     break;
                 }
-                segmentoDao.actualizarSegmento(idSegmento, idOrigen, idDestino, capacidadTotal, estado);
+                segmentoDao.actualizarSegmento(idSegmento, idOrigen, idDestino, capacidadTotal);
                 response.sendRedirect(request.getContextPath() + "/SegmentoServlet");
                 break;
 
@@ -108,10 +105,6 @@ public class SegmentoServlet extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/SegmentoServlet");
                 break;
         }
-    }
-
-    private String texto(String valor) {
-        return valor == null ? "" : valor.trim();
     }
 
     private int numero(String valor) {

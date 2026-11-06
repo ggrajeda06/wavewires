@@ -1,6 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="com.oceanlink.beans.Segmento" %>
 <jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
+<%
+    // si se viene desde "Servicios del segmento", ese segmento llega ya marcado
+    String segmentoMarcado = request.getParameter("idSegmento") == null ? "" : request.getParameter("idSegmento");
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -20,6 +24,9 @@
     <% if ("severidad".equals(request.getParameter("error"))) { %>
     <div class="alert alert-danger">Elige la severidad de la incidencia.</div>
     <% } %>
+    <% if ("observacion".equals(request.getParameter("error"))) { %>
+    <div class="alert alert-danger">La observación puede tener como máximo 1000 caracteres.</div>
+    <% } %>
     <% if ("segmentos".equals(request.getParameter("error"))) { %>
     <div class="alert alert-danger">Marca al menos un segmento afectado.</div>
     <% } %>
@@ -36,7 +43,8 @@
           <div class="border rounded p-3 bg-white">
             <% for (Segmento s : listaSegmentos) { %>
             <div class="form-check">
-              <input class="form-check-input" type="checkbox" name="idSegmento" value="<%= s.getIdSegmento() %>" id="seg<%= s.getIdSegmento() %>">
+              <input class="form-check-input" type="checkbox" name="idSegmento" value="<%= s.getIdSegmento() %>" id="seg<%= s.getIdSegmento() %>"
+                     <%= segmentoMarcado.equals(String.valueOf(s.getIdSegmento())) ? "checked" : "" %>>
               <label class="form-check-label" for="seg<%= s.getIdSegmento() %>">
                 SEG-<%= String.format("%03d", s.getIdSegmento()) %> · <%= s.getNombreOrigen() %> - <%= s.getNombreDestino() %>
                 <span class="text-muted small">(<%= s.getEstado() %>)</span>
@@ -59,7 +67,7 @@
 
         <div class="mb-4">
           <label class="form-label fw-semibold">Observación inicial</label>
-          <textarea class="form-control" name="observaciones" rows="3" placeholder="Opcional"></textarea>
+          <textarea class="form-control" name="observaciones" rows="3" maxlength="1000" placeholder="Opcional"></textarea>
         </div>
 
         <div class="d-flex justify-content-end gap-2">

@@ -18,8 +18,6 @@
     <div class="alert alert-danger w-50">Completa el nombre, el país y la ciudad.</div>
     <% } else if ("largo".equals(request.getParameter("error"))) { %>
     <div class="alert alert-danger w-50">Cada campo puede tener como máximo 100 caracteres.</div>
-    <% } else if ("estado".equals(request.getParameter("error"))) { %>
-    <div class="alert alert-danger w-50">Elige un estado válido.</div>
     <% } else if ("nombreRepetido".equals(request.getParameter("error"))) { %>
     <div class="alert alert-danger w-50">Ya existe una landing station con ese nombre.</div>
     <% } %>
@@ -34,15 +32,7 @@
       <input class="form-control mb-3" id="pais" name="pais" maxlength="100" placeholder="Ingresar país" required>
 
       <label class="form-label" for="ciudad">Ciudad / localidad</label>
-      <input class="form-control mb-3" id="ciudad" name="ciudad" maxlength="100" placeholder="Ingresar ciudad" required>
-
-      <label class="form-label" for="estado">Estado</label>
-      <select class="form-select mb-4" id="estado" name="estado" required>
-        <option value="Operativa">Operativa</option>
-        <option value="Degradada">Degradada</option>
-        <option value="En mantenimiento">En mantenimiento</option>
-        <option value="Fuera de servicio">Fuera de servicio</option>
-      </select>
+      <input class="form-control mb-4" id="ciudad" name="ciudad" maxlength="100" placeholder="Ingresar ciudad" required>
 
       <div>
         <a href="<%=request.getContextPath()%>/LandingStationServlet" class="btn btn-secondary">Cancelar</a>

@@ -75,7 +75,7 @@
           <tbody>
             <% if (listaServicios.isEmpty()) { %>
             <tr>
-              <td colspan="5" class="text-center text-muted py-4">Ningún servicio activo usa esta infraestructura.</td>
+              <td colspan="5" class="text-center text-muted py-4">Ningún servicio vigente usa esta infraestructura.</td>
             </tr>
             <% } %>
             <% for (Servicio sv : listaServicios) { %>

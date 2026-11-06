@@ -11,6 +11,7 @@ public class ServicioAfectado {
     private BigDecimal capacidad;
     private int idSegmento;
     private String razonSocial;
+    private String estadoServicio;
     private Date fechaRestauracion;
 
     public int getIdIncidencia() {
@@ -67,6 +68,14 @@ public class ServicioAfectado {
 
     public void setRazonSocial(String razonSocial) {
         this.razonSocial = razonSocial;
+    }
+
+    public String getEstadoServicio() {
+        return estadoServicio;
+    }
+
+    public void setEstadoServicio(String estadoServicio) {
+        this.estadoServicio = estadoServicio;
     }
 
     public Date getFechaRestauracion() {

@@ -1,6 +1,7 @@
 package com.oceanlink.servlets;
 
 import com.oceanlink.beans.Servicio;
+import com.oceanlink.daos.SegmentoDao;
 import com.oceanlink.daos.ServicioDao;
 import com.oceanlink.util.Listas;
 import jakarta.servlet.RequestDispatcher;
@@ -34,6 +35,8 @@ public class ServicioServlet extends HttpServlet {
                     }
                 }
                 request.setAttribute("listaServicios", Listas.paginar(request, servicios));
+                // con el estado de cada segmento el JSP muestra "En mantenimiento" en sus servicios
+                request.setAttribute("listaSegmentos", new SegmentoDao().listarSegmentos());
                 view = request.getRequestDispatcher("CapacityPlanner/servicios.jsp");
                 view.forward(request, response);
                 break;

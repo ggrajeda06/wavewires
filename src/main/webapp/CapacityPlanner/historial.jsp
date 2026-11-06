@@ -24,7 +24,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h2 class="h3 fw-bold text-dark m-0">Historial de segmentos</h2>
-        <small class="text-muted">Consulta de tramos y registro histórico de enlaces finalizados</small>
+        <small class="text-muted">Consulta de tramos y registro histórico de enlaces caducados</small>
       </div>
     </div>
 
@@ -129,7 +129,7 @@
             <% for (Servicio sv : caducadosDelSegmento) {
                  String nombreServicio = (sv.getIdentificador() != null && !sv.getIdentificador().trim().isEmpty())
                                          ? sv.getIdentificador() : "Servicio " + sv.getIdServicio();
-                 int cap = sv.getCapacidad() != null ? sv.getCapacidad().intValue() : 0;
+                 String cap = sv.getCapacidad() != null ? sv.getCapacidad().stripTrailingZeros().toPlainString() : "0";
             %>
             <tr>
               <td class="fw-medium"><%=nombreServicio%></td>
@@ -172,7 +172,7 @@
       <div class="modal-body">
         <i class="bi bi-check-circle text-success fs-1 mb-2 d-block"></i>
         <h6 class="fw-bold mb-2">Servicios Caducados</h6>
-        <p class="text-muted small mb-3">No existen servicios caducados ni de baja registrados en este segmento.</p>
+        <p class="text-muted small mb-3">No existen servicios caducados registrados en este segmento.</p>
         <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>

@@ -22,8 +22,9 @@
     <% if (listaSegmentos.isEmpty()) { %>
     <p class="text-secondary">Esta landing station no tiene segmentos.</p>
     <% } else { %>
-    <table class="table">
-      <thead>
+    <div class="card shadow-sm border-0">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
         <tr>
           <th>Tramo</th>
           <th>Destino</th>
@@ -46,19 +47,22 @@
              String colorEstado = "bg-danger";
              if ("Operativo".equals(s.getEstado())) {
                  colorEstado = "bg-success";
-             } else if ("Fuera de servicio".equals(s.getEstado())) {
-                 colorEstado = "bg-secondary";
+             } else if ("Degradado".equals(s.getEstado())) {
+                 colorEstado = "bg-warning text-dark";
+             } else if ("En mantenimiento".equals(s.getEstado())) {
+                 colorEstado = "bg-info text-dark";
              }
         %>
         <tr>
           <td>SEG-<%=String.format("%03d", s.getIdSegmento())%></td>
           <td><%=nombreDestino%></td>
-          <td><%=s.getCapacidadTotal()%> Gbps</td>
-          <td><span class="d-inline-block rounded-circle <%=colorEstado%>" style="width:8px;height:8px;"></span> <%=s.getEstado()%></td>
+          <td><%=s.getCapacidadTotal().stripTrailingZeros().toPlainString()%> Gbps</td>
+          <td><span class="badge <%=colorEstado%>"><%=s.getEstado()%></span></td>
         </tr>
         <% } %>
       </tbody>
     </table>
+    </div>
     <% } %>
   </main>
 </div>

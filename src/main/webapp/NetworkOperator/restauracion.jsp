@@ -13,8 +13,7 @@
   <jsp:include page="/NetworkOperator/sidebar.jsp"/>
   <main class="col p-4 bg-light">
     <h3 class="fw-bold mb-1">Restauraciones</h3>
-    <p class="text-muted mb-4">Un servicio se restaura solo cuando su incidencia pasa a Servicio restaurado.</p>
-
+       <p class="text-muted mb-4">Se registran solas: al finalizar el último correctivo de una incidencia, sus servicios caídos vuelven a Funcionando.</p>
     <div class="card shadow-sm border-0">
       <div class="card-body p-0">
         <div class="table-responsive">

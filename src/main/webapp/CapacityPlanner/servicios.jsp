@@ -1,8 +1,20 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.oceanlink.beans.Servicio" %>
+<%@ page import="com.oceanlink.beans.Segmento" %>
 <%@ page import="com.oceanlink.util.Html" %>
 <%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.util.ArrayList" %>
 <jsp:useBean id="listaServicios" type="java.util.ArrayList<com.oceanlink.beans.Servicio>" scope="request" />
+<jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
+<%
+  // segmentos que ahora estan en mantenimiento: sus servicios se muestran "En mantenimiento"
+  ArrayList<Integer> segmentosEnMantenimiento = new ArrayList<>();
+  for (Segmento s : listaSegmentos) {
+    if (s.getEstado().equals("En mantenimiento")) {
+      segmentosEnMantenimiento.add(s.getIdSegmento());
+    }
+  }
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -42,18 +54,19 @@
         <table class="table table-hover align-middle mb-3">
           <thead class="table-light">
           <tr>
-            <th style="width: 20%;">Servicios</th>
-            <th style="width: 25%;">Cliente</th>
-            <th style="width: 20%;">Segmento</th>
-            <th style="width: 15%;">Capacidad</th>
+            <th style="width: 16%;">Servicios</th>
+            <th style="width: 22%;">Cliente</th>
+            <th style="width: 14%;">Segmento</th>
+            <th style="width: 12%;">Capacidad</th>
             <th style="width: 15%;">Caducidad del Servicio</th>
-            <th style="width: 5%;" class="text-center">Acción</th>
+            <th style="width: 13%;">Estado</th>
+            <th style="width: 8%;" class="text-center">Acción</th>
           </tr>
           </thead>
           <tbody>
           <% if (listaServicios.isEmpty()) { %>
           <tr>
-            <td colspan="6" class="text-center text-muted py-4">No se encontraron servicios activos registrados.</td>
+            <td colspan="7" class="text-center text-muted py-4">No se encontraron servicios activos registrados.</td>
           </tr>
           <% } else { %>
             <%
@@ -63,7 +76,20 @@
                                          ? sv.getIdentificador() : "Servicio " + sv.getIdServicio();
                  String nombreSegmento = sv.getIdSegmento() > 0 ? "Segmento " + sv.getIdSegmento() : "No asignado";
                  String fechaCaducidadStr = sv.getFechaCaducidad() != null ? sdf.format(sv.getFechaCaducidad()) : "-";
-                 int capGbps = sv.getCapacidad() != null ? sv.getCapacidad().intValue() : 0;
+                 // capacidad sin decimales de sobra: 120 en vez de 120.00, pero 12.5 se mantiene
+                 String capGbps = sv.getCapacidad() != null ? sv.getCapacidad().stripTrailingZeros().toPlainString() : "0";
+
+                 // estado en la red: En mantenimiento si su segmento lo esta, si no el guardado (Funcionando / Caído)
+                 String estadoMostrar = sv.getEstado();
+                 if (segmentosEnMantenimiento.contains(sv.getIdSegmento())) {
+                   estadoMostrar = "En mantenimiento";
+                 }
+                 String colorEstado = "bg-success-subtle text-success border border-success-subtle";
+                 if (estadoMostrar.equals("Caído")) {
+                   colorEstado = "bg-danger-subtle text-danger border border-danger-subtle";
+                 } else if (estadoMostrar.equals("En mantenimiento")) {
+                   colorEstado = "bg-info-subtle text-info-emphasis border border-info-subtle";
+                 }
             %>
             <tr>
               <td class="fw-medium"><%=nombreServicio%></td>
@@ -71,6 +97,7 @@
               <td><%=nombreSegmento%></td>
               <td><%=capGbps%> Gbps</td>
               <td><%=fechaCaducidadStr%></td>
+              <td><span class="badge <%=colorEstado%>"><%=estadoMostrar%></span></td>
               <td class="text-center">
                 <a href="<%=request.getContextPath()%>/ServicioServlet?action=borrar&id=<%=sv.getIdServicio()%>"
                    class="btn btn-outline-danger btn-sm px-3"

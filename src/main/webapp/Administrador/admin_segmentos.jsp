@@ -5,7 +5,6 @@
 <jsp:useBean id="listaLandings" type="java.util.ArrayList<com.oceanlink.beans.LandingStation>" scope="request" />
 <%
   String error = request.getParameter("error");
-  String[] estados = {"Operativo", "Degradado", "En mantenimiento", "Fuera de servicio"};
 %>
 <!DOCTYPE html>
 <html lang="es">
@@ -30,8 +29,6 @@
       <div class="alert alert-danger">La capacidad total debe ser un número mayor que 0.</div>
     <% } else if ("capacidadMenor".equals(error)) { %>
       <div class="alert alert-danger">La capacidad total no puede ser menor que la capacidad usada más la reservada.</div>
-    <% } else if ("estado".equals(error)) { %>
-      <div class="alert alert-danger">Elige un estado válido.</div>
     <% } else if ("enUso".equals(error)) { %>
       <div class="alert alert-danger">No se puede eliminar el segmento porque tiene solicitudes, servicios, incidencias o mantenimientos asociados.</div>
     <% } %>
@@ -119,14 +116,7 @@
             <input type="number" name="capacidadTotal" class="form-control" min="1" step="0.01" placeholder="Ingresar capacidad" required>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label small fw-semibold">Estado</label>
-            <select name="estado" class="form-select" required>
-              <% for (String e : estados) { %>
-              <option value="<%=e%>"><%=e%></option>
-              <% } %>
-            </select>
-          </div>
+          <small class="text-muted">El segmento nace Operativo. Después su estado se actualiza solo según sus servicios y mantenimientos.</small>
         </div>
 
         <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
@@ -180,11 +170,8 @@
 
           <div class="mb-3">
             <label class="form-label small fw-semibold">Estado</label>
-            <select name="estado" class="form-select" required>
-              <% for (String e : estados) { %>
-              <option value="<%=e%>" <%=e.equals(s.getEstado()) ? "selected" : ""%>><%=e%></option>
-              <% } %>
-            </select>
+            <input type="text" class="form-control bg-light" value="<%=s.getEstado()%>" readonly>
+            <small class="text-muted">Se calcula solo, no se edita.</small>
           </div>
         </div>
 

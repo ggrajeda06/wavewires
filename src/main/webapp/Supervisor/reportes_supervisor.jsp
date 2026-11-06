@@ -209,23 +209,12 @@
                         <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="ID" id="land1" checked><label class="form-check-label" for="land1">ID</label></div></div>
                         <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Nombre" id="land2" checked><label class="form-check-label" for="land2">Nombre</label></div></div>
                         <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Ubicación" id="land3" checked><label class="form-check-label" for="land3">Ubicación</label></div></div>
-                        <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Estado" id="land4" checked><label class="form-check-label" for="land4">Estado</label></div></div>
                         <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Segmentos" id="land5" checked><label class="form-check-label" for="land5">Segmentos</label></div></div>
                         <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Incidencias activas" id="land6" checked><label class="form-check-label" for="land6">Incidencias activas</label></div></div>
                         <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Mantenimientos" id="land7" checked><label class="form-check-label" for="land7">Mantenimientos</label></div></div>
                     </div>
                     <div class="row g-3 align-items-end">
-                        <div class="col-6 col-md-3">
-                            <label class="form-label" for="estadoLand">Estado</label>
-                            <select class="form-select" id="estadoLand" name="estado">
-                                <option value="" selected>Todos</option>
-                                <option>Operativa</option>
-                                <option>Degradada</option>
-                                <option>En mantenimiento</option>
-                                <option>Fuera de servicio</option>
-                            </select>
-                        </div>
-                        <div class="col-6 col-md-3">
+                            <div class="col-6 col-md-3">
                             <label class="form-label" for="paisLand">País</label>
                             <select class="form-select" id="paisLand" name="pais">
                                 <option value="" selected>Todos</option>
@@ -262,9 +251,8 @@
                             <label class="form-label" for="estadoServ">Estado</label>
                             <select class="form-select" id="estadoServ" name="estado">
                                 <option value="" selected>Todos</option>
-                                <option>Activo</option>
-                                <option>Suspendido</option>
-                                <option>Finalizado</option>
+                                                                <option>Funcionando</option>
+                                                                <option>Caído</option>
                             </select>
                         </div>
                         <div class="col-6 col-md-3">

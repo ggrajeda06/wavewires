@@ -165,7 +165,7 @@
         <section class="card shadow-sm mt-4" aria-labelledby="tituloCapacidadClientes">
             <div class="card-body">
                 <h2 class="h5 mb-3" id="tituloCapacidadClientes">Capacidad contratada por cliente</h2>
-                <p class="small text-secondary">Solo cuenta los servicios vigentes: no finalizados ni caducados.</p>
+                <p class="small text-secondary">Solo cuenta los servicios vigentes (los que todavía no caducan).</p>
                 <div class="table-responsive" tabindex="0" role="region" aria-label="Capacidad contratada por cliente">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light"><tr><th scope="col">Cliente</th><th scope="col">Servicios vigentes</th><th scope="col">Capacidad contratada</th></tr></thead>

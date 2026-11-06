@@ -130,7 +130,7 @@
         <div class="border rounded p-3 bg-light mt-2">
           <h6 class="fw-bold">Servicios que podrían resultar afectados</h6>
           <% if (listaServicios.isEmpty()) { %>
-          <p class="text-muted mb-0">Ningún servicio activo usa esta infraestructura.</p>
+          <p class="text-muted mb-0">Ningún servicio vigente usa esta infraestructura.</p>
           <% } else { %>
           <table class="table table-sm mb-0">
             <thead>

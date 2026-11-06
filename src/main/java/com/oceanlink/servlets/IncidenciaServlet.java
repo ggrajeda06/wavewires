@@ -1,6 +1,7 @@
 package com.oceanlink.servlets;
 
 import com.oceanlink.beans.Incidencia;
+import com.oceanlink.beans.Segmento;
 import com.oceanlink.beans.Servicio;
 import com.oceanlink.daos.IncidenciaDao;
 import com.oceanlink.daos.MantenimientoDao;
@@ -71,7 +72,7 @@ public class IncidenciaServlet extends HttpServlet {
                 } else {
                     request.setAttribute("incidencia", incidenciaEditar);
                     request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
-                    request.setAttribute("estadosPermitidos", estadosManuales(incidenciaEditar, mantenimientoDao));
+                    request.setAttribute("estadosPermitidos", estadosManuales(incidenciaEditar));
                     request.setAttribute("puedeCambiarSegmentos", puedeCambiarSegmentos(incidenciaEditar));
                     view = request.getRequestDispatcher("NetworkOperator/editarIncidencia.jsp");
                     view.forward(request, response);
@@ -81,8 +82,22 @@ public class IncidenciaServlet extends HttpServlet {
             case "estadoRed":
                 request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
                 request.setAttribute("listaActivas", incidenciaDao.listarIncidencias(true));
+                request.setAttribute("listaServicios", new ServicioDao().listarServicios());
                 view = request.getRequestDispatcher("NetworkOperator/estadoRed.jsp");
                 view.forward(request, response);
+                break;
+
+            case "serviciosSegmento":
+                // servicios vigentes de un segmento: aqui el NOC ve cuales se cayeron
+                Segmento segmentoVer = segmentoDao.obtenerSegmento(numero(request.getParameter("id")));
+                if (segmentoVer == null) {
+                    response.sendRedirect(request.getContextPath() + "/IncidenciaServlet?action=estadoRed");
+                } else {
+                    request.setAttribute("segmento", segmentoVer);
+                    request.setAttribute("listaServicios", new ServicioDao().listarServiciosPorSegmento(segmentoVer.getIdSegmento()));
+                    view = request.getRequestDispatcher("NetworkOperator/serviciosSegmento.jsp");
+                    view.forward(request, response);
+                }
                 break;
 
             case "restauraciones":
@@ -100,9 +115,6 @@ public class IncidenciaServlet extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/IncidenciaServlet?error=noBorrable");
                 } else {
                     incidenciaDao.eliminarIncidencia(incidenciaBorrar.getIdIncidencia());
-                    for (Integer idSeg : incidenciaBorrar.getIdsSegmentos()) {
-                        segmentoDao.recalcularEstado(idSeg);
-                    }
                     response.sendRedirect(request.getContextPath() + "/IncidenciaServlet");
                 }
                 break;
@@ -121,8 +133,6 @@ public class IncidenciaServlet extends HttpServlet {
 
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         IncidenciaDao incidenciaDao = new IncidenciaDao();
-        SegmentoDao segmentoDao = new SegmentoDao();
-        MantenimientoDao mantenimientoDao = new MantenimientoDao();
 
         switch (action) {
             case "crear":
@@ -132,6 +142,8 @@ public class IncidenciaServlet extends HttpServlet {
 
                 if (!severidadValida(severidad)) {
                     response.sendRedirect(request.getContextPath() + "/IncidenciaServlet?action=formCrear&error=severidad");
+                } else if (observacion.length() > 1000) {
+                    response.sendRedirect(request.getContextPath() + "/IncidenciaServlet?action=formCrear&error=observacion");
                 } else if (segmentosMarcados == null || convertirIds(segmentosMarcados).isEmpty()) {
                     response.sendRedirect(request.getContextPath() + "/IncidenciaServlet?action=formCrear&error=segmentos");
                 } else {
@@ -149,9 +161,6 @@ public class IncidenciaServlet extends HttpServlet {
                     }
                     if (!observacion.isEmpty()) {
                         incidenciaDao.agregarObservacion(idNueva, observacion);
-                    }
-                    for (Integer idSeg : idsSegmentos) {
-                        segmentoDao.recalcularEstado(idSeg);
                     }
                     response.sendRedirect(request.getContextPath() + "/IncidenciaServlet?action=ver&id=" + idNueva);
                 }
@@ -179,13 +188,13 @@ public class IncidenciaServlet extends HttpServlet {
 
                 if (!severidadValida(severidadEdit)) {
                     response.sendRedirect(volver + "&error=severidad");
+                } else if (nuevaObservacion.length() > 1000) {
+                    response.sendRedirect(volver + "&error=observacion");
                 } else if (cambiaSegmentos && (segmentosEdit == null || convertirIds(segmentosEdit).isEmpty())) {
                     response.sendRedirect(volver + "&error=segmentos");
-                } else if (!nuevoEstado.isEmpty() && !estadosManuales(actual, mantenimientoDao).contains(nuevoEstado)) {
+                } else if (!nuevoEstado.isEmpty() && !estadosManuales(actual).contains(nuevoEstado)) {
                     response.sendRedirect(volver + "&error=estado");
                 } else {
-                    List<Integer> segmentosTocados = new ArrayList<>(actual.getIdsSegmentos());
-
                     if (!severidadEdit.equals(actual.getSeveridad())) {
                         incidenciaDao.actualizarSeveridad(idIncidencia, severidadEdit);
                     }
@@ -193,11 +202,6 @@ public class IncidenciaServlet extends HttpServlet {
                     if (cambiaSegmentos) {
                         List<Integer> nuevosSegmentos = convertirIds(segmentosEdit);
                         incidenciaDao.cambiarSegmentos(idIncidencia, nuevosSegmentos, serviciosDeSegmentos(nuevosSegmentos));
-                        for (Integer idSeg : nuevosSegmentos) {
-                            if (!segmentosTocados.contains(idSeg)) {
-                                segmentosTocados.add(idSeg);
-                            }
-                        }
                     }
 
                     if (!nuevaObservacion.isEmpty()) {
@@ -206,13 +210,6 @@ public class IncidenciaServlet extends HttpServlet {
 
                     if (!nuevoEstado.isEmpty()) {
                         incidenciaDao.cambiarEstado(idIncidencia, nuevoEstado);
-                        if (nuevoEstado.equals("Servicio restaurado")) {
-                            incidenciaDao.restaurarServicios(idIncidencia);
-                        }
-                    }
-
-                    for (Integer idSeg : segmentosTocados) {
-                        segmentoDao.recalcularEstado(idSeg);
                     }
                     response.sendRedirect(request.getContextPath() + "/IncidenciaServlet?action=ver&id=" + idIncidencia);
                 }
@@ -224,25 +221,23 @@ public class IncidenciaServlet extends HttpServlet {
         }
     }
 
-    private boolean severidadValida(String severidad) {
-        return severidad.equals("Baja") || severidad.equals("Media")
-                || severidad.equals("Alta") || severidad.equals("Crítica");
-    }
-
-    // estados que el Network Operator puede poner a mano; los demas los pone el mantenimiento correctivo
-    private ArrayList<String> estadosManuales(Incidencia incidencia, MantenimientoDao mantenimientoDao) {
+    // estados que el Network Operator puede poner a mano:
+    //   Detectada -> En análisis   y   Servicio restaurado -> Cerrada
+    // Reparación programada, En reparación y Servicio restaurado los pone el correctivo (MantenimientoServlet)
+    private ArrayList<String> estadosManuales(Incidencia incidencia) {
         ArrayList<String> estados = new ArrayList<>();
         String estado = incidencia.getEstado();
 
         if (estado.equals("Detectada")) {
             estados.add("En análisis");
-        } else if (estado.equals("En análisis")
-                && mantenimientoDao.listarPorIncidencia(incidencia.getIdIncidencia()).isEmpty()) {
-            estados.add("Servicio restaurado");
         } else if (estado.equals("Servicio restaurado")) {
             estados.add("Cerrada");
         }
         return estados;
+    }
+
+    private boolean severidadValida(String severidad) {
+        return severidad.equals("Baja") || severidad.equals("Media") || severidad.equals("Alta") || severidad.equals("Crítica");
     }
 
     // los segmentos solo se cambian antes de programar la reparacion
@@ -250,7 +245,7 @@ public class IncidenciaServlet extends HttpServlet {
         return incidencia.getEstado().equals("Detectada") || incidencia.getEstado().equals("En análisis");
     }
 
-    // servicios activos que pasan por alguno de los segmentos
+    // RN4: servicios vigentes que pasan por alguno de los segmentos de la incidencia
     private List<Integer> serviciosDeSegmentos(List<Integer> idsSegmentos) {
         ServicioDao servicioDao = new ServicioDao();
         List<Integer> idsServicios = new ArrayList<>();

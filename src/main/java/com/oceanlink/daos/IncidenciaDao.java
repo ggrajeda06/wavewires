@@ -53,6 +53,27 @@ public class IncidenciaDao extends DaoBase {
         return lista;
     }
 
+    // incidencias que todavia no tienen un correctivo programado (Detectada o En análisis)
+    // se muestran al Maintenance Coordinator para que programe la reparacion
+    public ArrayList<Incidencia> listarIncidenciasPendientes() {
+        ArrayList<Incidencia> lista = new ArrayList<>();
+        String sql = "SELECT * FROM incidencia WHERE estado IN ('Detectada', 'En análisis') ORDER BY fechaRegistro ASC";
+
+        try (Connection conn = this.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                Incidencia i = mapearIncidencia(rs);
+                i.setIdsSegmentos(listarIds(conn, "SELECT idSegmento FROM incidencia_has_segmento WHERE idIncidencia = ?", i.getIdIncidencia()));
+                lista.add(i);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
     public Incidencia obtenerIncidencia(int idIncidencia) {
         Incidencia i = null;
         String sql = "SELECT * FROM incidencia WHERE idIncidencia = ?";
@@ -74,6 +95,7 @@ public class IncidenciaDao extends DaoBase {
         return i;
     }
 
+    // crea la incidencia en estado Detectada, le pone su identificador y guarda sus segmentos y servicios
     // la primera observacion se guarda despues con agregarObservacion
     public int crearIncidencia(Incidencia incidencia) {
         String sqlInc = "INSERT INTO incidencia (severidad, estado) VALUES (?, 'Detectada')";
@@ -212,16 +234,29 @@ public class IncidenciaDao extends DaoBase {
         }
     }
 
-    // marca como restaurados los servicios que aun no tenian fecha de restauracion
     public void restaurarServicios(int idIncidencia) {
-        String sql = "UPDATE incidencia_has_servicio SET fechaRestauracion = NOW() "
-                + "WHERE idIncidencia = ? AND fechaRestauracion IS NULL";
+        String sqlFecha = "UPDATE incidencia_has_servicio SET fechaRestauracion = NOW() "
+                + "WHERE idIncidencia = ? AND fechaRestauracion IS NULL "
+                + "AND idServicio IN (SELECT idServicio FROM servicio WHERE estado = 'Caído')";
+        String sqlServicio = "UPDATE servicio SET estado = 'Funcionando' "
+                + "WHERE estado = 'Caído' "
+                + "AND idServicio IN (SELECT idServicio FROM incidencia_has_servicio WHERE idIncidencia = ?)";
 
-        try (Connection conn = this.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = this.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement p1 = conn.prepareStatement(sqlFecha);
+                 PreparedStatement p2 = conn.prepareStatement(sqlServicio)) {
 
-            pstmt.setInt(1, idIncidencia);
-            pstmt.executeUpdate();
+                p1.setInt(1, idIncidencia);
+                p1.executeUpdate();
+                p2.setInt(1, idIncidencia);
+                p2.executeUpdate();
+
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -255,11 +290,12 @@ public class IncidenciaDao extends DaoBase {
         }
     }
 
-    // servicios afectados por una incidencia, con su cliente y su fecha de restauracion
+    // servicios afectados por una incidencia, con su cliente, su estado y su fecha de restauracion
     public ArrayList<ServicioAfectado> listarServiciosAfectados(int idIncidencia) {
         ArrayList<ServicioAfectado> lista = new ArrayList<>();
         String sql = "SELECT ihs.idIncidencia, i.identificador AS identificadorIncidencia, sv.idServicio, "
-                + "sv.identificador AS identificadorServicio, sv.capacidad, sv.idSegmento, c.razonSocial, ihs.fechaRestauracion "
+                + "sv.identificador AS identificadorServicio, sv.capacidad, sv.idSegmento, sv.estado AS estadoServicio, "
+                + "c.razonSocial, ihs.fechaRestauracion "
                 + "FROM incidencia_has_servicio ihs "
                 + "JOIN incidencia i ON i.idIncidencia = ihs.idIncidencia "
                 + "JOIN servicio sv ON sv.idServicio = ihs.idServicio "
@@ -287,7 +323,8 @@ public class IncidenciaDao extends DaoBase {
     public ArrayList<ServicioAfectado> listarRestauraciones() {
         ArrayList<ServicioAfectado> lista = new ArrayList<>();
         String sql = "SELECT ihs.idIncidencia, i.identificador AS identificadorIncidencia, sv.idServicio, "
-                + "sv.identificador AS identificadorServicio, sv.capacidad, sv.idSegmento, c.razonSocial, ihs.fechaRestauracion "
+                + "sv.identificador AS identificadorServicio, sv.capacidad, sv.idSegmento, sv.estado AS estadoServicio, "
+                + "c.razonSocial, ihs.fechaRestauracion "
                 + "FROM incidencia_has_servicio ihs "
                 + "JOIN incidencia i ON i.idIncidencia = ihs.idIncidencia "
                 + "JOIN servicio sv ON sv.idServicio = ihs.idServicio "
@@ -318,6 +355,7 @@ public class IncidenciaDao extends DaoBase {
         sa.setCapacidad(rs.getBigDecimal("capacidad"));
         sa.setIdSegmento(rs.getInt("idSegmento"));
         sa.setRazonSocial(rs.getString("razonSocial"));
+        sa.setEstadoServicio(rs.getString("estadoServicio"));
         sa.setFechaRestauracion(rs.getDate("fechaRestauracion"));
         return sa;
     }

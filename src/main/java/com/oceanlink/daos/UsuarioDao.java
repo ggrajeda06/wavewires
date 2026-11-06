@@ -14,7 +14,7 @@ public class UsuarioDao extends DaoBase {
         ArrayList<Usuario> lista = new ArrayList<>();
         String sql = "SELECT u.*, r.rol AS nombreRol "
                 + "FROM usuario u "
-                + "JOIN roles r ON u.Roles_idRoles = r.idRoles "
+                + "JOIN Roles r ON u.Roles_idRoles = r.idRoles "
                 + "ORDER BY u.idUsuario ASC";
 
         try (Connection conn = getConnection();
@@ -55,7 +55,7 @@ public class UsuarioDao extends DaoBase {
     // Listar roles
     public ArrayList<Rol> listarRoles() {
         ArrayList<Rol> lista = new ArrayList<>();
-        String sql = "SELECT * FROM roles ORDER BY idRoles ASC";
+        String sql = "SELECT * FROM Roles ORDER BY idRoles ASC";
 
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();

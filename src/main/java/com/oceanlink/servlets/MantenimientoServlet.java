@@ -39,6 +39,8 @@ public class MantenimientoServlet extends HttpServlet {
 
         switch (action) {
             case "lista":
+                // incidencias que esperan un correctivo + historial de mantenimientos (RF31)
+                request.setAttribute("listaPendientes", incidenciaDao.listarIncidenciasPendientes());
                 request.setAttribute("lista", mantenimientoDao.listarMantenimientos());
                 request.setAttribute("listaLandings", landingStationDao.listarLandingStations());
                 request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
@@ -121,7 +123,6 @@ public class MantenimientoServlet extends HttpServlet {
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         MantenimientoDao mantenimientoDao = new MantenimientoDao();
         IncidenciaDao incidenciaDao = new IncidenciaDao();
-        SegmentoDao segmentoDao = new SegmentoDao();
 
         switch (action) {
             case "crear":
@@ -202,11 +203,9 @@ public class MantenimientoServlet extends HttpServlet {
                     programarIncidencia(actual.getIdIncidencia());
                 }
 
-                if (!estadoEdit.equals(estadoAnterior)) {
-                    if (actual.getIdIncidencia() > 0) {
-                        actualizarIncidencia(actual, mantenimientoDao, incidenciaDao, segmentoDao);
-                    }
-                    recalcularInfraestructura(actual);
+                // el estado del segmento no se toca aqui: SegmentoDao.recalcularEstados() lo calcula al leer
+                if (!estadoEdit.equals(estadoAnterior) && actual.getIdIncidencia() > 0) {
+                    actualizarIncidencia(actual, mantenimientoDao, incidenciaDao);
                 }
                 response.sendRedirect(request.getContextPath() + "/MantenimientoServlet?action=ver&id=" + actual.getIdMantenimiento());
                 break;
@@ -217,9 +216,8 @@ public class MantenimientoServlet extends HttpServlet {
         }
     }
 
-    // automatizacion con la incidencia del correctivo
-    private void actualizarIncidencia(Mantenimiento m, MantenimientoDao mantenimientoDao,
-                                      IncidenciaDao incidenciaDao, SegmentoDao segmentoDao) {
+
+    private void actualizarIncidencia(Mantenimiento m, MantenimientoDao mantenimientoDao, IncidenciaDao incidenciaDao) {
         Incidencia inc = incidenciaDao.obtenerIncidencia(m.getIdIncidencia());
         String estadoInc = inc.getEstado();
 
@@ -228,14 +226,10 @@ public class MantenimientoServlet extends HttpServlet {
                 incidenciaDao.cambiarEstado(inc.getIdIncidencia(), "En reparación");
             }
         } else if (m.getEstado().equals("Finalizado")) {
-            // si ya no quedan correctivos sin terminar, se restaura la incidencia y sus servicios
             if (mantenimientoDao.contarPendientesDeIncidencia(inc.getIdIncidencia()) == 0
                     && !estadoInc.equals("Servicio restaurado") && !estadoInc.equals("Cerrada")) {
                 incidenciaDao.cambiarEstado(inc.getIdIncidencia(), "Servicio restaurado");
                 incidenciaDao.restaurarServicios(inc.getIdIncidencia());
-                for (Integer idSeg : inc.getIdsSegmentos()) {
-                    segmentoDao.recalcularEstado(idSeg);
-                }
             }
         }
     }
@@ -258,8 +252,11 @@ public class MantenimientoServlet extends HttpServlet {
         if (revisarFechaPasada && dia.isBefore(LocalDate.now())) {
             return "La fecha del mantenimiento no puede ser anterior a hoy.";
         }
-        if (m.getDuracionHoras() < 1) {
-            return "La duración debe ser de al menos 1 hora.";
+        if (revisarFechaPasada && dia.isAfter(LocalDate.now().plusYears(1))) {
+            return "La fecha del mantenimiento no puede ser más de un año después de hoy.";
+        }
+        if (m.getDuracionHoras() < 1 || m.getDuracionHoras() > 720) {
+            return "La duración debe estar entre 1 y 720 horas (30 días).";
         }
         if ((m.getIdLandingStation() > 0 && m.getIdSegmento() > 0) || (m.getIdLandingStation() == 0 && m.getIdSegmento() == 0)) {
             return "Elige la infraestructura: una landing o un segmento, solo uno.";
@@ -270,6 +267,11 @@ public class MantenimientoServlet extends HttpServlet {
         if (m.getIdSegmento() > 0 && new SegmentoDao().obtenerSegmento(m.getIdSegmento()) == null) {
             return "Ese segmento no existe.";
         }
+        // todo correctivo va ligado a una incidencia (se revisa al registrar y mientras esta Pendiente, que es cuando se elige)
+        if (m.getTipo().equals("Correctivo") && m.getIdIncidencia() == 0
+                && (m.getEstado() == null || m.getEstado().equals("Pendiente"))) {
+            return "Un mantenimiento correctivo debe estar ligado a una incidencia.";
+        }
         if (m.getTipo().equals("Preventivo") && m.getIdIncidencia() > 0) {
             return "Un mantenimiento preventivo no se liga a una incidencia. Solo los correctivos.";
         }
@@ -279,7 +281,7 @@ public class MantenimientoServlet extends HttpServlet {
         return null;
     }
 
-    // al ligar un correctivo, la incidencia pasa a Reparacion programada
+    // AUTOMATIZACIÓN: al ligar un correctivo, la incidencia pasa a Reparación programada
     private void programarIncidencia(int idIncidencia) {
         if (idIncidencia == 0) {
             return;
@@ -291,7 +293,7 @@ public class MantenimientoServlet extends HttpServlet {
         }
     }
 
-    // si la incidencia se queda sin correctivos, vuelve a En analisis
+    // AUTOMATIZACIÓN: si la incidencia se queda sin correctivos, vuelve a En análisis
     private void soltarIncidencia(int idIncidencia) {
         if (idIncidencia == 0) {
             return;
@@ -405,15 +407,6 @@ public class MantenimientoServlet extends HttpServlet {
         }
         LandingStation ls = new LandingStationDao().obtenerLandingStation(m.getIdLandingStation());
         return "Landing " + ls.getNombre() + " (" + ls.getCiudad() + ", " + ls.getPais() + ")";
-    }
-
-    private void recalcularInfraestructura(Mantenimiento m) {
-        if (m.getIdSegmento() > 0) {
-            new SegmentoDao().recalcularEstado(m.getIdSegmento());
-        }
-        if (m.getIdLandingStation() > 0) {
-            new LandingStationDao().recalcularEstado(m.getIdLandingStation());
-        }
     }
 
     private String texto(String valor) {
