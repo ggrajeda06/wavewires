@@ -7,7 +7,7 @@
 </head>
 <body>
 <div class="row g-0">
-  <jsp:include page="/Administrador/sidebar.jsp"/>
+  <jsp:include page="/WEB-INF/views/Administrador/sidebar.jsp"/>
   <main class="col p-4">
     <h4>Registrar / Editar segmento</h4>
 

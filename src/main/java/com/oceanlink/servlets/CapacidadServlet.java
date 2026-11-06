@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import com.oceanlink.util.Seguridad;
 
 @WebServlet(name = "CapacidadServlet", value = "/CapacidadServlet")
 public class CapacidadServlet extends HttpServlet {
@@ -20,6 +21,14 @@ public class CapacidadServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN,
+                Seguridad.PLANIFICADOR)) {
+            return;
+        }
 
         SegmentoDao segmentoDao = new SegmentoDao();
         ArrayList<Segmento> todosSegmentos = segmentoDao.listarSegmentos();
@@ -56,13 +65,21 @@ public class CapacidadServlet extends HttpServlet {
         }
         request.setAttribute("listaSegmentos", segmentos);
 
-        RequestDispatcher view = request.getRequestDispatcher("CapacityPlanner/capacidad.jsp");
+        RequestDispatcher view = request.getRequestDispatcher("/WEB-INF/views/CapacityPlanner/capacidad.jsp");
         view.forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN,
+                Seguridad.PLANIFICADOR)) {
+            return;
+        }
         request.setCharacterEncoding("UTF-8");
         doGet(request, response);
     }

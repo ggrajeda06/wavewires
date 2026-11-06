@@ -25,17 +25,13 @@
         <!-- Contenido Central -->
         <main class="row align-items-center my-auto">
 
+
             <!-- Columna Formulario -->
             <div class="col-12 col-md-6 col-lg-4 offset-lg-1 my-4">
                 <span class="text-uppercase text-white-50 text-tracking d-block mb-2">— ACCESO A LA PLATAFORMA</span>
                 <h1 class="display-4 font-weight-normal mb-1">Bienvenido<br>a bordo!</h1>
                 <p class="text-white-50 small mb-4">Tu red, bajo control.</p>
 
-                <% if (request.getAttribute("error") != null) { %>
-                <div class="alert alert-danger" role="alert">
-                    ${requestScope.error}
-                </div>
-                <% } %>
 
                 <form action="${pageContext.request.contextPath}/LoginServlet" method="post">
                     <!-- Campo Correo -->
@@ -64,7 +60,25 @@
                 </form>
 
                 <span class="text-uppercase text-white-50 text-tracking d-block mt-4" style="font-size: 0.65rem;">— CONECTAMOS LO QUE NO VES</span>
+                <div class="login-mensajes">
+
+                    <% if (request.getAttribute("error") != null) { %>
+                    <p class="login-mensaje login-mensaje-error" role="alert">
+                        <i  aria-hidden="true"></i>
+                        ${requestScope.error}
+                    </p>
+                    <% } %>
+
+                    <% if (request.getAttribute("mensajeFlash") != null) { %>
+                    <p class="login-mensaje login-mensaje-exito" role="status">
+                        <i  aria-hidden="true"></i>
+                        ${requestScope.mensajeFlash}
+                    </p>
+                    <% } %>
+
+                </div>
             </div>
+
 
         </main>
 

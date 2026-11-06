@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import com.oceanlink.util.Seguridad;
 
 @WebServlet(name = "ClienteServlet", value = "/ClienteServlet")
 public class ClienteServlet extends HttpServlet {
@@ -20,6 +21,14 @@ public class ClienteServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN,
+                Seguridad.PLANIFICADOR)) {
+            return;
+        }
 
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         ClienteDao clienteDao = new ClienteDao();
@@ -37,7 +46,7 @@ public class ClienteServlet extends HttpServlet {
                 }
                 request.setAttribute("listaClientes", clientes);
                 request.setAttribute("listaServicios", servicioDao.listarServicios());
-                view = request.getRequestDispatcher("CapacityPlanner/clientes.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/CapacityPlanner/clientes.jsp");
                 view.forward(request, response);
                 break;
 
@@ -58,6 +67,14 @@ public class ClienteServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN,
+                Seguridad.PLANIFICADOR)) {
+            return;
+        }
 
         request.setCharacterEncoding("UTF-8");
 

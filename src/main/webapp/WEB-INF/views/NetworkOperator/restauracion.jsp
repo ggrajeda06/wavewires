@@ -10,7 +10,7 @@
 </head>
 <body>
 <div class="row g-0">
-  <jsp:include page="/NetworkOperator/sidebar.jsp"/>
+  <jsp:include page="/WEB-INF/views/NetworkOperator/sidebar.jsp"/>
   <main class="col p-4 bg-light">
     <h3 class="fw-bold mb-1">Restauraciones</h3>
        <p class="text-muted mb-4">Se registran solas: al finalizar el último correctivo de una incidencia, sus servicios caídos vuelven a Funcionando.</p>

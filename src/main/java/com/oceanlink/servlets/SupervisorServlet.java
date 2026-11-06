@@ -18,6 +18,7 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.List;
 import java.util.function.Function;
+import com.oceanlink.util.Seguridad;
 
 @WebServlet(name = "SupervisorServlet", value = "/SupervisorServlet")
 public class SupervisorServlet extends HttpServlet {
@@ -26,25 +27,33 @@ public class SupervisorServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN,
+                Seguridad.SUPERVISOR)) {
+            return;
+        }
+
         String action = request.getParameter("action") == null ? "inicio" : request.getParameter("action");
         RequestDispatcher view;
 
         switch (action) {
             case "inicio":
                 cargarInicio(request);
-                view = request.getRequestDispatcher("Supervisor/supervisor_home.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/Supervisor/supervisor_home.jsp");
                 view.forward(request, response);
                 break;
 
             case "reportes":
                 cargarFiltros(request);
-                view = request.getRequestDispatcher("Supervisor/reportes_supervisor.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/Supervisor/reportes_supervisor.jsp");
                 view.forward(request, response);
                 break;
 
             case "indicadores":
                 cargarIndicadores(request);
-                view = request.getRequestDispatcher("Supervisor/indicadores_historicos.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/Supervisor/indicadores_historicos.jsp");
                 view.forward(request, response);
                 break;
 
@@ -57,6 +66,14 @@ public class SupervisorServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN,
+                Seguridad.SUPERVISOR)) {
+            return;
+        }
 
         request.setCharacterEncoding("UTF-8");
 

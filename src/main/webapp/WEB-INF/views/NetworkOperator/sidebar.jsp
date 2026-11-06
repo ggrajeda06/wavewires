@@ -9,7 +9,7 @@
     <i class="bi bi-broadcast-pin me-2 fs-4 text-primary"></i>
     <h5 class="sidebar-title mb-0">OceanLink</h5>
   </div>
-
+  <jsp:include page="/WEB-INF/views/includes/identidad.jsp" />
 
   <div class="sidebar-section-label text-uppercase mb-2 px-2">Network Operator</div>
   <nav class="nav flex-column mb-auto">
@@ -28,9 +28,15 @@
   </nav>
 
   <div class="border-top border-secondary opacity-25 my-3"></div>
-  <nav class="nav flex-column">
-    <a class="nav-link sidebar-link sidebar-link-danger d-flex align-items-center" href="<%=request.getContextPath()%>/login.jsp">
-      <i class="bi bi-box-arrow-right me-2"></i> Cerrar sesión
-    </a>
-  </nav>
+  <form action="${pageContext.request.contextPath}/LogoutServlet"
+        method="post">
+
+    <button type="submit"
+            class="nav-link sidebar-link sidebar-link-danger
+                   border-0 bg-transparent text-start w-100">
+
+      <i class="bi bi-box-arrow-right me-2"></i>
+      Cerrar sesión
+    </button>
+  </form>
 </div>

@@ -43,6 +43,17 @@ public class LoginServlet extends HttpServlet {
             session.invalidate();
         }
 
+        HttpSession sesionMensajes = request.getSession(false);
+
+        if (sesionMensajes != null) {
+            Object mensaje = sesionMensajes.getAttribute("mensajeFlash");
+
+            if (mensaje != null) {
+                request.setAttribute("mensajeFlash", mensaje);
+                sesionMensajes.removeAttribute("mensajeFlash");
+            }
+        }
+
         request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
     }
 
@@ -95,9 +106,11 @@ public class LoginServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + ruta);
 
         } catch (SQLException e) {
+            e.printStackTrace();
             getServletContext().log("Error al autenticar", e);
             response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-            mostrarError(request, response, "No se pudo conectar con la base de datos.");
+            mostrarError(request, response, "Acceso denegado.");
+
         }
     }
 

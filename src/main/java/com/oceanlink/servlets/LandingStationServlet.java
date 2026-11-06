@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import com.oceanlink.util.Seguridad;
 
 @WebServlet(name = "LandingStationServlet", value = "/LandingStationServlet")
 public class LandingStationServlet extends HttpServlet {
@@ -19,6 +20,13 @@ public class LandingStationServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN)) {
+            return;
+        }
 
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         LandingStationDao landingStationDao = new LandingStationDao();
@@ -29,11 +37,11 @@ public class LandingStationServlet extends HttpServlet {
             case "lista":
                 ArrayList<LandingStation> listaLandings = landingStationDao.listarLandingStations();
                 request.setAttribute("lista", listaLandings);
-                view = request.getRequestDispatcher("Administrador/admin_landings.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/Administrador/admin_landings.jsp");
                 view.forward(request, response);
                 break;
             case "formCrear":
-                view = request.getRequestDispatcher("Administrador/admin_landing_form.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/Administrador/admin_landing_form.jsp");
                 view.forward(request, response);
                 break;
             case "editar":
@@ -43,7 +51,7 @@ public class LandingStationServlet extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/LandingStationServlet");
                 } else {
                     request.setAttribute("landing", landing);
-                    view = request.getRequestDispatcher("Administrador/admin_landing_editar.jsp");
+                    view = request.getRequestDispatcher("/WEB-INF/views/Administrador/admin_landing_editar.jsp");
                     view.forward(request, response);
                 }
                 break;
@@ -56,7 +64,7 @@ public class LandingStationServlet extends HttpServlet {
                     request.setAttribute("landing", landingVer);
                     request.setAttribute("listaSegmentos", segmentoDao.listarSegmentosPorLanding(idVer));
                     request.setAttribute("listaLandings", landingStationDao.listarLandingStations());
-                    view = request.getRequestDispatcher("Administrador/admin_landing_segmentos.jsp");
+                    view = request.getRequestDispatcher("/WEB-INF/views/Administrador/admin_landing_segmentos.jsp");
                     view.forward(request, response);
                 }
                 break;
@@ -79,6 +87,13 @@ public class LandingStationServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN)) {
+            return;
+        }
 
         request.setCharacterEncoding("UTF-8");
 

@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import com.oceanlink.util.Seguridad;
 
 @WebServlet(name = "SolicitudesServlet", value = "/SolicitudesServlet")
 public class SolicitudesServlet extends HttpServlet {
@@ -23,6 +24,14 @@ public class SolicitudesServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN,
+                Seguridad.PLANIFICADOR)) {
+            return;
+        }
 
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         SolicitudesDao solicitudesDao = new SolicitudesDao();
@@ -36,7 +45,7 @@ public class SolicitudesServlet extends HttpServlet {
                 request.setAttribute("listaSolicitudes", filtrar(solicitudesDao.listarSolicitudes(), clientes, request.getParameter("buscar")));
                 request.setAttribute("listaClientes", clientes);
                 request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
-                view = request.getRequestDispatcher("CapacityPlanner/solicitudes.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/CapacityPlanner/solicitudes.jsp");
                 view.forward(request, response);
                 break;
 
@@ -58,6 +67,14 @@ public class SolicitudesServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN,
+                Seguridad.PLANIFICADOR)) {
+            return;
+        }
 
         request.setCharacterEncoding("UTF-8");
 

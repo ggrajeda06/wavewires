@@ -30,7 +30,7 @@
 </head>
 <body>
 <div class="row g-0">
-  <jsp:include page="/NetworkOperator/sidebar.jsp"/>
+  <jsp:include page="/WEB-INF/views/NetworkOperator/sidebar.jsp"/>
   <main class="col p-4 bg-light">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div class="d-flex align-items-center">

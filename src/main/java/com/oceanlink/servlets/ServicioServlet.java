@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import com.oceanlink.util.Seguridad;
 
 @WebServlet(name = "ServicioServlet", value = "/ServicioServlet")
 public class ServicioServlet extends HttpServlet {
@@ -20,6 +21,14 @@ public class ServicioServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN,
+                Seguridad.PLANIFICADOR)) {
+            return;
+        }
 
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         ServicioDao servicioDao = new ServicioDao();
@@ -37,7 +46,7 @@ public class ServicioServlet extends HttpServlet {
                 request.setAttribute("listaServicios", Listas.paginar(request, servicios));
                 // con el estado de cada segmento el JSP muestra "En mantenimiento" en sus servicios
                 request.setAttribute("listaSegmentos", new SegmentoDao().listarSegmentos());
-                view = request.getRequestDispatcher("CapacityPlanner/servicios.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/CapacityPlanner/servicios.jsp");
                 view.forward(request, response);
                 break;
 
@@ -58,6 +67,13 @@ public class ServicioServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN,
+                Seguridad.PLANIFICADOR)) {
+            return;
+        }
         request.setCharacterEncoding("UTF-8");
         doGet(request, response);
     }

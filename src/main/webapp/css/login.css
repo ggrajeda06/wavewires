@@ -58,3 +58,43 @@ body, html {
     letter-spacing: 2px;
     font-size: 0.75rem;
 }
+
+.login-mensajes {
+    margin-top: 10px;
+    min-height: 22px;
+}
+
+.login-mensaje {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+    line-height: 1.5;
+    font-weight: 400;
+    letter-spacing: normal;
+    text-transform: none;
+
+    border: none;
+}
+
+.login-mensaje + .login-mensaje {
+    margin-top: 5px;
+}
+
+.login-mensaje-error {
+    color: #803838;
+    background: #ffb4b4;
+    border-radius: 6px;
+}
+
+.login-mensaje-exito {
+    color: #0a3622;
+    background: #a8e6dc;
+    border-radius: 6px;
+}
+
+.login-mensaje .bi {
+    flex-shrink: 0;
+}

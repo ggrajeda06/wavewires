@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import com.oceanlink.util.Seguridad;
 
 @WebServlet(name = "IncidenciaServlet", value = "/IncidenciaServlet")
 public class IncidenciaServlet extends HttpServlet {
@@ -25,6 +26,14 @@ public class IncidenciaServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN,
+                Seguridad.OPERADOR)) {
+            return;
+        }
 
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         IncidenciaDao incidenciaDao = new IncidenciaDao();
@@ -39,13 +48,13 @@ public class IncidenciaServlet extends HttpServlet {
                 request.setAttribute("lista", incidenciaDao.listarIncidencias(action.equals("lista")));
                 request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
                 request.setAttribute("modo", action);
-                view = request.getRequestDispatcher("NetworkOperator/incidencias.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/NetworkOperator/incidencias.jsp");
                 view.forward(request, response);
                 break;
 
             case "formCrear":
                 request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
-                view = request.getRequestDispatcher("NetworkOperator/incidencias_form.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/NetworkOperator/incidencias_form.jsp");
                 view.forward(request, response);
                 break;
 
@@ -128,6 +137,14 @@ public class IncidenciaServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN,
+                Seguridad.OPERADOR)) {
+            return;
+        }
 
         request.setCharacterEncoding("UTF-8");
 

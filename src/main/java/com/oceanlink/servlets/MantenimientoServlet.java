@@ -22,6 +22,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import com.oceanlink.util.Seguridad;
 
 @WebServlet(name = "MantenimientoServlet", value = "/MantenimientoServlet")
 public class MantenimientoServlet extends HttpServlet {
@@ -29,6 +30,14 @@ public class MantenimientoServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN,
+                Seguridad.MANTENIMIENTO)) {
+            return;
+        }
 
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         MantenimientoDao mantenimientoDao = new MantenimientoDao();
@@ -44,7 +53,7 @@ public class MantenimientoServlet extends HttpServlet {
                 request.setAttribute("lista", mantenimientoDao.listarMantenimientos());
                 request.setAttribute("listaLandings", landingStationDao.listarLandingStations());
                 request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
-                view = request.getRequestDispatcher("Maintenance/Mantenimiento.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/Maintenance/Mantenimiento.jsp");
                 view.forward(request, response);
                 break;
 
@@ -59,7 +68,7 @@ public class MantenimientoServlet extends HttpServlet {
                 request.setAttribute("listaLandings", landingStationDao.listarLandingStations());
                 request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
                 request.setAttribute("listaServicios", serviciosDeInfraestructura(idLandingConsulta, idSegmentoConsulta));
-                view = request.getRequestDispatcher("Maintenance/serviciosAfectados.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/Maintenance/serviciosAfectados.jsp");
                 view.forward(request, response);
                 break;
 
@@ -78,7 +87,7 @@ public class MantenimientoServlet extends HttpServlet {
                     if (mVer.getIdIncidencia() > 0) {
                         request.setAttribute("incidencia", incidenciaDao.obtenerIncidencia(mVer.getIdIncidencia()));
                     }
-                    view = request.getRequestDispatcher("Maintenance/verMantenimiento.jsp");
+                    view = request.getRequestDispatcher("/WEB-INF/views/Maintenance/verMantenimiento.jsp");
                     view.forward(request, response);
                 }
                 break;
@@ -117,6 +126,14 @@ public class MantenimientoServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN,
+                Seguridad.MANTENIMIENTO)) {
+            return;
+        }
 
         request.setCharacterEncoding("UTF-8");
 
@@ -361,7 +378,7 @@ public class MantenimientoServlet extends HttpServlet {
         } else {
             request.setAttribute("listaServicios", serviciosDeInfraestructura(idLanding, idSegmento));
         }
-        RequestDispatcher view = request.getRequestDispatcher("Maintenance/registrarMantenimiento.jsp");
+        RequestDispatcher view = request.getRequestDispatcher("/WEB-INF/views/Maintenance/registrarMantenimiento.jsp");
         view.forward(request, response);
     }
 
@@ -374,7 +391,7 @@ public class MantenimientoServlet extends HttpServlet {
         request.setAttribute("listaLandings", new LandingStationDao().listarLandingStations());
         request.setAttribute("listaSegmentos", new SegmentoDao().listarSegmentos());
         request.setAttribute("listaIncidencias", new IncidenciaDao().listarIncidenciasAbiertas());
-        RequestDispatcher view = request.getRequestDispatcher("Maintenance/editarMantenimiento.jsp");
+        RequestDispatcher view = request.getRequestDispatcher("/WEB-INF/views/Maintenance/editarMantenimiento.jsp");
         view.forward(request, response);
     }
 

@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import com.oceanlink.util.Seguridad;
 
 @WebServlet(name = "ReservaServlet", value = "/ReservaServlet")
 public class ReservaServlet extends HttpServlet {
@@ -20,6 +21,14 @@ public class ReservaServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN,
+                Seguridad.PLANIFICADOR)) {
+            return;
+        }
 
         SegmentoDao segmentoDao = new SegmentoDao();
         String buscar = request.getParameter("buscar");
@@ -30,7 +39,7 @@ public class ReservaServlet extends HttpServlet {
             }
         }
         request.setAttribute("listaSegmentos", Listas.paginar(request, segmentos));
-        RequestDispatcher view = request.getRequestDispatcher("CapacityPlanner/reservas.jsp");
+        RequestDispatcher view = request.getRequestDispatcher("/WEB-INF/views/CapacityPlanner/reservas.jsp");
         view.forward(request, response);
     }
 
@@ -38,6 +47,13 @@ public class ReservaServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.PLANIFICADOR)) {
+            return;
+        }
 
         request.setCharacterEncoding("UTF-8");
 

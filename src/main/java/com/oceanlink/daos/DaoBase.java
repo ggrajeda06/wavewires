@@ -13,8 +13,8 @@ public abstract class DaoBase {
             e.printStackTrace();
         }
 
-        String user = "oceanlink";
-        String pass = "oceanlink123";
+        String user = "root";
+        String pass = "12345678";
         String url = "jdbc:mysql://localhost:3306/db_ocealink?serverTimezone=America/Lima";
 
         return DriverManager.getConnection(url, user, pass);

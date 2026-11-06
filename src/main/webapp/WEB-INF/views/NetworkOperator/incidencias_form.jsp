@@ -14,7 +14,7 @@
 </head>
 <body>
 <div class="row g-0">
-  <jsp:include page="/NetworkOperator/sidebar.jsp"/>
+  <jsp:include page="/WEB-INF/views/NetworkOperator/sidebar.jsp"/>
   <main class="col p-4 bg-light">
     <div class="d-flex align-items-center mb-4">
       <a href="<%=request.getContextPath()%>/IncidenciaServlet" class="btn btn-outline-secondary btn-sm me-3">Volver</a>

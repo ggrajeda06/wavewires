@@ -8,6 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import com.oceanlink.util.Seguridad;
 
 import java.io.IOException;
 
@@ -18,6 +19,11 @@ public class UsuarioServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        if (!Seguridad.permitir(
+                request, response, Seguridad.ADMIN)) {
+            return;
+        }
+
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         UsuarioDao usuarioDao = new UsuarioDao();
         RequestDispatcher view;
@@ -26,7 +32,7 @@ public class UsuarioServlet extends HttpServlet {
             case "lista":
                 request.setAttribute("listaRoles", usuarioDao.listarRoles());
                 request.setAttribute("lista", usuarioDao.listarUsuarios());
-                view = request.getRequestDispatcher("Administrador/admin_usuarios.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/Administrador/admin_usuarios.jsp");
                 view.forward(request, response);
                 break;
 
@@ -44,6 +50,10 @@ public class UsuarioServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!Seguridad.permitir(
+                request, response, Seguridad.ADMIN)) {
+            return;
+        }
 
         request.setCharacterEncoding("UTF-8");
 

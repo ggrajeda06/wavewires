@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import com.oceanlink.util.Seguridad;
 
 // RF06: resumen del Administrador con lo que el administra
 @WebServlet(name = "ResumenServlet", value = "/ResumenServlet")
@@ -22,6 +23,13 @@ public class ResumenServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN)) {
+            return;
+        }
 
         ArrayList<Usuario> usuarios = new UsuarioDao().listarUsuarios();
         int totalLandings = new LandingStationDao().listarLandingStations().size();
@@ -47,7 +55,7 @@ public class ResumenServlet extends HttpServlet {
         request.setAttribute("totalSegmentos", segmentos.size());
         request.setAttribute("segmentosOperativos", segmentosOperativos);
 
-        RequestDispatcher view = request.getRequestDispatcher("Administrador/admin_resumen.jsp");
+        RequestDispatcher view = request.getRequestDispatcher("/WEB-INF/views/Administrador/admin_resumen.jsp");
         view.forward(request, response);
     }
 
@@ -55,6 +63,12 @@ public class ResumenServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN)) {
+            return;
+        }
         doGet(request, response);
     }
 }

@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import com.oceanlink.util.Seguridad;
 
 @WebServlet(name = "SegmentoServlet", value = "/SegmentoServlet")
 public class SegmentoServlet extends HttpServlet {
@@ -18,6 +19,13 @@ public class SegmentoServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN)) {
+            return;
+        }
 
         String action = request.getParameter("action") == null ? "lista" : request.getParameter("action");
         SegmentoDao segmentoDao = new SegmentoDao();
@@ -28,7 +36,7 @@ public class SegmentoServlet extends HttpServlet {
             case "lista":
                 request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
                 request.setAttribute("listaLandings", landingStationDao.listarLandingStations());
-                view = request.getRequestDispatcher("Administrador/admin_segmentos.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/Administrador/admin_segmentos.jsp");
                 view.forward(request, response);
                 break;
 
@@ -50,6 +58,12 @@ public class SegmentoServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!Seguridad.permitir(
+                request,
+                response,
+                Seguridad.ADMIN)) {
+            return;
+        }
 
         request.setCharacterEncoding("UTF-8");
 

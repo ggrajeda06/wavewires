@@ -14,7 +14,7 @@
 </head>
 <body>
 <div class="row g-0">
-  <jsp:include page="/Administrador/sidebar.jsp"/>
+  <jsp:include page="/WEB-INF/views/Administrador/sidebar.jsp"/>
   <main class="col p-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h4 class="mb-0">Segmentos</h4>
