@@ -10,7 +10,6 @@
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/login.css" rel="stylesheet">
-
 </head>
 <body>
 
@@ -23,32 +22,37 @@
             </div>
         </header>
 
-        <-- Contenido Central -->
+        <!-- Contenido Central -->
         <main class="row align-items-center my-auto">
 
-            <!-- Columna Formulario (Izquierda) -->
+            <!-- Columna Formulario -->
             <div class="col-12 col-md-6 col-lg-4 offset-lg-1 my-4">
                 <span class="text-uppercase text-white-50 text-tracking d-block mb-2">— ACCESO A LA PLATAFORMA</span>
                 <h1 class="display-4 font-weight-normal mb-1">Bienvenido<br>a bordo!</h1>
                 <p class="text-white-50 small mb-4">Tu red, bajo control.</p>
 
-                    <form action="${pageContext.request.contextPath}/ResumenServlet" method="post">
-                    <!-- Campo Usuario -->
+                <% if (request.getAttribute("error") != null) { %>
+                <div class="alert alert-danger" role="alert">
+                    ${requestScope.error}
+                </div>
+                <% } %>
+
+                <form action="${pageContext.request.contextPath}/LoginServlet" method="post">
+                    <!-- Campo Correo -->
                     <div class="mb-3">
-                        <label for="username" class="form-label small fw-semibold">Usuario</label>
+                        <label for="correo" class="form-label small fw-semibold">Correo</label>
                         <div class="input-group">
                             <span class="input-group-text input-group-text-custom border-end-0"><i class="bi bi-person"></i></span>
-                            <input type="text" class="form-control form-control-custom border-start-0" id="username" name="username" placeholder="Ingresa tu usuario" required>
+                            <input type="email" class="form-control form-control-custom border-start-0" id="correo" name="correo" placeholder="Ingresa tu correo" required>
                         </div>
                     </div>
 
                     <!-- Campo Contraseña -->
                     <div class="mb-4">
-                        <label for="password" class="form-label small fw-semibold">Contraseña</label>
+                        <label for="contrasenia" class="form-label small fw-semibold">Contraseña</label>
                         <div class="input-group">
                             <span class="input-group-text input-group-text-custom border-end-0"><i class="bi bi-lock"></i></span>
-                            <input type="password" class="form-control form-control-custom border-start-0 border-end-0" id="password" name="password" placeholder="Ingresa tu contraseña" required>
-                            <span class="input-group-text input-group-text-custom border-start-0" style="cursor: pointer;"><i class="bi bi-eye"></i></span>
+                            <input type="password" class="form-control form-control-custom border-start-0" id="contrasenia" name="contrasenia" placeholder="Ingresa tu contraseña" required>
                         </div>
                     </div>
 
@@ -63,7 +67,6 @@
             </div>
 
         </main>
-
 
         <footer class="d-flex justify-content-between text-white-50 small" style="font-size: 0.75rem;">
             <span>© 2026 OceanLink</span>

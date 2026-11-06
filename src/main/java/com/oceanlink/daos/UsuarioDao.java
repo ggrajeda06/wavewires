@@ -2,11 +2,13 @@ package com.oceanlink.daos;
 
 import com.oceanlink.beans.Usuario;
 import com.oceanlink.beans.Rol;
+import com.oceanlink.util.PasswordUtil;
 
 import java.sql.*;
 import java.util.ArrayList;
 
-public class UsuarioDao extends DaoBase{
+public class UsuarioDao extends DaoBase {
+
     // Listar usuarios con el nombre de su rol
     public ArrayList<Usuario> listarUsuarios() {
         ArrayList<Usuario> lista = new ArrayList<>();
@@ -29,7 +31,7 @@ public class UsuarioDao extends DaoBase{
         return lista;
     }
 
-    // true si otro usuario ya usa ese correo (idExcluir = el que se esta editando, 0 al crear)
+    // Validar si otro usuario ya usa ese correo
     public boolean existeCorreo(String correo, int idExcluir) {
         boolean existe = false;
         String sql = "SELECT COUNT(*) FROM usuario WHERE correo = ? AND idUsuario <> ?";
@@ -50,7 +52,7 @@ public class UsuarioDao extends DaoBase{
         return existe;
     }
 
-    // Listar roles (para el select del formulario)
+    // Listar roles
     public ArrayList<Rol> listarRoles() {
         ArrayList<Rol> lista = new ArrayList<>();
         String sql = "SELECT * FROM roles ORDER BY idRoles ASC";
@@ -71,7 +73,7 @@ public class UsuarioDao extends DaoBase{
         return lista;
     }
 
-    // Metodo privado para mapear y no repetir codigo
+    // Mapear usuario
     private Usuario mapearUsuario(ResultSet rs) throws SQLException {
         Usuario u = new Usuario();
         u.setIdUsuario(rs.getInt("idUsuario"));
@@ -83,7 +85,7 @@ public class UsuarioDao extends DaoBase{
         return u;
     }
 
-    // Registrar usuario (Para el modal "Nuevo usuario")
+    // Registrar usuario
     public void registrarUsuario(String nombre, String correo, String estado, String contrasenia, int idRol) {
         String sql = "INSERT INTO usuario (nombre, correo, estado, contrasenia, Roles_idRoles) "
                 + "VALUES (?, ?, ?, ?, ?)";
@@ -94,7 +96,7 @@ public class UsuarioDao extends DaoBase{
             pstmt.setString(1, nombre);
             pstmt.setString(2, correo);
             pstmt.setString(3, estado);
-            pstmt.setString(4, contrasenia);
+            pstmt.setString(4, PasswordUtil.sha256(contrasenia));
             pstmt.setInt(5, idRol);
             pstmt.executeUpdate();
 
@@ -103,6 +105,7 @@ public class UsuarioDao extends DaoBase{
         }
     }
 
+    // Actualizar usuario
     public void actualizarUsuario(int idUsuario, String nombre, String correo, String estado,
                                   String contrasenia, int idRol) {
         boolean cambiarClave = contrasenia != null && !contrasenia.isEmpty();
@@ -125,7 +128,7 @@ public class UsuarioDao extends DaoBase{
             pstmt.setInt(4, idRol);
 
             if (cambiarClave) {
-                pstmt.setString(5, contrasenia);
+                pstmt.setString(5, PasswordUtil.sha256(contrasenia));
                 pstmt.setInt(6, idUsuario);
             } else {
                 pstmt.setInt(5, idUsuario);
@@ -138,6 +141,7 @@ public class UsuarioDao extends DaoBase{
         }
     }
 
+    // Borrar usuario
     public void borrarUsuario(int idUsuario) {
         String sql = "DELETE FROM usuario WHERE idUsuario = ?";
 
@@ -150,5 +154,32 @@ public class UsuarioDao extends DaoBase{
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    // Validar credenciales de usuario
+    public Usuario validarCredenciales(String correo, String contrasenia) throws SQLException {
+        if (correo == null || correo.isBlank() || contrasenia == null || contrasenia.isEmpty()) {
+            return null;
+        }
+
+        String sql = "SELECT u.*, r.rol AS nombreRol "
+                + "FROM usuario u "
+                + "JOIN roles r ON u.Roles_idRoles = r.idRoles "
+                + "WHERE u.correo = ? AND u.estado = 'Activo' "
+                + "AND BINARY u.contrasenia = BINARY ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, correo.trim());
+            pstmt.setString(2, PasswordUtil.sha256(contrasenia));
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapearUsuario(rs);
+                }
+            }
+        }
+        return null;
     }
 }

@@ -54,11 +54,14 @@ public class UsuarioServlet extends HttpServlet {
         String nombre = texto(request.getParameter("nombre"));
         String correo = texto(request.getParameter("correo"));
         String estado = texto(request.getParameter("estado"));
-        String contrasenia = texto(request.getParameter("contrasenia"));
-        String confirmar = texto(request.getParameter("confirmar"));
+        
+        String contrasenia = request.getParameter("contrasenia");
+        String confirmar = request.getParameter("confirmar");
+        contrasenia = contrasenia == null ? "" : contrasenia;
+        confirmar = confirmar == null ? "" : confirmar;
+
         int idRol = numero(request.getParameter("idRol"));
 
-        // al crear la contrasena es obligatoria; al editar, vacia significa que no se cambia
         boolean creando = action.equals("crear");
         String error = null;
         if (nombre.isEmpty() || correo.isEmpty() || (creando && contrasenia.isEmpty())) {
