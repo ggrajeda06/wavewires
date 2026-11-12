@@ -20,6 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import com.oceanlink.util.Seguridad;
 
+import com.oceanlink.daos.UsuarioDao;
+import com.oceanlink.services.CorreoService;
+import jakarta.mail.MessagingException;
+import java.sql.SQLException;
+
 @WebServlet(name = "IncidenciaServlet", value = "/IncidenciaServlet")
 public class IncidenciaServlet extends HttpServlet {
 
@@ -67,7 +72,7 @@ public class IncidenciaServlet extends HttpServlet {
                     request.setAttribute("listaSegmentos", segmentoDao.listarSegmentosPorIncidencia(incidenciaVer.getIdIncidencia()));
                     request.setAttribute("listaAfectados", incidenciaDao.listarServiciosAfectados(incidenciaVer.getIdIncidencia()));
                     request.setAttribute("listaCorrectivos", mantenimientoDao.listarPorIncidencia(incidenciaVer.getIdIncidencia()));
-                    view = request.getRequestDispatcher("NetworkOperator/verIncidencia.jsp");
+                    view = request.getRequestDispatcher("/WEB-INF/views/NetworkOperator/verIncidencia.jsp");
                     view.forward(request, response);
                 }
                 break;
@@ -179,8 +184,14 @@ public class IncidenciaServlet extends HttpServlet {
                     if (!observacion.isEmpty()) {
                         incidenciaDao.agregarObservacion(idNueva, observacion);
                     }
+                    if ("1".equals(request.getParameter("avisarMantenimiento"))) {
+                        String aviso = avisarNuevaIncidencia(idNueva, severidad, idsSegmentos);
+                        request.getSession().setAttribute("avisoOperacion", aviso);
+                    }
                     response.sendRedirect(request.getContextPath() + "/IncidenciaServlet?action=ver&id=" + idNueva);
                 }
+
+
                 break;
 
             case "actualizar":
@@ -297,6 +308,45 @@ public class IncidenciaServlet extends HttpServlet {
             return Integer.parseInt(valor);
         } catch (NumberFormatException e) {
             return 0;
+        }
+    }
+
+    private String avisarNuevaIncidencia(int id, String severidad,
+                                         java.util.List<Integer> segmentos) {
+        try {
+            var destinos = new UsuarioDao().listarCorreosMantenimiento();
+
+            if (destinos.isEmpty()) {
+                return "Incidencia registrada. No hay coordinadores activos con correo.";
+            }
+
+            String asunto = "OceanLink | Nueva incidencia #" + id;
+            String cuerpo = """
+            Se registró la incidencia #%d.
+            Severidad: %s
+            Segmento(s): %s
+
+            Ingresa a OceanLink para revisar la incidencia y programar el mantenimiento.
+            """.formatted(id, severidad, segmentos);
+
+            CorreoService correo = new CorreoService();
+            int enviados = 0;
+
+            for (String destino : destinos) {
+                try {
+                    correo.enviar(destino, asunto, cuerpo);
+                    enviados++;
+                } catch (MessagingException | IllegalStateException e) {
+                    getServletContext().log("Falló el aviso de la incidencia #" + id, e);
+                }
+            }
+
+            return "Incidencia registrada. Avisos enviados: "
+                    + enviados + " de " + destinos.size() + ".";
+
+        } catch (SQLException e) {
+            getServletContext().log("Error al buscar coordinadores", e);
+            return "Incidencia registrada. No se pudo consultar el correo de mantenimiento.";
         }
     }
 }

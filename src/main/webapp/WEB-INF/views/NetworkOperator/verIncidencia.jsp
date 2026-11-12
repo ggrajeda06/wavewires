@@ -27,6 +27,7 @@
 <html lang="es">
 <head>
   <title>OceanLink - Detalle de incidencia</title>
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
@@ -38,6 +39,16 @@
       <a href="<%=request.getContextPath()%>/IncidenciaServlet" class="btn btn-outline-secondary btn-sm me-3">Volver</a>
       <h3 class="fw-bold m-0">Incidencia <%= incidencia.getIdentificador() %></h3>
     </div>
+
+    <%
+        String avisoOperacion = (String) session.getAttribute("avisoOperacion");
+        if (avisoOperacion != null) {
+            session.removeAttribute("avisoOperacion");
+    %>
+        <p class="small text-muted mb-3" role="status">
+            <%= avisoOperacion %>
+        </p>
+    <% } %>
 
     <div class="card shadow-sm border-0 p-4 mb-3">
       <div class="row g-3">

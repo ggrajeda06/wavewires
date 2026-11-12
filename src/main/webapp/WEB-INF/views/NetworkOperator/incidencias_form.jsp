@@ -18,6 +18,7 @@
   <main class="col p-4 bg-light">
     <div class="d-flex align-items-center mb-4">
       <a href="<%=request.getContextPath()%>/IncidenciaServlet" class="btn btn-outline-secondary btn-sm me-3">Volver</a>
+
       <h3 class="fw-bold m-0">Registrar incidencia</h3>
     </div>
 
@@ -68,6 +69,17 @@
         <div class="mb-4">
           <label class="form-label fw-semibold">Observación inicial</label>
           <textarea class="form-control" name="observaciones" rows="3" maxlength="1000" placeholder="Opcional"></textarea>
+        </div>
+
+        <div class="form-check mb-3">
+          <input class="form-check-input"
+                 type="checkbox"
+                 id="avisarMantenimiento"
+                 name="avisarMantenimiento"
+                 value="1">
+          <label class="form-check-label" for="avisarMantenimiento">
+            Avisar por correo al coordinador de mantenimiento
+          </label>
         </div>
 
         <div class="d-flex justify-content-end gap-2">
