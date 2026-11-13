@@ -88,7 +88,7 @@ public class IncidenciaServlet extends HttpServlet {
                     request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
                     request.setAttribute("estadosPermitidos", estadosManuales(incidenciaEditar));
                     request.setAttribute("puedeCambiarSegmentos", puedeCambiarSegmentos(incidenciaEditar));
-                    view = request.getRequestDispatcher("NetworkOperator/editarIncidencia.jsp");
+                    view = request.getRequestDispatcher("/WEB-INF/views/NetworkOperator/editarIncidencia.jsp");
                     view.forward(request, response);
                 }
                 break;
@@ -97,7 +97,7 @@ public class IncidenciaServlet extends HttpServlet {
                 request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
                 request.setAttribute("listaActivas", incidenciaDao.listarIncidencias(true));
                 request.setAttribute("listaServicios", new ServicioDao().listarServicios());
-                view = request.getRequestDispatcher("NetworkOperator/estadoRed.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/NetworkOperator/estadoRed.jsp");
                 view.forward(request, response);
                 break;
 
@@ -109,14 +109,14 @@ public class IncidenciaServlet extends HttpServlet {
                 } else {
                     request.setAttribute("segmento", segmentoVer);
                     request.setAttribute("listaServicios", new ServicioDao().listarServiciosPorSegmento(segmentoVer.getIdSegmento()));
-                    view = request.getRequestDispatcher("NetworkOperator/serviciosSegmento.jsp");
+                    view = request.getRequestDispatcher("/WEB-INF/views/NetworkOperator/serviciosSegmento.jsp");
                     view.forward(request, response);
                 }
                 break;
 
             case "restauraciones":
                 request.setAttribute("listaRestauraciones", incidenciaDao.listarRestauraciones());
-                view = request.getRequestDispatcher("NetworkOperator/restauracion.jsp");
+                view = request.getRequestDispatcher("/WEB-INF/views/NetworkOperator/restauracion.jsp");
                 view.forward(request, response);
                 break;
 

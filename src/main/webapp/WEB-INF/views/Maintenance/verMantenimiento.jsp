@@ -22,6 +22,16 @@
       <h3 class="fw-bold m-0">ID<%=mantenimiento.getIdMantenimiento()%> - <%=mantenimiento.getNombre()%></h3>
     </div>
 
+    <%
+      String avisoNoc = (String) session.getAttribute("avisoNoc");
+      if (avisoNoc != null) {
+        session.removeAttribute("avisoNoc");
+    %>
+    <p class="small text-muted mb-3" role="status">
+      <%= avisoNoc %>
+    </p>
+    <% } %>
+
     <div class="card shadow-sm p-4 mb-3">
       <div class="row g-4">
         <div class="col-md-7">

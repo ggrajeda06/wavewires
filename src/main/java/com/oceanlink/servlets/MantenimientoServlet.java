@@ -23,6 +23,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import com.oceanlink.util.Seguridad;
+import com.oceanlink.daos.UsuarioDao;
+import com.oceanlink.services.CorreoService;
+import jakarta.mail.MessagingException;
+import java.sql.SQLException;
 
 @WebServlet(name = "MantenimientoServlet", value = "/MantenimientoServlet")
 public class MantenimientoServlet extends HttpServlet {
@@ -212,6 +216,32 @@ public class MantenimientoServlet extends HttpServlet {
                 actual.setFechaRegistrada(Date.valueOf(fechaEdit));
                 actual.setEstado(estadoEdit);
                 actual.setActividadesRealizadas(actividades.isEmpty() ? null : actividades);
+
+                if ("Finalizado".equals(estadoEdit)
+                        && "Correctivo".equals(actual.getTipo())
+                        && actual.getIdIncidencia() > 0) {
+
+                    String aviso;
+                    try {
+                        boolean restaurada = mantenimientoDao.finalizarCorrectivo(actual);
+
+                        if (restaurada) {
+                            aviso = avisarRestauracionAlNoc(actual);
+                        } else {
+                            aviso = "Correctivo finalizado. La incidencia sigue sin pasar a Servicio restaurado.";
+                        }
+                    } catch (SQLException e) {
+                        getServletContext().log(
+                                "Error al finalizar el correctivo #" + actual.getIdMantenimiento(), e);
+                        aviso = "No se pudo confirmar la finalización. Revisa el estado del correctivo.";
+                    }
+
+                    request.getSession().setAttribute("avisoNoc", aviso);
+                    response.sendRedirect(request.getContextPath()
+                            + "/MantenimientoServlet?action=ver&id=" + actual.getIdMantenimiento());
+                    break;
+                }
+
                 mantenimientoDao.actualizarMantenimiento(actual);
 
                 // si cambio la incidencia ligada, la anterior se suelta y la nueva pasa a Reparacion programada
@@ -230,6 +260,52 @@ public class MantenimientoServlet extends HttpServlet {
             default:
                 response.sendRedirect(request.getContextPath() + "/MantenimientoServlet");
                 break;
+        }
+    }
+
+    private String avisarRestauracionAlNoc(Mantenimiento m) {
+        int idIncidencia = m.getIdIncidencia();
+        int idMantenimiento = m.getIdMantenimiento();
+
+        try {
+            var destinos = new UsuarioDao().listarCorreosNoc();
+
+            if (destinos.isEmpty()) {
+                return "Incidencia restaurada. No hay operadores NOC activos con correo.";
+            }
+
+            String asunto = "OceanLink | Incidencia #" + idIncidencia
+                    + " restaurada | Revisión NOC";
+
+            String cuerpo = """
+                Equipo NOC:
+
+                Finalizó el mantenimiento correctivo #%d.
+                La incidencia #%d pasó al estado «Servicio restaurado».
+
+                Ingresa a OceanLink, revisa el servicio restaurado
+               
+                """.formatted(idMantenimiento, idIncidencia);
+
+            CorreoService correo = new CorreoService();
+            int enviados = 0;
+
+            for (String destino : destinos) {
+                try {
+                    correo.enviar(destino, asunto, cuerpo);
+                    enviados++;
+                } catch (MessagingException | IllegalStateException e) {
+                    getServletContext().log(
+                            "Error de correo al avisar al NOC por incidencia #" + idIncidencia, e);
+                }
+            }
+
+            return "Incidencia restaurada. Alertas enviadas al NOC: "
+                    + enviados + " de " + destinos.size() + ".";
+
+        } catch (SQLException e) {
+            getServletContext().log("Error al consultar los correos del NOC", e);
+            return "Incidencia restaurada. No se pudo consultar el correo del NOC.";
         }
     }
 

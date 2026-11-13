@@ -195,4 +195,101 @@ public class MantenimientoDao extends DaoBase {
         m.setIdIncidencia(rs.getInt("idIncidencia"));
         return m;
     }
+
+    public boolean finalizarCorrectivo(Mantenimiento m) throws SQLException {
+        int idIncidencia = m.getIdIncidencia();
+
+        String bloquearIncidencia = """
+        SELECT idIncidencia
+        FROM incidencia
+        WHERE idIncidencia = ?
+        FOR UPDATE
+        """;
+
+        String finalizarCorrectivo = """
+        UPDATE mantenimiento
+        SET nombre = ?, descripcion = ?, actividadesRealizadas = ?,
+            estado = 'Finalizado'
+        WHERE idMantenimiento = ?
+          AND idIncidencia = ?
+          AND tipo = 'Correctivo'
+          AND estado = 'Activo'
+        """;
+
+        String restaurarIncidencia = """
+        UPDATE incidencia
+        SET estado = 'Servicio restaurado'
+        WHERE idIncidencia = ?
+          AND estado NOT IN ('Servicio restaurado', 'Cerrada')
+          AND NOT EXISTS (
+              SELECT 1 FROM mantenimiento
+              WHERE idIncidencia = ? AND estado <> 'Finalizado'
+          )
+        """;
+
+        String restaurarServicios = """
+        UPDATE incidencia_has_servicio h
+        JOIN servicio s ON s.idServicio = h.idServicio
+        LEFT JOIN (
+            incidencia_has_servicio otro
+            JOIN incidencia i ON i.idIncidencia = otro.idIncidencia
+              AND i.estado NOT IN ('Servicio restaurado', 'Cerrada')
+        ) ON otro.idServicio = h.idServicio
+         AND otro.idIncidencia <> h.idIncidencia
+        SET h.fechaRestauracion = COALESCE(h.fechaRestauracion, NOW()),
+            s.estado = 'Funcionando'
+        WHERE h.idIncidencia = ?
+          AND s.estado = 'Caído'
+          AND otro.idIncidencia IS NULL
+        """;
+
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+
+            try {
+                // Procesa en orden los cierres de una misma incidencia.
+                try (PreparedStatement ps = conn.prepareStatement(bloquearIncidencia)) {
+                    ps.setInt(1, idIncidencia);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (!rs.next()) {
+                            throw new SQLException("La incidencia ya no existe.");
+                        }
+                    }
+                }
+
+                try (PreparedStatement ps = conn.prepareStatement(finalizarCorrectivo)) {
+                    ps.setString(1, m.getNombre());
+                    ps.setString(2, m.getDescripcion());
+                    ps.setString(3, m.getActividadesRealizadas());
+                    ps.setInt(4, m.getIdMantenimiento());
+                    ps.setInt(5, idIncidencia);
+
+                    if (ps.executeUpdate() != 1) {
+                        throw new SQLException("El correctivo ya no está activo.");
+                    }
+                }
+
+                boolean restaurada;
+                try (PreparedStatement ps = conn.prepareStatement(restaurarIncidencia)) {
+                    ps.setInt(1, idIncidencia);
+                    ps.setInt(2, idIncidencia);
+                    restaurada = ps.executeUpdate() == 1;
+                }
+
+                if (restaurada) {
+                    try (PreparedStatement ps = conn.prepareStatement(restaurarServicios)) {
+                        ps.setInt(1, idIncidencia);
+                        ps.executeUpdate();
+                    }
+                }
+
+                conn.commit();
+                return restaurada;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        }
+    }
 }

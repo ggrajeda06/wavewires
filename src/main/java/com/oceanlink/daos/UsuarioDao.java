@@ -205,4 +205,27 @@ public class UsuarioDao extends DaoBase {
         }
         return correos;
     }
+
+    public ArrayList<String> listarCorreosNoc() throws SQLException {
+        String sql = """
+        SELECT DISTINCT TRIM(u.correo) AS correo
+        FROM usuario u
+        JOIN roles r ON r.idRoles = u.Roles_idRoles
+        WHERE r.rol = 'Network Operator'
+          AND u.estado = 'Activo'
+          AND NULLIF(TRIM(u.correo), '') IS NOT NULL
+        """;
+
+        ArrayList<String> correos = new ArrayList<>();
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                correos.add(rs.getString("correo"));
+            }
+        }
+        return correos;
+    }
 }
