@@ -51,6 +51,7 @@ public class ServicioServlet extends HttpServlet {
                 break;
 
             case "borrar":
+                if (!Seguridad.exigirGestion(request, response, Seguridad.PLANIFICADOR)) return;
                 if (servicioDao.eliminarServicio(numero(request.getParameter("id")))) {
                     response.sendRedirect(request.getContextPath() + "/ServicioServlet");
                 } else {

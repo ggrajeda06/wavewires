@@ -17,6 +17,11 @@
         }
     }
 %>
+<%@ page import="com.oceanlink.util.Seguridad" %>
+<%
+  // solo el rol duenio ve los botones de crear, editar y borrar; el Administrador solo consulta
+  boolean gestiona = Seguridad.puedeGestionar(request, Seguridad.OPERADOR);
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -30,7 +35,9 @@
   <main class="col p-4 bg-light">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3 class="fw-bold m-0"><%= esHistorial ? "Historial de incidencias" : "Incidencias activas" %></h3>
+      <% if (gestiona && !esHistorial) { %>
       <a class="btn btn-primary shadow-sm" href="<%=request.getContextPath()%>/IncidenciaServlet?action=formCrear">+ Registrar incidencia</a>
+      <% } %>
     </div>
 
     <% if ("noBorrable".equals(request.getParameter("error"))) { %>
@@ -125,10 +132,10 @@
                 <% } %>
                 <td class="text-end pe-4">
                   <a href="<%=request.getContextPath()%>/IncidenciaServlet?action=ver&id=<%= inc.getIdIncidencia() %>" class="btn btn-sm btn-outline-secondary">Ver</a>
-                  <% if (!inc.getEstado().equals("Cerrada")) { %>
+                  <% if (gestiona && !inc.getEstado().equals("Cerrada")) { %>
                   <a href="<%=request.getContextPath()%>/IncidenciaServlet?action=editar&id=<%= inc.getIdIncidencia() %>" class="btn btn-sm btn-outline-primary">Editar</a>
                   <% } %>
-                  <% if (inc.getEstado().equals("Detectada")) { %>
+                  <% if (gestiona && inc.getEstado().equals("Detectada")) { %>
                   <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#borrar<%= inc.getIdIncidencia() %>">Borrar</button>
                   <% } %>
                 </td>

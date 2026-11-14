@@ -68,11 +68,7 @@ public class SolicitudesServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        if (!Seguridad.permitir(
-                request,
-                response,
-                Seguridad.ADMIN,
-                Seguridad.PLANIFICADOR)) {
+        if (!Seguridad.permitir(request, response, Seguridad.PLANIFICADOR)) {
             return;
         }
 

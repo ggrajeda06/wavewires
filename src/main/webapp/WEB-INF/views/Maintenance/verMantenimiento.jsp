@@ -7,6 +7,11 @@
   String infraestructura = (String) request.getAttribute("infraestructura");
   Incidencia incidencia = (Incidencia) request.getAttribute("incidencia");
 %>
+<%@ page import="com.oceanlink.util.Seguridad" %>
+<%
+  // solo el rol duenio ve los botones de crear, editar y borrar; el Administrador solo consulta
+  boolean gestiona = Seguridad.puedeGestionar(request, Seguridad.MANTENIMIENTO);
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -106,7 +111,7 @@
       <% } %>
     </div>
 
-    <% if (!mantenimiento.getEstado().equals("Finalizado")) { %>
+    <% if (gestiona && !mantenimiento.getEstado().equals("Finalizado")) { %>
     <a href="<%=request.getContextPath()%>/MantenimientoServlet?action=editar&id=<%=mantenimiento.getIdMantenimiento()%>" class="btn btn-outline-dark">Editar</a>
     <% } %>
   </main>

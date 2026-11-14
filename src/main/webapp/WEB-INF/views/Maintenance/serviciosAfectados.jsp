@@ -11,6 +11,11 @@
   String segmentoVal = request.getParameter("idSegmento") == null ? "0" : request.getParameter("idSegmento");
   boolean consultado = error == null && (!landingVal.equals("0") || !segmentoVal.equals("0"));
 %>
+<%@ page import="com.oceanlink.util.Seguridad" %>
+<%
+  // solo el rol duenio ve los botones de crear, editar y borrar; el Administrador solo consulta
+  boolean gestiona = Seguridad.puedeGestionar(request, Seguridad.MANTENIMIENTO);
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -91,9 +96,11 @@
         </table>
       </div>
     </div>
+    <% if (gestiona) { %>
     <a class="btn btn-outline-dark mt-3" href="<%=request.getContextPath()%>/MantenimientoServlet?action=formCrear&idLandingStation=<%=landingVal%>&idSegmento=<%=segmentoVal%>">
       Programar mantenimiento sobre esta infraestructura
     </a>
+    <% } %>
     <% } %>
   </main>
 </div>

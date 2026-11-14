@@ -21,6 +21,11 @@
         }
     }
 %>
+<%@ page import="com.oceanlink.util.Seguridad" %>
+<%
+  // solo el rol duenio ve los botones de crear, editar y borrar; el Administrador solo consulta
+  boolean gestiona = Seguridad.puedeGestionar(request, Seguridad.OPERADOR);
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -39,9 +44,11 @@
         <span class="badge ms-3 <%= colorSegmento %>"><%= segmento.getEstado() %></span>
       </div>
             <div class="d-flex gap-2">
-              <!-- recarga la misma vista para ver las fallas nuevas -->
+              <%-- recarga la misma vista para ver las fallas nuevas --%>
               <a href="<%=request.getContextPath()%>/IncidenciaServlet?action=serviciosSegmento&id=<%= segmento.getIdSegmento() %>" class="btn btn-outline-secondary">Actualizar</a>
+              <% if (gestiona) { %>
               <a href="<%=request.getContextPath()%>/IncidenciaServlet?action=formCrear&idSegmento=<%= segmento.getIdSegmento() %>" class="btn btn-primary shadow-sm">+ Registrar incidencia</a>
+              <% } %>
             </div>
     </div>
 

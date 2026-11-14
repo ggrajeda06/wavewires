@@ -7,6 +7,11 @@
 <jsp:useBean id="lista" type="java.util.ArrayList<com.oceanlink.beans.Mantenimiento>" scope="request" />
 <jsp:useBean id="listaLandings" type="java.util.ArrayList<com.oceanlink.beans.LandingStation>" scope="request" />
 <jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
+<%@ page import="com.oceanlink.util.Seguridad" %>
+<%
+  // solo el rol duenio ve los botones de crear, editar y borrar; el Administrador solo consulta
+  boolean gestiona = Seguridad.puedeGestionar(request, Seguridad.MANTENIMIENTO);
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -19,7 +24,9 @@
   <main class="col p-4 bg-light">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3 class="fw-bold m-0">Mantenimiento</h3>
+      <% if (gestiona) { %>
       <a class="btn btn-outline-secondary" href="<%=request.getContextPath()%>/MantenimientoServlet?action=formCrear">Registrar mantenimiento</a>
+      <% } %>
     </div>
 
     <% if ("noBorrable".equals(request.getParameter("error"))) { %>
@@ -67,8 +74,12 @@
                 <td><%=segmentosTexto%></td>
                 <td><%=inc.getFechaRegistro()%></td>
                 <td class="text-end pe-4">
+                  <% if (gestiona) { %>
                   <a class="btn btn-sm btn-outline-primary"
                      href="<%=request.getContextPath()%>/MantenimientoServlet?action=formCrear&tipoMantenimiento=Correctivo&idIncidencia=<%=inc.getIdIncidencia()%>&idSegmento=<%=primerSegmento%>">Programar correctivo</a>
+                  <% } else { %>
+                  <span class="text-muted small">Solo consulta</span>
+                  <% } %>
                 </td>
               </tr>
               <% } %>
@@ -137,10 +148,10 @@
                 </td>
                 <td class="text-end pe-4">
                   <a class="btn btn-sm btn-outline-secondary" href="<%=request.getContextPath()%>/MantenimientoServlet?action=ver&id=<%=m.getIdMantenimiento()%>">Ver</a>
-                  <% if (!m.getEstado().equals("Finalizado")) { %>
+                  <% if (gestiona && !m.getEstado().equals("Finalizado")) { %>
                   <a class="btn btn-sm btn-outline-primary" href="<%=request.getContextPath()%>/MantenimientoServlet?action=editar&id=<%=m.getIdMantenimiento()%>">Editar</a>
                   <% } %>
-                  <% if (m.getEstado().equals("Pendiente")) { %>
+                  <% if (gestiona && m.getEstado().equals("Pendiente")) { %>
                   <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#borrar<%=m.getIdMantenimiento()%>">Eliminar</button>
                   <% } %>
                 </td>

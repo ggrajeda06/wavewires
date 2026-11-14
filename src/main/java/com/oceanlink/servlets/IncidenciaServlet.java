@@ -58,6 +58,7 @@ public class IncidenciaServlet extends HttpServlet {
                 break;
 
             case "formCrear":
+                if (!Seguridad.exigirGestion(request, response, Seguridad.OPERADOR)) return;
                 request.setAttribute("listaSegmentos", segmentoDao.listarSegmentos());
                 view = request.getRequestDispatcher("/WEB-INF/views/NetworkOperator/incidencias_form.jsp");
                 view.forward(request, response);
@@ -78,6 +79,7 @@ public class IncidenciaServlet extends HttpServlet {
                 break;
 
             case "editar":
+                if (!Seguridad.exigirGestion(request, response, Seguridad.OPERADOR)) return;
                 Incidencia incidenciaEditar = incidenciaDao.obtenerIncidencia(numero(request.getParameter("id")));
                 if (incidenciaEditar == null) {
                     response.sendRedirect(request.getContextPath() + "/IncidenciaServlet");
@@ -121,6 +123,8 @@ public class IncidenciaServlet extends HttpServlet {
                 break;
 
             case "borrar":
+
+                if (!Seguridad.exigirGestion(request, response, Seguridad.OPERADOR)) return;
                 Incidencia incidenciaBorrar = incidenciaDao.obtenerIncidencia(numero(request.getParameter("id")));
                 if (incidenciaBorrar == null) {
                     response.sendRedirect(request.getContextPath() + "/IncidenciaServlet");
@@ -143,11 +147,8 @@ public class IncidenciaServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        if (!Seguridad.permitir(
-                request,
-                response,
-                Seguridad.ADMIN,
-                Seguridad.OPERADOR)) {
+        // guardar cambios: solo el Network Operator (el Administrador solo consulta)
+        if (!Seguridad.permitir(request, response, Seguridad.OPERADOR)) {
             return;
         }
 

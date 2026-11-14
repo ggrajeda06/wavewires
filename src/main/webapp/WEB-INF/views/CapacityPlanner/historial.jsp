@@ -28,13 +28,9 @@
       </div>
     </div>
 
-    <% if ("enUso".equals(request.getParameter("error"))) { %>
-    <div class="alert alert-danger">No se puede eliminar el servicio porque está registrado en una incidencia.</div>
-    <% } %>
-
     <div class="card shadow-sm border-0 p-3">
 
-      <!-- Buscador -->
+      <%-- Buscador --%>
       <form method="GET" action="<%=request.getContextPath()%>/HistorialServlet" class="row mb-3">
         <div class="col-md-4">
           <input type="text" name="buscar" class="form-control" placeholder="Buscar segmento o ruta..."
@@ -42,7 +38,7 @@
         </div>
       </form>
 
-      <!-- Tabla de segmentos -->
+      <%-- Tabla de segmentos --%>
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-3">
           <thead class="table-light">
@@ -85,14 +81,14 @@
         </table>
       </div>
 
-      <!-- Paginacion -->
+      <%-- Paginacion --%>
       <jsp:include page="paginacion.jsp"><jsp:param name="servlet" value="HistorialServlet"/></jsp:include>
 
     </div>
   </main>
 </div>
 
-<!-- Modales con el detalle de servicios caducados por cada segmento -->
+<%-- Modales con el detalle de servicios caducados por cada segmento --%>
 <%
    if (listaSegmentos != null && listaServiciosCaducados != null) {
      for (Segmento s : listaSegmentos) {
@@ -118,11 +114,10 @@
           <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
             <tr>
-              <th style="width: 20%;">Servicios</th>
-              <th style="width: 25%;">Cliente</th>
-              <th style="width: 20%;">Segmento</th>
-              <th style="width: 17%;">Capacidad</th>
-              <th style="width: 18%;" class="text-center">Acción</th>
+              <th style="width: 25%;">Servicios</th>
+              <th style="width: 30%;">Cliente</th>
+              <th style="width: 25%;">Segmento</th>
+              <th style="width: 20%;">Capacidad</th>
             </tr>
             </thead>
             <tbody>
@@ -136,13 +131,6 @@
               <td><%=sv.getRazonSocial() != null ? sv.getRazonSocial() : "-"%></td>
               <td>Segmento <%=sv.getIdSegmento()%></td>
               <td class="text-secondary fw-semibold"><%=cap%> Gbps</td>
-              <td class="text-center">
-                <a href="<%=request.getContextPath()%>/HistorialServlet?action=borrar&id=<%=sv.getIdServicio()%>"
-                   class="btn btn-outline-danger btn-sm px-3 text-nowrap"
-                   onclick="return confirm('¿Estás seguro de que deseas eliminar este servicio del historial?');">
-                  <i class="bi bi-trash me-1"></i> Eliminar
-                </a>
-              </td>
             </tr>
             <% } %>
             </tbody>
@@ -165,7 +153,7 @@
    }
 %>
 
-<!-- Modal para cuando no hay registros finalizados -->
+<%-- Modal para cuando no hay registros finalizados --%>
 <div class="modal fade" id="modalSinCaducados" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow text-center p-4">

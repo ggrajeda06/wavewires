@@ -52,13 +52,7 @@ public class HistorialServlet extends HttpServlet {
                 view.forward(request, response);
                 break;
 
-            case "borrar":
-                if (servicioDao.eliminarServicioPermanente(numero(request.getParameter("id")))) {
-                    response.sendRedirect(request.getContextPath() + "/HistorialServlet");
-                } else {
-                    response.sendRedirect(request.getContextPath() + "/HistorialServlet?error=enUso");
-                }
-                break;
+
 
             default:
                 response.sendRedirect(request.getContextPath() + "/HistorialServlet");

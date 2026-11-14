@@ -11,7 +11,12 @@ import java.io.IOException;
 
 @WebServlet("/LogoutServlet")
 public class LogoutServlet extends HttpServlet {
-
+    @Override
+    protected void doGet(
+            HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
+        doPost(request, response);
+    }
     @Override
     protected void doPost(
             HttpServletRequest request,

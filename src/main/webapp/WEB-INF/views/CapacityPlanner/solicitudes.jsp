@@ -7,6 +7,11 @@
 <jsp:useBean id="listaSolicitudes" type="java.util.ArrayList<com.oceanlink.beans.Solicitudes>" scope="request" />
 <jsp:useBean id="listaClientes" type="java.util.ArrayList<com.oceanlink.beans.Cliente>" scope="request" />
 <jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
+<%@ page import="com.oceanlink.util.Seguridad" %>
+<%
+  // solo el rol duenio ve los botones de crear, editar y borrar; el Administrador solo consulta
+  boolean gestiona = Seguridad.puedeGestionar(request, Seguridad.PLANIFICADOR);
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -28,9 +33,11 @@
         <h2 class="h3 fw-bold text-dark m-0">Solicitudes de capacidad</h2>
         <small class="text-muted">Evalúa la viabilidad de la capacidad</small>
       </div>
+      <% if (gestiona) { %>
       <button type="button" class="btn btn-dark btn-sm px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalRegistrarSolicitud">
         <i class="bi bi-plus-lg me-1"></i> Registrar Solicitud
       </button>
+      <% } %>
     </div>
 
     <% if ("datos".equals(request.getParameter("error"))) { %>
@@ -163,6 +170,7 @@
               <td><%=ruta%></td>
               <td><%=s.getDuracionMeses()%> meses</td>
               <td class="text-center">
+                <% if (gestiona) { %>
                 <button type="button" class="btn btn-outline-dark btn-sm px-3"
                         data-id="<%=s.getIdSolicitudCapacidad()%>" data-cliente="<%=s.getIdCliente()%>" data-capacidad="<%=capacidadTexto%>"
                         data-origen="<%=Html.esc(s.getOrigen())%>" data-destino="<%=Html.esc(s.getDestino())%>" data-estado="<%=s.getEstado()%>"
@@ -171,6 +179,9 @@
                         onclick="abrirEditar(this.dataset)">
                   Editar
                 </button>
+                <% } else { %>
+                <span class="text-muted small">Solo consulta</span>
+                <% } %>
               </td>
             </tr>
             <% } %>

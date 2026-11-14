@@ -6,6 +6,11 @@
 <%@ page import="java.util.ArrayList" %>
 <jsp:useBean id="listaClientes" type="java.util.ArrayList<com.oceanlink.beans.Cliente>" scope="request" />
 <jsp:useBean id="listaServicios" type="java.util.ArrayList<com.oceanlink.beans.Servicio>" scope="request" />
+<%@ page import="com.oceanlink.util.Seguridad" %>
+<%
+  // solo el rol duenio ve los botones de crear, editar y borrar; el Administrador solo consulta
+  boolean gestiona = Seguridad.puedeGestionar(request, Seguridad.PLANIFICADOR) || Seguridad.esAdmin(request);
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -27,9 +32,11 @@
         <h2 class="h3 fw-bold text-dark m-0">Clientes Empresariales</h2>
         <small class="text-muted">Gestiona nuestros clientes</small>
       </div>
+      <% if (gestiona) { %>
       <button type="button" class="btn btn-dark btn-sm px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalRegistrarCliente">
         <i class="bi bi-plus-lg me-1"></i> Registrar cliente
       </button>
+      <% } %>
     </div>
 
     <% if ("vacio".equals(request.getParameter("error"))) { %>
@@ -96,12 +103,16 @@
               <span class="badge <%=colorBadge%>"><%=c.getEstado()%></span>
             </td>
             <td class="text-center text-nowrap">
+              <% if (gestiona) { %>
               <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditar<%=c.getIdCliente()%>">
                 Editar
               </button>
               <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalBorrar<%=c.getIdCliente()%>">
                 <i class="bi bi-trash"></i> Eliminar
               </button>
+              <% } else { %>
+              <span class="text-muted small">Solo consulta</span>
+              <% } %>
             </td>
           </tr>
           <% } %>

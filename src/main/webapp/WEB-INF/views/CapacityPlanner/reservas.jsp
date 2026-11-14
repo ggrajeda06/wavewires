@@ -2,6 +2,11 @@
 <%@ page import="com.oceanlink.beans.Segmento" %>
 <%@ page import="com.oceanlink.util.Html" %>
 <jsp:useBean id="listaSegmentos" type="java.util.ArrayList<com.oceanlink.beans.Segmento>" scope="request" />
+<%@ page import="com.oceanlink.util.Seguridad" %>
+<%
+  // solo el rol duenio ve los botones de crear, editar y borrar; el Administrador solo consulta
+  boolean gestiona = Seguridad.puedeGestionar(request, Seguridad.PLANIFICADOR);
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -32,7 +37,7 @@
 
       <div class="card shadow-sm border-0 p-4 bg-white rounded-3">
 
-        <!-- Buscador -->
+        <%-- Buscador --%>
         <form method="GET" action="<%=request.getContextPath()%>/ReservaServlet" class="row mb-4">
           <div class="col-md-5">
             <input type="text" name="buscar" class="form-control" placeholder="Buscar por segmento o ruta..."
@@ -40,7 +45,7 @@
           </div>
         </form>
 
-        <!-- Tabla de reservas -->
+        <%-- Tabla de reservas --%>
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-4">
             <thead class="table-light">
@@ -67,10 +72,14 @@
                 <td><%=ruta%></td>
                 <td><span class="badge bg-light text-dark border"><%=reservada%> / <%=total%> Gbps</span></td>
                 <td class="text-end">
+                  <% if (gestiona) { %>
                   <button type="button" class="btn btn-outline-primary btn-sm px-3"
                           onclick="abrirModalModificar('<%=s.getIdSegmento()%>', '<%=total%>', '<%=reservada%>')">
                     <i class="bi bi-pencil-square me-1"></i> Modificar
                   </button>
+                  <% } else { %>
+                  <span class="text-muted small">Solo consulta</span>
+                  <% } %>
                 </td>
               </tr>
               <% } %>
@@ -79,7 +88,7 @@
           </table>
         </div>
 
-        <!-- Paginación -->
+        <%-- Paginación --%>
         <div class="pt-2 border-top">
           <jsp:include page="paginacion.jsp"><jsp:param name="servlet" value="ReservaServlet"/></jsp:include>
         </div>
@@ -89,7 +98,7 @@
   </main>
 </div>
 
-<!-- Modal para modificar reserva -->
+<%-- Modal para modificar reserva --%>
 <div class="modal fade" id="modalModificarReserva" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 380px;">
     <div class="modal-content border-0 shadow rounded-3">

@@ -77,6 +77,7 @@ public class MantenimientoServlet extends HttpServlet {
                 break;
 
             case "formCrear":
+                if (!Seguridad.exigirGestion(request, response, Seguridad.MANTENIMIENTO)) return;
                 mostrarFormCrear(request, response, null);
                 break;
 
@@ -97,6 +98,7 @@ public class MantenimientoServlet extends HttpServlet {
                 break;
 
             case "editar":
+                if (!Seguridad.exigirGestion(request, response, Seguridad.MANTENIMIENTO)) return;
                 Mantenimiento mEditar = mantenimientoDao.obtenerMantenimiento(numero(request.getParameter("id")));
                 if (mEditar == null) {
                     response.sendRedirect(request.getContextPath() + "/MantenimientoServlet");
@@ -108,6 +110,7 @@ public class MantenimientoServlet extends HttpServlet {
                 break;
 
             case "borrar":
+                if (!Seguridad.exigirGestion(request, response, Seguridad.MANTENIMIENTO)) return;
                 Mantenimiento mBorrar = mantenimientoDao.obtenerMantenimiento(numero(request.getParameter("id")));
                 if (mBorrar == null) {
                     response.sendRedirect(request.getContextPath() + "/MantenimientoServlet");
@@ -131,11 +134,8 @@ public class MantenimientoServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        if (!Seguridad.permitir(
-                request,
-                response,
-                Seguridad.ADMIN,
-                Seguridad.MANTENIMIENTO)) {
+        // guardar cambios: solo el Maintenance Coordinator (el Administrador solo consulta)
+        if (!Seguridad.permitir(request, response, Seguridad.MANTENIMIENTO)) {
             return;
         }
 

@@ -11,5 +11,6 @@
   <div class="bi bi-person fw-semibold" style="color: #ffffff;">
     <%= Seguridad.escaparHtml(usuarioIdentidad.getNombre()) %>
   </div>
+    <div class="small" style="color: rgba(255, 255, 255, 0.6);"><%= Seguridad.escaparHtml(usuarioIdentidad.getNombreRol()) %></div>
 </div>
 <% } %>

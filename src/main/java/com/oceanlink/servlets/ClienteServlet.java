@@ -51,6 +51,7 @@ public class ClienteServlet extends HttpServlet {
                 break;
 
             case "borrar":
+                // clientes: lo gestionan el Capacity Planner y el Administrador (ya filtrado arriba en doGet)
                 if (clienteDao.borrarCliente(numero(request.getParameter("id")))) {
                     response.sendRedirect(request.getContextPath() + "/ClienteServlet");
                 } else {

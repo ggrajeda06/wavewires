@@ -23,6 +23,11 @@
         }
     }
 %>
+<%@ page import="com.oceanlink.util.Seguridad" %>
+<%
+  // solo el rol duenio ve los botones de crear, editar y borrar; el Administrador solo consulta
+  boolean gestiona = Seguridad.puedeGestionar(request, Seguridad.OPERADOR);
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -195,7 +200,7 @@
       <% } %>
     </div>
 
-    <% if (!incidencia.getEstado().equals("Cerrada")) { %>
+    <% if (gestiona && !incidencia.getEstado().equals("Cerrada")) { %>
     <a href="<%=request.getContextPath()%>/IncidenciaServlet?action=editar&id=<%= incidencia.getIdIncidencia() %>" class="btn btn-primary">Editar</a>
     <% } %>
   </main>

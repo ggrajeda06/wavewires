@@ -155,7 +155,26 @@ public class UsuarioDao extends DaoBase {
             e.printStackTrace();
         }
     }
+    // Volver a leer al usuario de la sesion: si lo desactivaron o le cambiaron el rol, se nota al instante
+    public Usuario obtenerUsuarioActivo(int idUsuario) throws SQLException {
+        String sql = "SELECT u.*, r.rol AS nombreRol "
+                + "FROM usuario u "
+                + "JOIN roles r ON u.Roles_idRoles = r.idRoles "
+                + "WHERE u.idUsuario = ? AND u.estado = 'Activo'";
 
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, idUsuario);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapearUsuario(rs);
+                }
+            }
+        }
+        return null;
+    }
     // Validar credenciales de usuario
     public Usuario validarCredenciales(String correo, String contrasenia) throws SQLException {
         if (correo == null || correo.isBlank() || contrasenia == null || contrasenia.isEmpty()) {

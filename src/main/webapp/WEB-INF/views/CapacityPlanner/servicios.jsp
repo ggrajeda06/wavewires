@@ -15,6 +15,11 @@
     }
   }
 %>
+<%@ page import="com.oceanlink.util.Seguridad" %>
+<%
+  // solo el rol duenio ve los botones de crear, editar y borrar; el Administrador solo consulta
+  boolean gestiona = Seguridad.puedeGestionar(request, Seguridad.PLANIFICADOR);
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -41,7 +46,7 @@
 
     <div class="card shadow-sm border-0 p-3">
 
-      <!-- Buscador de servicios -->
+      <%-- Buscador de servicios --%>
       <form method="GET" action="<%=request.getContextPath()%>/ServicioServlet" class="row mb-3">
         <div class="col-md-4">
           <input type="text" name="buscar" class="form-control" placeholder="Buscar servicio, cliente o segmento..."
@@ -49,7 +54,7 @@
         </div>
       </form>
 
-      <!-- Tabla de servicios -->
+      <%-- Tabla de servicios --%>
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-3">
           <thead class="table-light">
@@ -99,11 +104,15 @@
               <td><%=fechaCaducidadStr%></td>
               <td><span class="badge <%=colorEstado%>"><%=estadoMostrar%></span></td>
               <td class="text-center">
+                <% if (gestiona) { %>
                 <a href="<%=request.getContextPath()%>/ServicioServlet?action=borrar&id=<%=sv.getIdServicio()%>"
                    class="btn btn-outline-danger btn-sm px-3"
                    onclick="return confirm('¿Estás seguro de que deseas eliminar este servicio?');">
                   <i class="bi bi-trash"></i> Eliminar
                 </a>
+                <% } else { %>
+                <span class="text-muted small">Solo consulta</span>
+                <% } %>
               </td>
             </tr>
             <% } %>
@@ -112,7 +121,7 @@
         </table>
       </div>
 
-      <!-- Paginacion -->
+      <%-- Paginacion --%>
       <jsp:include page="paginacion.jsp"><jsp:param name="servlet" value="ServicioServlet"/></jsp:include>
 
     </div>
