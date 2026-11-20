@@ -43,7 +43,7 @@
                 <th scope="col" class="ps-4">Incidencia</th>
                 <th scope="col">Severidad</th>
                 <th scope="col">Estado</th>
-                <th scope="col">Segmentos</th>
+                 <th scope="col">Segmentos sin correctivo</th>
                 <th scope="col">Detectada</th>
                 <th scope="col" class="text-end pe-4">Acción</th>
               </tr>

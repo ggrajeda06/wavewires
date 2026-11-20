@@ -248,9 +248,22 @@ public class MantenimientoDao extends DaoBase {
         SET estado = 'Servicio restaurado'
         WHERE idIncidencia = ?
           AND estado NOT IN ('Servicio restaurado', 'Cerrada')
-          AND NOT EXISTS (
+         AND NOT EXISTS (
               SELECT 1 FROM mantenimiento
               WHERE idIncidencia = ? AND estado <> 'Finalizado'
+          )
+          AND NOT EXISTS (
+              SELECT 1 FROM incidencia_has_segmento ihs
+              JOIN segmento sg ON sg.idSegmento = ihs.idSegmento
+              WHERE ihs.idIncidencia = ?
+                AND NOT EXISTS (
+                    SELECT 1 FROM mantenimiento mt
+                    WHERE mt.idIncidencia = ihs.idIncidencia
+                      AND mt.tipo = 'Correctivo'
+                      AND mt.estado = 'Finalizado'
+                      AND (mt.idSegmento = ihs.idSegmento
+                           OR mt.idLandingStation IN (sg.idOrigen, sg.idDestino))
+                )
           )
         """;
 
@@ -300,6 +313,7 @@ public class MantenimientoDao extends DaoBase {
                 try (PreparedStatement ps = conn.prepareStatement(restaurarIncidencia)) {
                     ps.setInt(1, idIncidencia);
                     ps.setInt(2, idIncidencia);
+                    ps.setInt(3, idIncidencia);
                     restaurada = ps.executeUpdate() == 1;
                 }
 

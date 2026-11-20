@@ -57,7 +57,12 @@ public class IncidenciaDao extends DaoBase {
     // se muestran al Maintenance Coordinator para que programe la reparacion
     public ArrayList<Incidencia> listarIncidenciasPendientes() {
         ArrayList<Incidencia> lista = new ArrayList<>();
-        String sql = "SELECT * FROM incidencia WHERE estado IN ('Detectada', 'En análisis') ORDER BY fechaRegistro ASC";
+        String sql = "SELECT * FROM incidencia WHERE estado NOT IN ('Servicio restaurado', 'Cerrada') ORDER BY fechaRegistro ASC";
+        String sqlSinCorrectivo = "SELECT ihs.idSegmento FROM incidencia_has_segmento ihs "
+                + "JOIN segmento sg ON sg.idSegmento = ihs.idSegmento "
+                + "WHERE ihs.idIncidencia = ? AND NOT EXISTS ("
+                + "  SELECT 1 FROM mantenimiento mt WHERE mt.idIncidencia = ihs.idIncidencia AND mt.tipo = 'Correctivo' "
+                + "  AND (mt.idSegmento = ihs.idSegmento OR mt.idLandingStation IN (sg.idOrigen, sg.idDestino)))";
 
         try (Connection conn = this.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -65,8 +70,10 @@ public class IncidenciaDao extends DaoBase {
 
             while (rs.next()) {
                 Incidencia i = mapearIncidencia(rs);
-                i.setIdsSegmentos(listarIds(conn, "SELECT idSegmento FROM incidencia_has_segmento WHERE idIncidencia = ?", i.getIdIncidencia()));
-                lista.add(i);
+                i.setIdsSegmentos(listarIds(conn, sqlSinCorrectivo, i.getIdIncidencia()));
+                if (!i.getIdsSegmentos().isEmpty()) {
+                    lista.add(i);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

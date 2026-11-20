@@ -1,10 +1,7 @@
 package com.oceanlink.servlets;
 
-import com.oceanlink.beans.Segmento;
-import com.oceanlink.beans.Usuario;
 import com.oceanlink.daos.LandingStationDao;
-import com.oceanlink.daos.SegmentoDao;
-import com.oceanlink.daos.UsuarioDao;
+import com.oceanlink.daos.ResumenDao;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,10 +10,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import com.oceanlink.util.Seguridad;
 
-// RF06: resumen del Administrador con lo que el administra
+// RF06: resumen del Administrador. Cada dato lo trae un metodo de ResumenDao (un SELECT cada uno).
 @WebServlet(name = "ResumenServlet", value = "/ResumenServlet")
 public class ResumenServlet extends HttpServlet {
 
@@ -31,29 +27,24 @@ public class ResumenServlet extends HttpServlet {
             return;
         }
 
-        ArrayList<Usuario> usuarios = new UsuarioDao().listarUsuarios();
-        int totalLandings = new LandingStationDao().listarLandingStations().size();
-        ArrayList<Segmento> segmentos = new SegmentoDao().listarSegmentos();
+        ResumenDao resumenDao = new ResumenDao();
 
-        int usuariosActivos = 0;
-        for (Usuario u : usuarios) {
-            if (u.getEstado().equals("Activo")) {
-                usuariosActivos++;
-            }
-        }
+        // tarjetas de arriba
+        request.setAttribute("totalUsuarios", resumenDao.contarUsuarios());
+        request.setAttribute("usuariosActivos", resumenDao.contarUsuariosActivos());
+        request.setAttribute("totalLandings", resumenDao.contarLandings());
+        request.setAttribute("totalSegmentos", resumenDao.contarSegmentos());
+        request.setAttribute("segmentosOperativos", resumenDao.contarSegmentosOperativos());
+        request.setAttribute("incidenciasAbiertas", resumenDao.contarIncidenciasAbiertas());
 
-        int segmentosOperativos = 0;
-        for (Segmento s : segmentos) {
-            if (s.getEstado().equals("Operativo")) {
-                segmentosOperativos++;
-            }
-        }
+        // tablas
+        request.setAttribute("cuentasPorRol", resumenDao.listarCuentasActivasPorRol());
+        request.setAttribute("segmentosNoOperativos", resumenDao.listarSegmentosNoOperativos());
+        request.setAttribute("ultimasIncidencias", resumenDao.listarUltimasIncidencias());
+        request.setAttribute("proximosMantenimientos", resumenDao.listarProximosMantenimientos());
 
-        request.setAttribute("totalUsuarios", usuarios.size());
-        request.setAttribute("usuariosActivos", usuariosActivos);
-        request.setAttribute("totalLandings", totalLandings);
-        request.setAttribute("totalSegmentos", segmentos.size());
-        request.setAttribute("segmentosOperativos", segmentosOperativos);
+        // para mostrar el nombre de la landing en los mantenimientos que son sobre una landing
+        request.setAttribute("listaLandings", new LandingStationDao().listarLandingStations());
 
         RequestDispatcher view = request.getRequestDispatcher("/WEB-INF/views/Administrador/admin_resumen.jsp");
         view.forward(request, response);

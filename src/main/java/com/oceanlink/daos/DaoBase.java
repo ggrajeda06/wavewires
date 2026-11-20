@@ -13,8 +13,9 @@ public abstract class DaoBase {
             e.printStackTrace();
         }
 
-        String user = "root";
-        String pass = "@@Jxhn0112";
+        // usuario del proyecto: cada integrante lo crea en su MySQL local (ver README / chat del grupo)
+        String user = "oceanlink";
+        String pass = "oceanlink123";
         String url = "jdbc:mysql://localhost:3306/db_ocealink?serverTimezone=America/Lima";
         return DriverManager.getConnection(url, user, pass);
     }
