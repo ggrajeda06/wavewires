@@ -68,7 +68,8 @@ public class Reportes {
                 return filasLandings(landings,
                         new SegmentoDao().listarSegmentos(),
                         incidenciasActivas(),
-                        new MantenimientoDao().listarMantenimientos());
+                        new MantenimientoDao().listarMantenimientos(),
+                        new ServicioDao().listarServicios());
 
             case "servicios":
                 ArrayList<Servicio> servicios = new ServicioDao().listarServicios();
@@ -81,11 +82,10 @@ public class Reportes {
                     servicios.removeIf(sv -> sv.getIdSegmento() != idSegmento);
                 }
                 filtrarPorFecha(servicios, Servicio::getFechaActivacion, desde, hasta);
-                return filasServicios(servicios);
+                return filasServicios(servicios, new SegmentoDao().listarSegmentos());
 
             case "clientes":
                 ArrayList<Cliente> clientes = new ClienteDao().listarClientes();
-                filtrarPorFecha(clientes, Cliente::getFechaRegistro, desde, hasta);
                 return filasClientes(clientes, new ServicioDao().listarServicios());
 
             default:
@@ -249,13 +249,28 @@ public class Reportes {
     public static ArrayList<LinkedHashMap<String, String>> filasLandings(ArrayList<LandingStation> landings,
                                                                   ArrayList<Segmento> segmentos,
                                                                   ArrayList<Incidencia> incidenciasActivas,
-                                                                  ArrayList<Mantenimiento> mantenimientos) {
+                                                                  ArrayList<Mantenimiento> mantenimientos,
+                                                                  ArrayList<Servicio> servicios) {
         ArrayList<LinkedHashMap<String, String>> filas = new ArrayList<>();
         for (LandingStation l : landings) {
             HashSet<Integer> segmentosLanding = new HashSet<>();
+            int noOperativos = 0;
             for (Segmento s : segmentos) {
                 if (s.getIdOrigen() == l.getIdLandingStation() || s.getIdDestino() == l.getIdLandingStation()) {
                     segmentosLanding.add(s.getIdSegmento());
+                    if (!"Operativo".equals(s.getEstado())) {
+                        noOperativos++;
+                    }
+                }
+            }
+
+            // servicios vigentes que pasan por sus segmentos, y sus clientes
+            ArrayList<String> serviciosLanding = new ArrayList<>();
+            TreeSet<String> clientesLanding = new TreeSet<>();
+            for (Servicio sv : servicios) {
+                if (segmentosLanding.contains(sv.getIdSegmento()) && ServicioDao.esVigente(sv)) {
+                    serviciosLanding.add(valor(sv.getIdentificador()));
+                    clientesLanding.add(valor(sv.getRazonSocial()));
                 }
             }
 
@@ -269,9 +284,10 @@ public class Reportes {
                 }
             }
 
+            // solo los programados (Pendiente o Activo), no los ya finalizados
             int cantidadMantenimientos = 0;
             for (Mantenimiento m : mantenimientos) {
-                if (m.getIdLandingStation() == l.getIdLandingStation()) {
+                if (m.getIdLandingStation() == l.getIdLandingStation() && !"Finalizado".equals(m.getEstado())) {
                     cantidadMantenimientos++;
                 }
             }
@@ -281,16 +297,30 @@ public class Reportes {
             f.put("Nombre", valor(l.getNombre()));
             f.put("Ubicación", valor(l.getCiudad()) + ", " + valor(l.getPais()));
             f.put("Segmentos", String.valueOf(segmentosLanding.size()));
+            f.put("Segmentos no operativos", noOperativos + " de " + segmentosLanding.size());
+            f.put("Servicios", unir(serviciosLanding));
+            f.put("Clientes", unir(clientesLanding));
             f.put("Incidencias activas", String.valueOf(incidencias));
-            f.put("Mantenimientos", String.valueOf(cantidadMantenimientos));
+            f.put("Mantenimientos programados", String.valueOf(cantidadMantenimientos));
             filas.add(f);
         }
         return filas;
     }
 
-    public static ArrayList<LinkedHashMap<String, String>> filasServicios(ArrayList<Servicio> servicios) {
+    public static ArrayList<LinkedHashMap<String, String>> filasServicios(ArrayList<Servicio> servicios,
+                                                                   ArrayList<Segmento> segmentos) {
+        // mismo criterio que la vista de Servicios: si su segmento está en mantenimiento se muestra así
+        HashSet<Integer> segmentosEnMantenimiento = new HashSet<>();
+        for (Segmento s : segmentos) {
+            if ("En mantenimiento".equals(s.getEstado())) {
+                segmentosEnMantenimiento.add(s.getIdSegmento());
+            }
+        }
+
         ArrayList<LinkedHashMap<String, String>> filas = new ArrayList<>();
         for (Servicio sv : servicios) {
+            String estado = segmentosEnMantenimiento.contains(sv.getIdSegmento())
+                    ? "En mantenimiento" : valor(sv.getEstado());
             LinkedHashMap<String, String> f = new LinkedHashMap<>();
             f.put("Servicio", valor(sv.getIdentificador()));
             f.put("Cliente", valor(sv.getRazonSocial()));
@@ -298,7 +328,7 @@ public class Reportes {
             f.put("Capacidad", gbps(sv.getCapacidad()));
             f.put("Activación", fecha(sv.getFechaActivacion()));
             f.put("Caducidad del Servicio", fecha(sv.getFechaCaducidad()));
-            f.put("Estado", valor(sv.getEstado()));
+            f.put("Estado", estado);
             filas.add(f);
         }
         return filas;
@@ -414,8 +444,9 @@ public class Reportes {
         return fecha == null ? "-" : new SimpleDateFormat("dd/MM/yyyy").format(fecha);
     }
 
+    // un valor por línea: en el PDF cada uno sale en su propia línea dentro de la celda
     private static String unir(Collection<String> valores) {
-        return valores.isEmpty() ? "-" : String.join(", ", valores);
+        return valores.isEmpty() ? "-" : String.join("\n", valores);
     }
 
     public static String valor(String texto) {

@@ -220,6 +220,13 @@ public class SupervisorServlet extends HttpServlet {
             volverAReportes(request, response, "fechas");
             return;
         }
+        // Filtros de fecha: no se puede retroceder más de un semestre
+        LocalDate minimoFechas = LocalDate.now().minusMonths(6);
+        if ((desde != null && desde.isBefore(minimoFechas))
+                || (hasta != null && hasta.isBefore(minimoFechas))) {
+            volverAReportes(request, response, "semestre");
+            return;
+        }
 
         ArrayList<String> filtros = new ArrayList<>();
         if (!estado.isEmpty()) {

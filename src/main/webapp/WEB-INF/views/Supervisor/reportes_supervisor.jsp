@@ -10,6 +10,9 @@
         clientes = new ArrayList<>();
         paises = new ArrayList<>();
     }
+    // Filtros de fecha: ambas empiezan en hoy y no se puede retroceder más de un semestre
+    java.time.LocalDate hoy = java.time.LocalDate.now();
+    java.time.LocalDate minimoFechas = hoy.minusMonths(6);
 %>
 <!DOCTYPE html>
 <html lang="es">
@@ -32,6 +35,8 @@
           <div class="alert alert-danger">Marca al menos una columna para generar el reporte.</div>
         <% } else if ("fechas".equals(request.getParameter("error"))) { %>
           <div class="alert alert-danger">Revisa las fechas: la fecha inicial no puede ser posterior a la final.</div>
+        <% } else if ("semestre".equals(request.getParameter("error"))) { %>
+          <div class="alert alert-danger">En los filtros de fecha solo puedes retroceder hasta un semestre (desde el <%=minimoFechas.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))%>).</div>
         <% } %>
 
         <!-- Mantenimientos -->
@@ -73,11 +78,11 @@
                         </div>
                         <div class="col-6 col-md-3">
                             <label class="form-label" for="desdeMant">Programado desde</label>
-                            <input class="form-control" type="date" id="desdeMant" name="desde">
-                        </div>
-                        <div class="col-6 col-md-3">
+                            <input class="form-control mb-2" type="date" id="desdeMant" name="desde"
+                                   value="<%=hoy%>" min="<%=minimoFechas%>">
                             <label class="form-label" for="hastaMant">Programado hasta</label>
-                            <input class="form-control" type="date" id="hastaMant" name="hasta">
+                            <input class="form-control" type="date" id="hastaMant" name="hasta"
+                                   value="<%=hoy%>" min="<%=minimoFechas%>">
                         </div>
                         <div class="col-12 col-md-3 ms-md-auto d-grid">
                             <button type="submit" class="btn btn-primary">Generar PDF</button>
@@ -138,11 +143,11 @@
                         </div>
                         <div class="col-6 col-md-3">
                             <label class="form-label" for="desdeInc">Detectada desde</label>
-                            <input class="form-control" type="date" id="desdeInc" name="desde">
-                        </div>
-                        <div class="col-6 col-md-3">
+                            <input class="form-control mb-2" type="date" id="desdeInc" name="desde"
+                                   value="<%=hoy%>" min="<%=minimoFechas%>">
                             <label class="form-label" for="hastaInc">Detectada hasta</label>
-                            <input class="form-control" type="date" id="hastaInc" name="hasta">
+                            <input class="form-control" type="date" id="hastaInc" name="hasta"
+                                   value="<%=hoy%>" min="<%=minimoFechas%>">
                         </div>
                         <div class="col-12 col-md-3 ms-md-auto d-grid">
                             <button type="submit" class="btn btn-primary">Generar PDF</button>
@@ -210,8 +215,11 @@
                         <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Nombre" id="land2" checked><label class="form-check-label" for="land2">Nombre</label></div></div>
                         <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Ubicación" id="land3" checked><label class="form-check-label" for="land3">Ubicación</label></div></div>
                         <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Segmentos" id="land5" checked><label class="form-check-label" for="land5">Segmentos</label></div></div>
+                        <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Segmentos no operativos" id="land8" checked><label class="form-check-label" for="land8">Segmentos no operativos</label></div></div>
+                        <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Servicios" id="land9" checked><label class="form-check-label" for="land9">Servicios</label></div></div>
+                        <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Clientes" id="land10" checked><label class="form-check-label" for="land10">Clientes</label></div></div>
                         <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Incidencias activas" id="land6" checked><label class="form-check-label" for="land6">Incidencias activas</label></div></div>
-                        <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Mantenimientos" id="land7" checked><label class="form-check-label" for="land7">Mantenimientos</label></div></div>
+                        <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" name="columnas" value="Mantenimientos programados" id="land7" checked><label class="form-check-label" for="land7">Mantenimientos programados</label></div></div>
                     </div>
                     <div class="row g-3 align-items-end">
                             <div class="col-6 col-md-3">
@@ -251,8 +259,9 @@
                             <label class="form-label" for="estadoServ">Estado</label>
                             <select class="form-select" id="estadoServ" name="estado">
                                 <option value="" selected>Todos</option>
-                                                                <option>Funcionando</option>
-                                                                <option>Caído</option>
+                                <option>Funcionando</option>
+                                <option>Caído</option>
+                                <option>En mantenimiento</option>
                             </select>
                         </div>
                         <div class="col-6 col-md-3">
@@ -275,11 +284,11 @@
                         </div>
                         <div class="col-6 col-md-3">
                             <label class="form-label" for="desdeServ">Activado desde</label>
-                            <input class="form-control" type="date" id="desdeServ" name="desde">
-                        </div>
-                        <div class="col-6 col-md-3">
+                            <input class="form-control mb-2" type="date" id="desdeServ" name="desde"
+                                   value="<%=hoy%>" min="<%=minimoFechas%>">
                             <label class="form-label" for="hastaServ">Activado hasta</label>
-                            <input class="form-control" type="date" id="hastaServ" name="hasta">
+                            <input class="form-control" type="date" id="hastaServ" name="hasta"
+                                   value="<%=hoy%>" min="<%=minimoFechas%>">
                         </div>
                         <div class="col-12 col-md-3 ms-md-auto d-grid">
                             <button type="submit" class="btn btn-primary">Generar PDF</button>
@@ -311,14 +320,6 @@
                                 <option>Activo</option>
                                 <option>Inactivo</option>
                             </select>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <label class="form-label" for="desdeCli">Registrado desde</label>
-                            <input class="form-control" type="date" id="desdeCli" name="desde">
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <label class="form-label" for="hastaCli">Registrado hasta</label>
-                            <input class="form-control" type="date" id="hastaCli" name="hasta">
                         </div>
                         <div class="col-12 col-md-3 ms-md-auto d-grid">
                             <button type="submit" class="btn btn-primary">Generar PDF</button>

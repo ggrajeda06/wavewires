@@ -9,8 +9,9 @@
         if (texto == null) {
             return "";
         }
+        // las listas vienen una por línea (para el PDF); en la tabla se muestran separadas por coma
         return texto.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-                .replace("\"", "&quot;").replace("'", "&#39;");
+                .replace("\"", "&quot;").replace("'", "&#39;").replace("\n", ", ");
     }
 
     private String colorBarra(String utilizacion) {
