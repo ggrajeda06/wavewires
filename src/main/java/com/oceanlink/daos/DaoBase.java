@@ -1,22 +1,19 @@
 package com.oceanlink.daos;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 public abstract class DaoBase {
 
     public Connection getConnection() throws SQLException {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            DataSource ds = (DataSource) new InitialContext().lookup("java:comp/env/jdbc/MyDB");
+            return ds.getConnection();
+        } catch (NamingException e) {
+            throw new SQLException("No se encontró el recurso jdbc/MyDB en Tomcat", e);
         }
-
-        // usuario del proyecto: cada integrante lo crea en su MySQL local (ver README / chat del grupo)
-        String user = "oceanlink";
-        String pass = "oceanlink123";
-        String url = "jdbc:mysql://localhost:3306/db_ocealink?serverTimezone=America/Lima";
-        return DriverManager.getConnection(url, user, pass);
     }
 }
