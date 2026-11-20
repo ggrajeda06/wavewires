@@ -105,11 +105,10 @@
               <td><span class="badge <%=colorEstado%>"><%=estadoMostrar%></span></td>
               <td class="text-center">
                 <% if (gestiona) { %>
-                <a href="<%=request.getContextPath()%>/ServicioServlet?action=borrar&id=<%=sv.getIdServicio()%>"
-                   class="btn btn-outline-danger btn-sm px-3"
-                   onclick="return confirm('¿Estás seguro de que deseas eliminar este servicio?');">
+                <button type="button" class="btn btn-outline-danger btn-sm px-3"
+                        data-bs-toggle="modal" data-bs-target="#borrarServicio<%=sv.getIdServicio()%>">
                   <i class="bi bi-trash"></i> Eliminar
-                </a>
+                </button>
                 <% } else { %>
                 <span class="text-muted small">Solo consulta</span>
                 <% } %>
@@ -127,6 +126,32 @@
     </div>
   </main>
 </div>
+
+<%-- Un modal de confirmacion por servicio (sin JavaScript propio) --%>
+<% if (gestiona) {
+     for (Servicio sv : listaServicios) {
+       String nombreServicio = (sv.getIdentificador() != null && !sv.getIdentificador().trim().isEmpty())
+                               ? sv.getIdentificador() : "Servicio " + sv.getIdServicio();
+%>
+<div class="modal fade" id="borrarServicio<%=sv.getIdServicio()%>" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-bottom py-3 px-4">
+        <h5 class="modal-title fw-bold m-0">Eliminar servicio</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body p-4">
+        ¿Estás seguro de que deseas eliminar <b><%=Html.esc(nombreServicio)%></b>? Su capacidad se liberará del segmento.
+      </div>
+      <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
+        <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
+        <a href="<%=request.getContextPath()%>/ServicioServlet?action=borrar&id=<%=sv.getIdServicio()%>" class="btn btn-danger px-3">Sí, eliminar</a>
+      </div>
+    </div>
+  </div>
+</div>
+<%   }
+   } %>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

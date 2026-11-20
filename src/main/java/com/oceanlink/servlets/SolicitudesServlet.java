@@ -50,6 +50,8 @@ public class SolicitudesServlet extends HttpServlet {
                 break;
 
             case "borrar":
+                // borrar: solo el Capacity Planner (el Administrador solo consulta)
+                if (!Seguridad.exigirGestion(request, response, Seguridad.PLANIFICADOR)) return;
                 Solicitudes solicitudBorrar = solicitudesDao.obtenerSolicitud(numero(request.getParameter("id")));
                 if (solicitudBorrar != null && !solicitudesDao.borrarSolicitud(solicitudBorrar.getIdSolicitudCapacidad())) {
                     response.sendRedirect(request.getContextPath() + "/SolicitudesServlet?error=enUso");
@@ -166,7 +168,8 @@ public class SolicitudesServlet extends HttpServlet {
     }
 
     // estados a los que puede pasar una solicitud desde su estado actual (incluye quedarse igual)
-    private ArrayList<String> estadosPermitidos(String estado) {
+    // es public static para que solicitudes.jsp arme el combo de estados con la MISMA regla
+    public static ArrayList<String> estadosPermitidos(String estado) {
         ArrayList<String> estados = new ArrayList<>();
         estados.add(estado);
         if (estado.equals("Registrado")) {

@@ -45,3 +45,37 @@
     }
 }
 
+/* celular: el menu pasa arriba a todo el ancho y sus links se deslizan de lado;
+   el contenido queda debajo usando toda la pantalla */
+@media (max-width: 767.98px) {
+    .sidebar-custom {
+        width: 100%;
+        min-height: auto;
+        flex: 0 0 100%;
+    }
+    .sidebar-custom nav {
+        flex-direction: row !important;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+    .sidebar-custom .sidebar-section-label {
+        display: none;
+    }
+    .sidebar-custom .sidebar-link {
+        white-space: nowrap;
+        margin-right: 0.25rem;
+    }
+    .sidebar-custom .sidebar-link:hover {
+        transform: none;
+    }
+    .sidebar-custom + main {
+        width: 100%;
+        padding: 1rem !important;
+    }
+    /* tablas anchas: se deslizan de lado dentro de su tarjeta en vez de romper la pantalla */
+    .sidebar-custom + main table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}

@@ -74,7 +74,7 @@
                 <td class="text-end">
                   <% if (gestiona) { %>
                   <button type="button" class="btn btn-outline-primary btn-sm px-3"
-                          onclick="abrirModalModificar('<%=s.getIdSegmento()%>', '<%=total%>', '<%=reservada%>')">
+                          data-bs-toggle="modal" data-bs-target="#modificarReserva<%=s.getIdSegmento()%>">
                     <i class="bi bi-pencil-square me-1"></i> Modificar
                   </button>
                   <% } else { %>
@@ -98,32 +98,34 @@
   </main>
 </div>
 
-<%-- Modal para modificar reserva --%>
-<div class="modal fade" id="modalModificarReserva" tabindex="-1" aria-hidden="true">
+<%-- Un modal por segmento para modificar su reserva (sin JavaScript propio) --%>
+<% if (gestiona) {
+     for (Segmento s : listaSegmentos) {
+       String total = s.getCapacidadTotal().stripTrailingZeros().toPlainString();
+       String reservada = s.getCapacidadReservada().stripTrailingZeros().toPlainString();
+%>
+<div class="modal fade" id="modificarReserva<%=s.getIdSegmento()%>" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 380px;">
     <div class="modal-content border-0 shadow rounded-3">
 
       <div class="modal-header border-bottom py-2 px-3">
-        <h6 class="modal-title fw-bold m-0">Modificar cantidad reservada</h6>
+        <h6 class="modal-title fw-bold m-0">Modificar reserva - Segmento <%=s.getIdSegmento()%></h6>
         <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
 
       <form method="POST" action="<%=request.getContextPath()%>/ReservaServlet?action=actualizar">
-        <input type="hidden" name="idSegmento" id="modificarIdSegmento">
+        <input type="hidden" name="idSegmento" value="<%=s.getIdSegmento()%>">
 
         <div class="modal-body p-3">
           <div class="mb-3">
             <label class="form-label small text-muted mb-1">Límite del segmento</label>
-            <input type="text" id="modificarLimite" class="form-control form-control-sm bg-light text-center fw-medium" readonly>
+            <input type="text" class="form-control form-control-sm bg-light text-center fw-medium" value="<%=total%> Gbps" readonly>
           </div>
 
           <div class="mb-2">
             <label class="form-label small fw-semibold mb-1">Capacidad reservada (Gbps)</label>
-            <div class="input-group input-group-sm">
-              <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidad(-10)"><i class="bi bi-dash-lg"></i></button>
-              <input type="number" name="capacidadReservada" id="modificarCantidad" class="form-control text-center fw-bold" min="0" step="0.01" required>
-              <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidad(10)"><i class="bi bi-plus-lg"></i></button>
-            </div>
+            <input type="number" name="capacidadReservada" class="form-control form-control-sm text-center fw-bold"
+                   min="0" max="<%=total%>" step="0.01" value="<%=reservada%>" required>
           </div>
         </div>
 
@@ -136,24 +138,9 @@
     </div>
   </div>
 </div>
+<%   }
+   } %>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-function abrirModalModificar(id, limite, actual) {
-  document.getElementById('modificarIdSegmento').value = id;
-  document.getElementById('modificarLimite').value = limite + ' Gbps';
-  document.getElementById('modificarCantidad').value = actual;
-
-  let modal = new bootstrap.Modal(document.getElementById('modalModificarReserva'));
-  modal.show();
-}
-
-function cambiarCantidad(delta) {
-  let input = document.getElementById('modificarCantidad');
-  let val = parseFloat(input.value) || 0;
-  val = Math.max(0, val + delta);
-  input.value = val;
-}
-</script>
 </body>
 </html>
