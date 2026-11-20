@@ -18,8 +18,22 @@
   String fechaVal = request.getParameter("fecha") != null ? request.getParameter("fecha") : mantenimiento.getFechaRegistrada().toString();
   String duracionVal = request.getParameter("duracion") != null ? request.getParameter("duracion") : String.valueOf(mantenimiento.getDuracionHoras());
   String estadoVal = request.getParameter("estado") != null ? request.getParameter("estado") : mantenimiento.getEstado();
-  String actividadesVal = request.getParameter("actividades") != null ? request.getParameter("actividades")
-          : (mantenimiento.getActividadesRealizadas() == null ? "" : mantenimiento.getActividadesRealizadas());
+  String actividadesVal = (String) request.getAttribute("actividadesEditadas");
+
+  if (actividadesVal == null) {
+      actividadesVal = mantenimiento.getActividadesRealizadas();
+  }
+
+  String[] filasActividades = actividadesVal == null || actividadesVal.isBlank()
+          ? new String[]{""}
+          : actividadesVal.lines()
+                  .filter(linea -> !linea.isBlank())
+                  .toArray(String[]::new);
+  String[] filasTemporales = (String[]) request.getAttribute("filasTemporales");
+
+  if (filasTemporales != null) {
+      filasActividades = filasTemporales;
+  }
   String tipoVal = request.getParameter("tipoMantenimiento") != null ? request.getParameter("tipoMantenimiento") : mantenimiento.getTipo();
   String landingVal = request.getParameter("idLandingStation") != null ? request.getParameter("idLandingStation") : String.valueOf(mantenimiento.getIdLandingStation());
   String segmentoVal = request.getParameter("idSegmento") != null ? request.getParameter("idSegmento") : String.valueOf(mantenimiento.getIdSegmento());
@@ -163,10 +177,35 @@
           </div>
 
           <div class="col-12">
-            <div class="mb-3">
-              <label for="actividades" class="form-label fw-semibold">Actividades realizadas (resultado)</label>
-              <textarea class="form-control" id="actividades" name="actividades" rows="4" placeholder="Describa las actividades realizadas durante el mantenimiento..."><%=Html.esc(actividadesVal)%></textarea>
-            </div>
+            <fieldset class="mb-3">
+              <legend class="form-label fw-semibold fs-6">
+                Actividades realizadas (resultado)
+              </legend>
+               <button type="submit" name="agregarActividad" value="1"
+                       class="btn btn-outline-primary btn-sm mb-2" formnovalidate>
+                 + Agregar actividad
+               </button>
+
+              <ol id="listaActividades" class="ps-4 mb-2">
+                <% for (int i = 0; i < filasActividades.length; i++) { %>
+                  <li class="mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                      <input type="text"
+                             class="form-control"
+                             name="actividades"
+                             aria-label="Actividad <%= i + 1 %>"
+                             value="<%= Html.esc(filasActividades[i]) %>">
+
+                      <button type="submit" name="quitarActividad" value="<%= i + 1 %>"
+                              class="btn btn-outline-secondary btn-sm" formnovalidate>
+                        Quitar
+                      </button>
+                    </div>
+                  </li>
+                <% } %>
+              </ol>
+
+            </fieldset>
           </div>
 
         </div>
@@ -178,5 +217,6 @@
     </div>
   </main>
 </div>
+
 </body>
 </html>

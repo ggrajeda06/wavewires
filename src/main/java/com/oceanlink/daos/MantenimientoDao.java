@@ -88,49 +88,76 @@ public class MantenimientoDao extends DaoBase {
     }
 
     // todo mantenimiento nuevo empieza en Pendiente; los ids en 0 se guardan como NULL
-    public void crearMantenimiento(Mantenimiento m) {
+    public int crearMantenimiento(Mantenimiento m) throws SQLException {
 
-        String sql = "INSERT INTO mantenimiento (nombre, descripcion, tipo, estado, fechaRegistrada, duracionHoras, "
-                + "idLandingStation, idSegmento, idIncidencia) VALUES (?, ?, ?, 'Pendiente', ?, ?, ?, ?, ?)";
-        try (Connection conn = this.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        String sql = """
+        INSERT INTO mantenimiento
+        (nombre, descripcion, tipo, estado, fechaRegistrada,
+         duracionHoras, idLandingStation, idSegmento, idIncidencia)
+        VALUES (?, ?, ?, 'Pendiente', ?, ?, ?, ?, ?)
+        """;
 
-            pstmt.setString(1, m.getNombre());
-            pstmt.setString(2, m.getDescripcion());
-            pstmt.setString(3, m.getTipo());
-            pstmt.setDate(4, m.getFechaRegistrada());
-            pstmt.setInt(5, m.getDuracionHoras());
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
 
-            if (m.getIdLandingStation() == 0) {
-                pstmt.setNull(6, Types.INTEGER);
-            } else {
-                pstmt.setInt(6, m.getIdLandingStation());
+            try (PreparedStatement ps = conn.prepareStatement(
+                    sql, Statement.RETURN_GENERATED_KEYS)) {
+
+                ps.setString(1, m.getNombre());
+                ps.setString(2, m.getDescripcion());
+                ps.setString(3, m.getTipo());
+                ps.setDate(4, m.getFechaRegistrada());
+                ps.setInt(5, m.getDuracionHoras());
+
+                if (m.getIdLandingStation() == 0) {
+                    ps.setNull(6, Types.INTEGER);
+                } else {
+                    ps.setInt(6, m.getIdLandingStation());
+                }
+
+                if (m.getIdSegmento() == 0) {
+                    ps.setNull(7, Types.INTEGER);
+                } else {
+                    ps.setInt(7, m.getIdSegmento());
+                }
+
+                if (m.getIdIncidencia() == 0) {
+                    ps.setNull(8, Types.INTEGER);
+                } else {
+                    ps.setInt(8, m.getIdIncidencia());
+                }
+
+                if (ps.executeUpdate() != 1) {
+                    throw new SQLException("No se pudo registrar el mantenimiento.");
+                }
+
+                int idGenerado;
+
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (!rs.next()) {
+                        throw new SQLException("No se obtuvo el ID del mantenimiento.");
+                    }
+
+                    idGenerado = rs.getInt(1);
+                }
+
+                conn.commit();
+                return idGenerado;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
             }
-
-            if (m.getIdSegmento() == 0) {
-                pstmt.setNull(7, Types.INTEGER);
-            } else {
-                pstmt.setInt(7, m.getIdSegmento());
-            }
-
-            if (m.getIdIncidencia() == 0) {
-                pstmt.setNull(8, Types.INTEGER);
-            } else {
-                pstmt.setInt(8, m.getIdIncidencia());
-            }
-
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
     // el servlet decide que campos se pueden cambiar segun el estado; los ids en 0 se guardan como NULL
-    public void actualizarMantenimiento(Mantenimiento m) {
+    public boolean actualizarMantenimiento(Mantenimiento m, String estadoAnterior)
+            throws SQLException {
 
         String sql = "UPDATE mantenimiento SET nombre = ?, descripcion = ?, tipo = ?, fechaRegistrada = ?, duracionHoras = ?, "
                 + "estado = ?, actividadesRealizadas = ?, idLandingStation = ?, idSegmento = ?, idIncidencia = ? "
-                + "WHERE idMantenimiento = ?";
+                + "WHERE idMantenimiento = ? AND estado = ?";
         try (Connection conn = this.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -161,11 +188,11 @@ public class MantenimientoDao extends DaoBase {
             }
 
             pstmt.setInt(11, m.getIdMantenimiento());
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            pstmt.setString(12, estadoAnterior);
+            return pstmt.executeUpdate() == 1;
         }
     }
+
 
     public void borrarMantenimiento(int idMantenimiento) {
 

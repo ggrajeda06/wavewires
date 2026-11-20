@@ -71,16 +71,6 @@
           <textarea class="form-control" name="observaciones" rows="3" maxlength="1000" placeholder="Opcional"></textarea>
         </div>
 
-        <div class="form-check mb-3">
-          <input class="form-check-input"
-                 type="checkbox"
-                 id="avisarMantenimiento"
-                 name="avisarMantenimiento"
-                 value="1">
-          <label class="form-check-label" for="avisarMantenimiento">
-            Avisar por correo al coordinador de mantenimiento
-          </label>
-        </div>
 
         <div class="d-flex justify-content-end gap-2">
           <a href="<%=request.getContextPath()%>/IncidenciaServlet" class="btn btn-outline-secondary">Cancelar</a>

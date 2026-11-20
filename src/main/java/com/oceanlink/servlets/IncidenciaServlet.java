@@ -185,10 +185,8 @@ public class IncidenciaServlet extends HttpServlet {
                     if (!observacion.isEmpty()) {
                         incidenciaDao.agregarObservacion(idNueva, observacion);
                     }
-                    if ("1".equals(request.getParameter("avisarMantenimiento"))) {
-                        String aviso = avisarNuevaIncidencia(idNueva, severidad, idsSegmentos);
-                        request.getSession().setAttribute("avisoOperacion", aviso);
-                    }
+                    String aviso = avisarNuevaIncidencia(idNueva, severidad, idsSegmentos);
+                    request.getSession().setAttribute("avisoOperacion", aviso);
                     response.sendRedirect(request.getContextPath() + "/IncidenciaServlet?action=ver&id=" + idNueva);
                 }
 
@@ -321,14 +319,68 @@ public class IncidenciaServlet extends HttpServlet {
                 return "Incidencia registrada. No hay coordinadores activos con correo.";
             }
 
-            String asunto = "OceanLink | Nueva incidencia #" + id;
-            String cuerpo = """
-            Se registró la incidencia #%d.
-            Severidad: %s
-            Segmento(s): %s
+            Incidencia incidencia = new IncidenciaDao().obtenerIncidencia(id);
 
-            Ingresa a OceanLink para revisar la incidencia y programar el mantenimiento.
-            """.formatted(id, severidad, segmentos);
+            if (incidencia == null) {
+                return "Incidencia registrada. No se pudo obtener el detalle para el correo.";
+            }
+
+            StringBuilder detalleSegmentos = new StringBuilder();
+
+            for (Segmento segmento :
+                    new SegmentoDao().listarSegmentosPorIncidencia(id)) {
+
+                detalleSegmentos.append("- SEG-")
+                        .append(String.format("%03d", segmento.getIdSegmento()))
+                        .append(" | ")
+                        .append(segmento.getNombreOrigen())
+                        .append(" - ")
+                        .append(segmento.getNombreDestino())
+                        .append("\n");
+            }
+
+            String observaciones = incidencia.getObservaciones();
+
+            if (observaciones == null || observaciones.isBlank()) {
+                observaciones = "Sin observaciones registradas.";
+            }
+
+            String asunto = "OceanLink | Nueva incidencia "
+                    + incidencia.getIdentificador()
+                    + " | Severidad " + incidencia.getSeveridad();
+
+            String cuerpo = """
+        Equipo de Mantenimiento:
+
+        El NOC ha registrado una incidencia que requiere revisión.
+
+        INFORMACIÓN DE LA INCIDENCIA
+        Identificador: %s
+        ID interno: %d
+        Severidad: %s
+        Estado: %s
+        Fecha de registro: %s
+
+        INFRAESTRUCTURA AFECTADA
+        %s
+        OBSERVACIONES
+        %s
+
+        ACCIÓN SOLICITADA
+        Ingresa a OceanLink, revisa la incidencia y registra el
+        mantenimiento correctivo correspondiente.
+
+        OceanLink
+        Notificación automática
+        """.formatted(
+                    incidencia.getIdentificador(),
+                    incidencia.getIdIncidencia(),
+                    incidencia.getSeveridad(),
+                    incidencia.getEstado(),
+                    incidencia.getFechaRegistro(),
+                    detalleSegmentos.toString(),
+                    observaciones
+            );
 
             CorreoService correo = new CorreoService();
             int enviados = 0;

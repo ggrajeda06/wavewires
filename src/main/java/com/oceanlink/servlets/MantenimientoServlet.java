@@ -16,6 +16,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -26,7 +27,6 @@ import com.oceanlink.util.Seguridad;
 import com.oceanlink.daos.UsuarioDao;
 import com.oceanlink.services.CorreoService;
 import jakarta.mail.MessagingException;
-import java.sql.SQLException;
 
 @WebServlet(name = "MantenimientoServlet", value = "/MantenimientoServlet")
 public class MantenimientoServlet extends HttpServlet {
@@ -164,9 +164,31 @@ public class MantenimientoServlet extends HttpServlet {
                 }
 
                 nuevo.setFechaRegistrada(Date.valueOf(fecha));
-                mantenimientoDao.crearMantenimiento(nuevo);
+
+                try {
+                    int idMantenimiento = mantenimientoDao.crearMantenimiento(nuevo);
+
+                    nuevo.setIdMantenimiento(idMantenimiento);
+                    nuevo.setEstado("Pendiente");
+
+                } catch (SQLException e) {
+                    getServletContext().log("Error al registrar el mantenimiento", e);
+
+                    mostrarFormCrear(
+                            request,
+                            response,
+                            "No se pudo registrar el mantenimiento. Revisa los datos."
+                    );
+                    break;
+                }
+
                 programarIncidencia(nuevo.getIdIncidencia());
-                response.sendRedirect(request.getContextPath() + "/MantenimientoServlet");
+
+                request.getSession().setAttribute(
+                        "avisoNoc", "Mantenimiento registrado como pendiente.");
+
+                response.sendRedirect(request.getContextPath()
+                        + "/MantenimientoServlet?action=ver&id=" + nuevo.getIdMantenimiento());
                 break;
 
             case "actualizar":
@@ -179,6 +201,32 @@ public class MantenimientoServlet extends HttpServlet {
                 if (actual.getEstado().equals("Finalizado")) {
                     response.sendRedirect(request.getContextPath() + "/MantenimientoServlet?action=ver&id=" + actual.getIdMantenimiento());
                     break;
+                }
+
+                boolean agregarFila = request.getParameter("agregarActividad") != null;
+                String filaParaQuitar = request.getParameter("quitarActividad");
+
+                if (agregarFila || filaParaQuitar != null) {
+                    // Recupera todo lo que el usuario ha escrito hasta este momento.
+                    String[] recibidas = request.getParameterValues("actividades");
+                    ArrayList<String> filas = new ArrayList<>();
+
+                    if (recibidas != null) {
+                        java.util.Collections.addAll(filas, recibidas);
+                    }
+
+                    if (agregarFila) {
+                        filas.add("");
+                    } else {
+                        int posicion = numero(filaParaQuitar);
+                        if (posicion >= 1 && posicion <= filas.size()) {
+                            filas.remove(posicion - 1);
+                        }
+                    }
+
+                    request.setAttribute("filasTemporales", filas.toArray(new String[0]));
+                    mostrarFormEditar(request, response, actual, null);
+                    return;
                 }
 
                 String estadoAnterior = actual.getEstado();
@@ -224,12 +272,7 @@ public class MantenimientoServlet extends HttpServlet {
                     String aviso;
                     try {
                         boolean restaurada = mantenimientoDao.finalizarCorrectivo(actual);
-
-                        if (restaurada) {
-                            aviso = avisarRestauracionAlNoc(actual);
-                        } else {
-                            aviso = "Correctivo finalizado. La incidencia sigue sin pasar a Servicio restaurado.";
-                        }
+                        aviso = enviarAvisoMantenimientoAlNoc(actual, restaurada);
                     } catch (SQLException e) {
                         getServletContext().log(
                                 "Error al finalizar el correctivo #" + actual.getIdMantenimiento(), e);
@@ -242,7 +285,25 @@ public class MantenimientoServlet extends HttpServlet {
                     break;
                 }
 
-                mantenimientoDao.actualizarMantenimiento(actual);
+                try {
+                    boolean guardado = mantenimientoDao.actualizarMantenimiento(
+                            actual, estadoAnterior);
+
+                    if (!guardado) {
+                        request.getSession().setAttribute("avisoNoc",
+                                "El mantenimiento cambió. Revisa su estado actual.");
+                        response.sendRedirect(request.getContextPath()
+                                + "/MantenimientoServlet?action=ver&id=" + actual.getIdMantenimiento());
+                        break;
+                    }
+                } catch (SQLException e) {
+                    getServletContext().log("Error al actualizar el mantenimiento", e);
+                    request.getSession().setAttribute("avisoNoc",
+                            "No se pudo guardar el cambio de mantenimiento.");
+                    response.sendRedirect(request.getContextPath()
+                            + "/MantenimientoServlet?action=ver&id=" + actual.getIdMantenimiento());
+                    break;
+                }
 
                 // si cambio la incidencia ligada, la anterior se suelta y la nueva pasa a Reparacion programada
                 if (incidenciaAnterior != actual.getIdIncidencia()) {
@@ -254,6 +315,14 @@ public class MantenimientoServlet extends HttpServlet {
                 if (!estadoEdit.equals(estadoAnterior) && actual.getIdIncidencia() > 0) {
                     actualizarIncidencia(actual, mantenimientoDao, incidenciaDao);
                 }
+                if ("Pendiente".equals(estadoAnterior)
+                        && "Activo".equals(estadoEdit)
+                        && "Correctivo".equals(actual.getTipo())
+                        && actual.getIdIncidencia() > 0) {
+
+                    String avisoInicio = enviarAvisoMantenimientoAlNoc(actual, false);
+                    request.getSession().setAttribute("avisoNoc", avisoInicio);
+                }
                 response.sendRedirect(request.getContextPath() + "/MantenimientoServlet?action=ver&id=" + actual.getIdMantenimiento());
                 break;
 
@@ -263,29 +332,111 @@ public class MantenimientoServlet extends HttpServlet {
         }
     }
 
-    private String avisarRestauracionAlNoc(Mantenimiento m) {
-        int idIncidencia = m.getIdIncidencia();
-        int idMantenimiento = m.getIdMantenimiento();
+    private String enviarAvisoMantenimientoAlNoc(
+            Mantenimiento m, boolean restaurada) {
+
+        boolean finalizado = "Finalizado".equals(m.getEstado());
+        String evento = finalizado ? "Mantenimiento finalizado" : "Mantenimiento iniciado";
+        String resultadoOperacion = evento + ".";
+
+        Incidencia incidencia =
+                new IncidenciaDao().obtenerIncidencia(m.getIdIncidencia());
+
+        if (incidencia == null) {
+            return resultadoOperacion
+                    + " No se pudo obtener la incidencia para preparar el correo.";
+        }
+
+        String introduccion;
+        String accion;
+
+        if (restaurada) {
+            introduccion = "Finalizó el último correctivo y la incidencia pasó a Servicio restaurado.";
+            accion = "Verifica los servicios afectados y, si corresponde, cierra la incidencia.";
+        } else if (finalizado) {
+            introduccion = "Finalizó este correctivo. La incidencia continúa en seguimiento.";
+            accion = "Revisa los demás correctivos asociados a la incidencia.";
+        } else {
+            introduccion = "El correctivo pasó a Activo y el equipo de Mantenimiento inició la atención.";
+            accion = "Puedes consultar el avance en OceanLink.";
+        }
+
+        String actividades = m.getActividadesRealizadas();
+
+        if (actividades == null || actividades.isBlank()) {
+            actividades = "Todavía no se registran actividades realizadas.";
+        }
+
+        String observaciones = incidencia.getObservaciones();
+
+        if (observaciones == null || observaciones.isBlank()) {
+            observaciones = "Sin observaciones registradas.";
+        }
+
+        String asunto = "OceanLink | " + evento
+                + " | " + incidencia.getIdentificador()
+                + " | Mantenimiento #" + m.getIdMantenimiento();
+
+        String cuerpo = """
+            Equipo NOC:
+
+            %s
+
+            INFORMACIÓN DE LA INCIDENCIA
+            Identificador: %s
+            Severidad: %s
+            Estado actual: %s
+            Fecha de registro: %s
+
+            OBSERVACIONES DE LA INCIDENCIA
+            %s
+
+            INFORMACIÓN DEL MANTENIMIENTO
+            ID: %d
+            Nombre: %s
+            Tipo: %s
+            Estado: %s
+            Infraestructura: %s
+            Fecha programada: %s
+            Duración estimada: %d horas
+
+            DESCRIPCIÓN DEL TRABAJO
+            %s
+
+            ACTIVIDADES REALIZADAS
+            %s
+
+            ACCIÓN SOLICITADA AL NOC
+            %s
+
+            OceanLink
+            Notificación automática
+            """.formatted(
+                introduccion,
+                incidencia.getIdentificador(),
+                incidencia.getSeveridad(),
+                incidencia.getEstado(),
+                incidencia.getFechaRegistro(),
+                observaciones,
+                m.getIdMantenimiento(),
+                m.getNombre(),
+                m.getTipo(),
+                m.getEstado(),
+                textoInfraestructura(m),
+                m.getFechaRegistrada(),
+                m.getDuracionHoras(),
+                m.getDescripcion(),
+                actividades,
+                accion
+        );
 
         try {
             var destinos = new UsuarioDao().listarCorreosNoc();
 
             if (destinos.isEmpty()) {
-                return "Incidencia restaurada. No hay operadores NOC activos con correo.";
+                return resultadoOperacion
+                        + " No hay operadores NOC activos con correo.";
             }
-
-            String asunto = "OceanLink | Incidencia #" + idIncidencia
-                    + " restaurada | Revisión NOC";
-
-            String cuerpo = """
-                Equipo NOC:
-
-                Finalizó el mantenimiento correctivo #%d.
-                La incidencia #%d pasó al estado «Servicio restaurado».
-
-                Ingresa a OceanLink, revisa el servicio restaurado
-               
-                """.formatted(idMantenimiento, idIncidencia);
 
             CorreoService correo = new CorreoService();
             int enviados = 0;
@@ -296,17 +447,25 @@ public class MantenimientoServlet extends HttpServlet {
                     enviados++;
                 } catch (MessagingException | IllegalStateException e) {
                     getServletContext().log(
-                            "Error de correo al avisar al NOC por incidencia #" + idIncidencia, e);
+                            "Falló el aviso al NOC del mantenimiento #"
+                                    + m.getIdMantenimiento(), e);
                 }
             }
 
-            return "Incidencia restaurada. Alertas enviadas al NOC: "
+            return resultadoOperacion + " Alertas enviadas al NOC: "
                     + enviados + " de " + destinos.size() + ".";
 
         } catch (SQLException e) {
-            getServletContext().log("Error al consultar los correos del NOC", e);
-            return "Incidencia restaurada. No se pudo consultar el correo del NOC.";
+            getServletContext().log(
+                    "Error al consultar los destinatarios del NOC", e);
+
+            return resultadoOperacion
+                    + " No se pudo consultar el correo del NOC.";
         }
+    }
+
+    private String avisarRestauracionAlNoc(Mantenimiento m) {
+        return enviarAvisoMantenimientoAlNoc(m, true);
     }
 
 
